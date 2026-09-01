@@ -29,17 +29,17 @@ import {
   ChevronRight,
   Globe,
   Database,
-  User,
-  Calendar as CalendarIcon,
-  Ruler,
   ShieldCheck,
-  Check,
+  Smartphone,
+  Info,
+  Sliders,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAdContext } from '../context/AdContext';
 import { showRewardedAdWithConsent } from '../services/AdManager';
 import { getCurrentLanguage, setAppLanguage } from '../i18n';
 import { useAppTheme, MOOD_THEME_PALETTES, MoodThemeKey } from '../context/ThemeContext';
+import { DestyaStudioFooter } from '../components/DestyaStudioFooter';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -48,22 +48,21 @@ export default function SettingsScreen() {
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
-  const cyclePreferences = useAppStore((state) => state.cyclePreferences);
   const periods = useAppStore((state) => state.periods);
-  const dailyCheckIns = useAppStore((state) => state.dailyCheckIns);
   const meals = useAppStore((state) => state.meals);
   const activities = useAppStore((state) => state.activities);
-  const measurements = useAppStore((state) => state.measurements);
   const setUserProfile = useAppStore((state) => state.setUserProfile);
   const resetStore = useAppStore((state) => state.resetStore);
   const seedMockData = useAppStore((state) => state.seedMockData);
 
-  // States
+  // Settings States
   const [apiKey, setApiKey] = useState(userProfile?.groqApiKey || '');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [cycleAlertsEnabled, setCycleAlertsEnabled] = useState(true);
   const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
   const [savedKeySuccess, setSavedKeySuccess] = useState(false);
   const [currentLang, setCurrentLangState] = useState('en');
+  const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric');
 
   React.useEffect(() => {
     getCurrentLanguage().then(setCurrentLangState);
@@ -72,7 +71,7 @@ export default function SettingsScreen() {
   const handleLanguageChange = (lang: string) => {
     setCurrentLangState(lang);
     setAppLanguage(lang);
-    Alert.alert('Language Updated', `App language set to ${lang.toUpperCase()}.`);
+    Alert.alert('Language Updated', `App display language updated to ${lang.toUpperCase()}.`);
   };
 
   const handleRestorePurchases = () => {
@@ -102,7 +101,7 @@ export default function SettingsScreen() {
   const handleResetData = () => {
     Alert.alert(
       'Reset All App Data?',
-      'This will delete all logged meals, workouts, weight records, and period history. This action cannot be undone.',
+      'This will permanently delete all logged meals, workouts, weight records, and period history. This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -121,81 +120,118 @@ export default function SettingsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
 
-        {/* Top Header Bar */}
+        {/* Top Navigation Header */}
         <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <ArrowLeft color={colors.text} size={22} />
           </Pressable>
           <View style={{ alignItems: 'center' }}>
-            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Settings</Typography>
-            <Typography variant="caption" color={colors.subtext}>Sini AI Preferences</Typography>
+            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>App Settings</Typography>
+            <Typography variant="caption" color={colors.subtext}>Sini AI System & Preferences</Typography>
           </View>
           <View style={{ width: 36 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* SECTION 1: ACCOUNT & PROFILE NAVIGATION */}
+          {/* SECTION 1: APPEARANCE & THEMES */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            ACCOUNT & PROFILE
+            APPEARANCE & PALETTE
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
-            <Pressable
-              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={() => router.push('/edit-profile')}
-            >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg }]}>
-                <User size={18} color={PALETTE.terracotta.default} />
+            <View style={styles.cardPadding}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
+                  <Palette size={18} color={PALETTE.plum.default} />
+                </View>
+                <View style={{ marginLeft: 10, flex: 1 }}>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>App Theme & Mood</Typography>
+                  <Typography variant="caption" color={colors.subtext}>Match your visual theme to your rhythm</Typography>
+                </View>
               </View>
-              <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Profile & Goals</Typography>
-                <Typography variant="caption" color={colors.subtext}>
-                  {(userProfile?.name || 'Sarah')} · {(userProfile?.weightGoal || 'wellness').toUpperCase()}
-                </Typography>
-              </View>
-              <ChevronRight size={18} color={colors.subtext} />
-            </Pressable>
 
-            <View style={styles.rowSeparator} />
-
-            <Pressable
-              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={() => router.push('/cycle')}
-            >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.rose.bg }]}>
-                <CalendarIcon size={18} color={PALETTE.rose.default} />
+              <View style={styles.themeGrid}>
+                {(Object.keys(MOOD_THEME_PALETTES) as MoodThemeKey[]).map((key) => {
+                  const item = MOOD_THEME_PALETTES[key];
+                  const isSelected = themeKey === key;
+                  return (
+                    <Pressable
+                      key={key}
+                      onPress={() => setThemeKey(key)}
+                      style={[
+                        styles.themeChip,
+                        {
+                          borderColor: isSelected ? PALETTE.plum.default : colors.border,
+                          backgroundColor: isSelected
+                            ? (isDark ? PALETTE.darkBg : PALETTE.oat.default)
+                            : (isDark ? PALETTE.darkCard : PALETTE.cream),
+                        },
+                      ]}
+                    >
+                      <Text style={{ fontSize: 16, marginRight: 6 }}>{item.icon}</Text>
+                      <Typography
+                        variant="caption"
+                        style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
+                        color={isSelected ? PALETTE.plum.default : colors.text}
+                      >
+                        {item.name}
+                      </Typography>
+                    </Pressable>
+                  );
+                })}
               </View>
-              <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Cycle Parameters</Typography>
-                <Typography variant="caption" color={colors.subtext}>
-                  {cyclePreferences?.typicalCycleLength || 28}d cycle · {cyclePreferences?.typicalPeriodDuration || 5}d period
-                </Typography>
-              </View>
-              <ChevronRight size={18} color={colors.subtext} />
-            </Pressable>
-
-            <View style={styles.rowSeparator} />
-
-            <Pressable
-              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={() => router.push('/bmi')}
-            >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg }]}>
-                <Ruler size={18} color={PALETTE.sage.default} />
-              </View>
-              <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>BMI & Biometrics</Typography>
-                <Typography variant="caption" color={colors.subtext}>
-                  {userProfile?.height || 165} cm · {measurements[0]?.weight || 62} kg
-                </Typography>
-              </View>
-              <ChevronRight size={18} color={colors.subtext} />
-            </Pressable>
+            </View>
           </View>
 
-          {/* SECTION 2: AI ENGINE INTEGRATION */}
+          {/* SECTION 2: NOTIFICATIONS & REMINDERS */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            AI & INTELLIGENCE
+            NOTIFICATIONS & ALERTS
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.cardPadding}>
+
+              <View style={styles.settingRowInline}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.gold.bg, marginRight: 10 }]}>
+                    <Bell size={18} color={PALETTE.gold.default} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Daily Target Reminders</Typography>
+                    <Typography variant="caption" color={colors.subtext}>Gentle check-in & hydration notifications</Typography>
+                  </View>
+                </View>
+                <Switch
+                  value={notificationsEnabled}
+                  onValueChange={setNotificationsEnabled}
+                  trackColor={{ false: colors.border, true: PALETTE.plum.default }}
+                />
+              </View>
+
+              <View style={styles.rowSeparatorInCard} />
+
+              <View style={styles.settingRowInline}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.rose.bg, marginRight: 10 }]}>
+                    <Sparkles size={18} color={PALETTE.rose.default} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Cycle Phase Change Alerts</Typography>
+                    <Typography variant="caption" color={colors.subtext}>Notify when entering new cycle phase</Typography>
+                  </View>
+                </View>
+                <Switch
+                  value={cycleAlertsEnabled}
+                  onValueChange={setCycleAlertsEnabled}
+                  trackColor={{ false: colors.border, true: PALETTE.plum.default }}
+                />
+              </View>
+
+            </View>
+          </View>
+
+          {/* SECTION 3: AI ENGINE & PRIVACY */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            AI & CLOUD INTEGRATION
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
@@ -204,9 +240,9 @@ export default function SettingsScreen() {
                   <Key size={18} color={PALETTE.plum.default} />
                 </View>
                 <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Groq Cloud AI Engine</Typography>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Groq Cloud AI Key</Typography>
                   <Typography variant="caption" color={apiKey ? PALETTE.sage.default : colors.subtext}>
-                    {apiKey ? '✓ API Key Connected (Dynamic NLP Active)' : 'Local Fallback Engine Active'}
+                    {apiKey ? '✓ Custom Key Connected (Dynamic NLP Active)' : 'Using Local Regex Fallback Engine'}
                   </Typography>
                 </View>
               </View>
@@ -221,7 +257,7 @@ export default function SettingsScreen() {
 
               {savedKeySuccess && (
                 <Typography variant="caption" color={PALETTE.sage.default} style={{ marginTop: 2, fontFamily: 'Outfit-Bold' }}>
-                  ✓ Key Auto-Saved!
+                  ✓ API Key Saved Locally!
                 </Typography>
               )}
 
@@ -237,77 +273,20 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* SECTION 3: APPEARANCE & PREFERENCES */}
+          {/* SECTION 4: LANGUAGE & REGIONAL PREFERENCES */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            APPEARANCE & NOTIFICATIONS
+            LANGUAGE & REGION
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
-              <View style={styles.settingRowInline}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.gold.bg, marginRight: 10 }]}>
-                    <Bell size={18} color={PALETTE.gold.default} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Daily Target Reminders</Typography>
-                    <Typography variant="caption" color={colors.subtext}>Check-in & hydration alerts</Typography>
-                  </View>
-                </View>
-                <Switch
-                  value={notificationsEnabled}
-                  onValueChange={setNotificationsEnabled}
-                  trackColor={{ false: colors.border, true: PALETTE.plum.default }}
-                />
-              </View>
-
-              <View style={styles.rowSeparatorInCard} />
-
-              <View style={{ marginVertical: 4 }}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginBottom: 8 }}>
-                  Mood & Rhythm Theme
-                </Typography>
-                <View style={styles.themeGrid}>
-                  {(Object.keys(MOOD_THEME_PALETTES) as MoodThemeKey[]).map((key) => {
-                    const item = MOOD_THEME_PALETTES[key];
-                    const isSelected = themeKey === key;
-                    return (
-                      <Pressable
-                        key={key}
-                        onPress={() => setThemeKey(key)}
-                        style={[
-                          styles.themeChip,
-                          {
-                            borderColor: isSelected ? PALETTE.plum.default : colors.border,
-                            backgroundColor: isSelected
-                              ? (isDark ? PALETTE.darkBg : PALETTE.oat.default)
-                              : (isDark ? PALETTE.darkCard : PALETTE.cream),
-                          },
-                        ]}
-                      >
-                        <Text style={{ fontSize: 16, marginRight: 6 }}>{item.icon}</Text>
-                        <Typography
-                          variant="caption"
-                          style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
-                          color={isSelected ? PALETTE.plum.default : colors.text}
-                        >
-                          {item.name}
-                        </Typography>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-
-              <View style={styles.rowSeparatorInCard} />
-
               <View style={styles.settingRowInline}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
                   <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg, marginRight: 10 }]}>
                     <Globe size={18} color={PALETTE.sage.default} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>App Language</Typography>
-                    <Typography variant="caption" color={colors.subtext}>Primary display language</Typography>
+                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Display Language</Typography>
+                    <Typography variant="caption" color={colors.subtext}>App interface language</Typography>
                   </View>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -332,12 +311,49 @@ export default function SettingsScreen() {
                 </View>
               </View>
 
+              <View style={styles.rowSeparatorInCard} />
+
+              <View style={styles.settingRowInline}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg, marginRight: 10 }]}>
+                    <Sliders size={18} color={PALETTE.terracotta.default} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Measurement Units</Typography>
+                    <Typography variant="caption" color={colors.subtext}>Weight (kg/lbs) & Height (cm/in)</Typography>
+                  </View>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                  <Pressable
+                    onPress={() => setUnitSystem('metric')}
+                    style={[
+                      styles.langPill,
+                      { backgroundColor: unitSystem === 'metric' ? PALETTE.plum.default : colors.border },
+                    ]}
+                  >
+                    <Typography variant="caption" color={unitSystem === 'metric' ? PALETTE.oat.default : colors.text} style={{ fontFamily: 'Outfit-Bold' }}>
+                      METRIC
+                    </Typography>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setUnitSystem('imperial')}
+                    style={[
+                      styles.langPill,
+                      { backgroundColor: unitSystem === 'imperial' ? PALETTE.plum.default : colors.border },
+                    ]}
+                  >
+                    <Typography variant="caption" color={unitSystem === 'imperial' ? PALETTE.oat.default : colors.text} style={{ fontFamily: 'Outfit-Bold' }}>
+                      IMPERIAL
+                    </Typography>
+                  </Pressable>
+                </View>
+              </View>
             </View>
           </View>
 
-          {/* SECTION 4: MEMBERSHIP & EXPERIENCE */}
+          {/* SECTION 5: MEMBERSHIP & AD EXPERIENCE */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            MEMBERSHIP & AD EXPERIENCE
+            MEMBERSHIP & AD-FREE STATUS
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
@@ -348,7 +364,7 @@ export default function SettingsScreen() {
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Ad-Free Experience</Typography>
                   <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : colors.subtext}>
-                    {isAdFree ? '✨ AD-FREE ACTIVE' : 'Free Tier (Non-intrusive ads)'}
+                    {isAdFree ? '✨ AD-FREE UNLOCKED' : 'Free Tier (Non-intrusive banner ads)'}
                   </Typography>
                 </View>
               </View>
@@ -370,9 +386,9 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* SECTION 5: DIAGNOSTICS & RESET */}
+          {/* SECTION 6: SYSTEM, DATA & RESET */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            SYSTEM & DATA
+            DATA & SYSTEM DIAGNOSTICS
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
@@ -381,7 +397,7 @@ export default function SettingsScreen() {
                   <Database size={18} color={PALETTE.sage.default} />
                 </View>
                 <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Data Cache Summary</Typography>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Local Storage Summary</Typography>
                   <Typography variant="caption" color={colors.subtext}>
                     {meals.length} meals · {activities.length} workouts · {periods.length} cycle logs
                   </Typography>
@@ -390,7 +406,7 @@ export default function SettingsScreen() {
 
               <View style={{ gap: 10, marginTop: 10 }}>
                 <Button
-                  title="🧪 Seed 45-Day Demo Mock Data"
+                  title="🧪 Seed 45-Day Mock Testing Data"
                   variant="outline"
                   onPress={() => {
                     seedMockData();
@@ -407,6 +423,18 @@ export default function SettingsScreen() {
             </View>
           </View>
 
+          {/* APP ABOUT & FOOTER */}
+          <View style={styles.aboutFooterBox}>
+            <Typography variant="caption" color={colors.subtext} style={{ fontFamily: 'Outfit-Bold' }}>
+              Sini AI: Cycle & Fitness v1.0.0
+            </Typography>
+            <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
+              100% Client-Side Privacy · Destya Studio
+            </Typography>
+          </View>
+
+          <DestyaStudioFooter />
+
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -421,7 +449,7 @@ export default function SettingsScreen() {
               </Typography>
             </View>
 
-            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 8, lineHeight: 22 }}>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 12, lineHeight: 22 }}>
               1. Visit console.groq.com on your phone or PC.{"\n"}
               2. Sign up for a free developer account.{"\n"}
               3. Navigate to API Keys and tap "Create API Key".{"\n"}
@@ -452,6 +480,9 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm + 4,
     borderBottomWidth: 1,
   },
+  headerTitle: {
+    fontFamily: 'Outfit-Bold',
+  },
   backBtn: {
     padding: 6,
   },
@@ -480,32 +511,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.sm,
   },
-  rowItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.md,
-  },
-  pressedRow: {
-    opacity: 0.75,
-  },
   rowIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  rowTextCol: {
-    flex: 1,
-    marginLeft: SPACING.sm,
-  },
-  rowTitle: {
-    fontFamily: 'Outfit-Bold',
-  },
-  rowSeparator: {
-    height: 1,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    marginLeft: 62,
   },
   rowSeparatorInCard: {
     height: 1,
@@ -540,6 +551,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
+  },
+  aboutFooterBox: {
+    alignItems: 'center',
+    marginVertical: SPACING.md,
   },
   modalOverlay: {
     flex: 1,
