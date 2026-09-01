@@ -1,6 +1,7 @@
 import { callGroqAPI, callGroqChatAPI } from './groqClient';
 import { parseLocalInput, ParsedLogResult } from './regexParser';
 import { CoachingContext, ChatMessage } from '../../types';
+import { getCurrentLanguage, LANGUAGE_NAMES } from '../../i18n';
 import {
   INSIGHT_SYSTEM_PROMPT,
   CHAT_SYSTEM_PROMPT,
@@ -94,8 +95,13 @@ export async function generateDailyInsight(
   }
 
   try {
+    const activeLang = await getCurrentLanguage();
+    const langName = LANGUAGE_NAMES[activeLang] || 'English';
+    const langInstruction = `CRITICAL LANGUAGE INSTRUCTION: You MUST write the daily insight 100% in ${langName}.`;
+    const fullSystemPrompt = `${INSIGHT_SYSTEM_PROMPT}\n\n${langInstruction}`;
+
     const userPrompt = `Today's Context: ${JSON.stringify(context)}. Give me today's insight. Return a JSON object with this key: "insight": "your text".`;
-    const jsonReply = await callGroqAPI(userPrompt, INSIGHT_SYSTEM_PROMPT, resolvedApiKey);
+    const jsonReply = await callGroqAPI(userPrompt, fullSystemPrompt, resolvedApiKey);
     const parsed = JSON.parse(jsonReply.trim());
     return parsed.insight || generateLocalFallbackInsight(context);
   } catch (error) {
@@ -119,8 +125,12 @@ export async function answerCoachQuestion(
   }
 
   try {
+    const activeLang = await getCurrentLanguage();
+    const langName = LANGUAGE_NAMES[activeLang] || 'English';
+    const langInstruction = `CRITICAL LANGUAGE INSTRUCTION: The user's preferred language is ${langName} (${activeLang}). You MUST answer 100% in ${langName}. All advice and explanations must be translated to ${langName}.`;
+
     const recentHistory = history.slice(-10);
-    const systemPrompt = `${CHAT_SYSTEM_PROMPT}\n\nToday's Context:\n${JSON.stringify(context)}`;
+    const systemPrompt = `${CHAT_SYSTEM_PROMPT}\n\n${langInstruction}\n\nToday's Context:\n${JSON.stringify(context)}`;
     const messages = [
       { role: 'system', content: systemPrompt },
       ...recentHistory.map((m) => ({

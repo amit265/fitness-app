@@ -10,6 +10,7 @@ import {
   Switch,
   Platform,
   KeyboardAvoidingView,
+  Text,
 } from 'react-native';
 import { Typography } from '../components/Typography';
 import { Card } from '../components/Card';
@@ -34,12 +35,12 @@ import { useRouter } from 'expo-router';
 import { useAdContext } from '../context/AdContext';
 import { showRewardedAdWithConsent } from '../services/AdManager';
 import { getCurrentLanguage, setAppLanguage } from '../i18n';
-import { useAppTheme } from '../context/ThemeContext';
+import { useAppTheme, MOOD_THEME_PALETTES, MoodThemeKey } from '../context/ThemeContext';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { isAdFree, grantAdFreeHours, setPremiumStatus } = useAdContext();
-  const { themePreference, isDark, setThemePreference } = useAppTheme();
+  const { themeKey, isDark, setThemeKey } = useAppTheme();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -215,39 +216,47 @@ export default function SettingsScreen() {
 
             <View style={styles.toggleRow}>
               <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium">Appearance Theme</Typography>
+                <Typography variant="bodyMedium">Mood & Rhythm App Palette</Typography>
                 <Typography variant="caption" color={PALETTE.charcoal.light}>
-                  Default is System, or force Light/Dark mode.
+                  Sync your app colors with your daily mood or cycle phase.
                 </Typography>
               </View>
             </View>
 
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4, marginBottom: 12 }}>
-              {[
-                { key: 'system', label: '📱 System' },
-                { key: 'light', label: '☀️ Light' },
-                { key: 'dark', label: '🌙 Dark' },
-              ].map((t) => (
-                <Pressable
-                  key={t.key}
-                  onPress={() => setThemePreference(t.key as any)}
-                  style={{
-                    flex: 1,
-                    paddingVertical: 8,
-                    borderRadius: 12,
-                    alignItems: 'center',
-                    backgroundColor: themePreference === t.key ? PALETTE.sage.default : isDark ? '#2E2B28' : '#ECE9E4',
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    color={themePreference === t.key ? PALETTE.white : isDark ? PALETTE.cream : PALETTE.charcoal.default}
-                    style={{ fontFamily: 'Outfit-Bold' }}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6, marginBottom: 16 }}>
+              {(Object.keys(MOOD_THEME_PALETTES) as MoodThemeKey[]).map((key) => {
+                const item = MOOD_THEME_PALETTES[key];
+                const isSelected = themeKey === key;
+                return (
+                  <Pressable
+                    key={key}
+                    onPress={() => setThemeKey(key)}
+                    style={{
+                      width: '48%',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: 10,
+                      borderRadius: 14,
+                      borderWidth: isSelected ? 2 : 1,
+                      borderColor: isSelected ? PALETTE.sage.default : isDark ? '#2E2B28' : '#ECE9E4',
+                      backgroundColor: isSelected
+                        ? isDark ? '#2A2724' : '#F4F8F5'
+                        : isDark ? '#1F1C1A' : '#FAF8F5',
+                    }}
                   >
-                    {t.label}
-                  </Typography>
-                </Pressable>
-              ))}
+                    <Text style={{ fontSize: 18, marginRight: 8 }}>{item.icon}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Typography
+                        variant="caption"
+                        style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
+                        color={isSelected ? PALETTE.sage.default : isDark ? PALETTE.cream : PALETTE.charcoal.default}
+                      >
+                        {item.name}
+                      </Typography>
+                    </View>
+                  </Pressable>
+                );
+              })}
             </View>
 
             <View style={[styles.toggleRow, { borderBottomWidth: 0 }]}>

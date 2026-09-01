@@ -22,6 +22,7 @@ import { getWeightTrend } from '../../utils/trends';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { calculateDailyCalorieTarget } from '../../domain/calories/calorieEngine';
 import { diffInDays, getTodayStr } from '../../utils/date';
+import { NativeAdComponent } from '../../services/AdManager';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -258,6 +259,9 @@ export default function ProgressScreen() {
             Health trends, BMI & wellness patterns
           </Typography>
         </View>
+
+        {/* Native Ad Placement matching Section 13C */}
+        <NativeAdComponent />
 
         {/* 1. "What Actually Matters" Summary Dashboard */}
         <Card style={styles.mattersCard}>
