@@ -34,12 +34,12 @@ import { useRouter } from 'expo-router';
 import { useAdContext } from '../context/AdContext';
 import { showRewardedAdWithConsent } from '../services/AdManager';
 import { getCurrentLanguage, setAppLanguage } from '../i18n';
+import { useAppTheme } from '../context/ThemeContext';
 
 export default function SettingsScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
   const router = useRouter();
   const { isAdFree, grantAdFreeHours, setPremiumStatus } = useAdContext();
+  const { themePreference, isDark, setThemePreference } = useAppTheme();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -196,7 +196,7 @@ export default function SettingsScreen() {
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Bell color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3">Preferences & Language</Typography>
+              <Typography variant="h3">Preferences, Theme & Language</Typography>
             </View>
 
             <View style={styles.toggleRow}>
@@ -211,6 +211,43 @@ export default function SettingsScreen() {
                 onValueChange={setNotificationsEnabled}
                 trackColor={{ false: '#ECE9E4', true: PALETTE.sage.default }}
               />
+            </View>
+
+            <View style={styles.toggleRow}>
+              <View style={styles.toggleLeft}>
+                <Typography variant="bodyMedium">Appearance Theme</Typography>
+                <Typography variant="caption" color={PALETTE.charcoal.light}>
+                  Default is System, or force Light/Dark mode.
+                </Typography>
+              </View>
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 4, marginBottom: 12 }}>
+              {[
+                { key: 'system', label: '📱 System' },
+                { key: 'light', label: '☀️ Light' },
+                { key: 'dark', label: '🌙 Dark' },
+              ].map((t) => (
+                <Pressable
+                  key={t.key}
+                  onPress={() => setThemePreference(t.key as any)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 8,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    backgroundColor: themePreference === t.key ? PALETTE.sage.default : isDark ? '#2E2B28' : '#ECE9E4',
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color={themePreference === t.key ? PALETTE.white : isDark ? PALETTE.cream : PALETTE.charcoal.default}
+                    style={{ fontFamily: 'Outfit-Bold' }}
+                  >
+                    {t.label}
+                  </Typography>
+                </Pressable>
+              ))}
             </View>
 
             <View style={[styles.toggleRow, { borderBottomWidth: 0 }]}>

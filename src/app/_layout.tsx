@@ -22,6 +22,7 @@ import { setupDailyEngagementNotifications } from '../services/notificationServi
 import { EasUpdateModal } from '../components/EasUpdateModal';
 import { useDeepLinkHandler } from '../hooks/useDeepLinkHandler';
 import { AdProvider } from '../context/AdContext';
+import { ThemeCustomProvider } from '../context/ThemeContext';
 
 function NavigationGuard({ children }: { children: React.ReactNode }) {
   const userProfile = useAppStore((state) => state.userProfile);
@@ -108,18 +109,20 @@ export default function RootLayout() {
   }
 
   const content = (
-    <AdProvider>
-      <NavigationGuard>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
-          <Stack.Screen name="bmi" options={{ headerShown: false }} />
-          <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-          <Stack.Screen name="cycle" options={{ headerShown: false }} />
-        </Stack>
-      </NavigationGuard>
-    </AdProvider>
+    <ThemeCustomProvider>
+      <AdProvider>
+        <NavigationGuard>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="settings" options={{ headerShown: false }} />
+            <Stack.Screen name="bmi" options={{ headerShown: false }} />
+            <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+            <Stack.Screen name="cycle" options={{ headerShown: false }} />
+          </Stack>
+        </NavigationGuard>
+      </AdProvider>
+    </ThemeCustomProvider>
   );
 
   return (
