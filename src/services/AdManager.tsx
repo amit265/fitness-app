@@ -64,7 +64,7 @@ export const showInterstitialAd = (onComplete?: () => void) => {
 export const showRewardedAdWithConsent = async (
   onSuccess: () => void,
   title: string = 'Watch Short Ad',
-  message: string = 'Would you like to watch a short video ad to earn 1-Hour Ad-Free coaching?'
+  message: string = 'Would you like to watch a short video ad to earn 15-Minute Ad-Free coaching?'
 ): Promise<void> => {
   const adUnitId = getAdUnitId('rewarded');
 

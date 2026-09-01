@@ -5,6 +5,7 @@ interface AdContextType {
   isAdFree: boolean;
   adFreeExpiresAt: number | null;
   grantAdFreeHours: (hours: number) => Promise<void>;
+  grantAdFreeMinutes: (minutes: number) => Promise<void>;
   setPremiumStatus: (status: boolean) => Promise<void>;
   checkAdFreeStatus: () => Promise<boolean>;
 }
@@ -16,6 +17,7 @@ const AdContext = createContext<AdContextType>({
   isAdFree: false,
   adFreeExpiresAt: null,
   grantAdFreeHours: async () => {},
+  grantAdFreeMinutes: async () => {},
   setPremiumStatus: async () => {},
   checkAdFreeStatus: async () => false,
 });
@@ -64,6 +66,17 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     }
   };
 
+  const grantAdFreeMinutes = async (minutes: number) => {
+    try {
+      const futureTime = Date.now() + minutes * 60 * 1000;
+      await AsyncStorage.setItem(AD_FREE_UNTIL_KEY, futureTime.toString());
+      setIsAdFree(true);
+      setAdFreeExpiresAt(futureTime);
+    } catch (e) {
+      console.warn('[AdContext] Error granting ad free minutes:', e);
+    }
+  };
+
   const setPremiumStatus = async (status: boolean) => {
     try {
       await AsyncStorage.setItem(IS_PREMIUM_KEY, status ? 'true' : 'false');
@@ -84,6 +97,7 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         isAdFree,
         adFreeExpiresAt,
         grantAdFreeHours,
+        grantAdFreeMinutes,
         setPremiumStatus,
         checkAdFreeStatus,
       }}

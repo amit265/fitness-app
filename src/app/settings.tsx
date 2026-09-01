@@ -52,7 +52,7 @@ import { APP_CONFIG } from '../constants/appConfig';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { isAdFree, grantAdFreeHours, adFreeExpiresAt } = useAdContext();
+  const { isAdFree, grantAdFreeMinutes, adFreeExpiresAt } = useAdContext();
   const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
   const { themeKey, isDark, setThemeKey, colors } = useAppTheme();
 
@@ -119,8 +119,8 @@ export default function SettingsScreen() {
 
   const handleWatchAdReward = () => {
     showRewardedAdWithConsent(() => {
-      grantAdFreeHours(1);
-      Alert.alert('Reward Unlocked! 🎉', 'You have earned 1 hour of Ad-Free experience.');
+      grantAdFreeMinutes(15);
+      Alert.alert('Reward Unlocked! 🎉', 'You have earned 15 minutes of Ad-Free experience.');
     });
   };
 
@@ -241,7 +241,7 @@ export default function SettingsScreen() {
                         <Timer size={18} color={PALETTE.sage.default} />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>1-Hour Ad-Free Pass</Typography>
+                        <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>15-Minute Ad-Free Pass</Typography>
                         <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : colors.subtext}>
                           {isAdFree && timeRemainingStr ? `Active: ${timeRemainingStr}` : 'Watch 1 short video ad to disable ads'}
                         </Typography>
@@ -252,7 +252,7 @@ export default function SettingsScreen() {
                   <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
                     {!isAdFree && (
                       <Button
-                        title="🎬 Watch Ad for 1-Hour Pass"
+                        title="🎬 Watch Ad for 15-Min Pass"
                         variant="outline"
                         onPress={handleWatchAdReward}
                         style={{ flex: 1 }}
