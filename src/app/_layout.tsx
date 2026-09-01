@@ -34,13 +34,21 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
   useDeepLinkHandler();
 
   useEffect(() => {
+    const ensureSeededData = () => {
+      const state = useAppStore.getState();
+      if (!state.userProfile || state.periods.length < 2 || state.meals.length < 10) {
+        state.seedMockData();
+      }
+      setHydrated(true);
+    };
+
     // Check if already hydrated
     if (useAppStore.persist.hasHydrated()) {
-      setHydrated(true);
+      ensureSeededData();
     }
     
     const unsubFinish = useAppStore.persist.onFinishHydration(() => {
-      setHydrated(true);
+      ensureSeededData();
     });
     
     // Setup daily notifications once safely
