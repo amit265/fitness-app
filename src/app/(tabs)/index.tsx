@@ -142,7 +142,7 @@ export default function TodayScreen() {
       remainingCalories: calorieBalance.remainingCalories,
     };
 
-    const contextHash = generateContextHash(context);
+    const contextHash = generateContextHash(context) + '_' + uiLanguage;
     const cached = dailyInsightCache[todayStr];
 
     // Use cached insight if available and context hasn't changed (unless force refresh requested)
@@ -170,8 +170,8 @@ export default function TodayScreen() {
   };
 
   useEffect(() => {
-    fetchDailyInsight(true);
-  }, [todayStr, uiLanguage]);
+    fetchDailyInsight(false);
+  }, [todayStr, uiLanguage, calorieBalance.remainingCalories, readiness.score]);
 
 
   // Check-In Form State
