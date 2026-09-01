@@ -117,7 +117,29 @@ export interface ChatMessage {
   timestamp: string;
 }
 
+export interface CachedDailyInsight {
+  date: string; // YYYY-MM-DD
+  generatedAt: string; // ISO timestamp
+  contextHash: string;
+  content: string;
+}
+
+export interface AIMonitoringLog {
+  id: string;
+  timestamp: string;
+  feature: 'home_insight' | 'coach_chat' | 'log_parser';
+  model?: string;
+  promptTokensEst: number;
+  outputTokensEst: number;
+  success: boolean;
+  error?: string;
+}
+
 export interface CoachingContext {
+  userName?: string;
+  userAge?: number;
+  userHeight?: number;
+  userWeight?: number;
   userGoal: string;
   cycleState: CycleState;
   readinessScore: number;
@@ -138,3 +160,4 @@ export interface CoachingContext {
   dietaryPreference?: string;
   eatingPatternSummary?: string;
 }
+

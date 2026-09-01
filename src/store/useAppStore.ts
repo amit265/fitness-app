@@ -9,6 +9,8 @@ import {
   Meal,
   Activity,
   BodyMeasurement,
+  CachedDailyInsight,
+  AIMonitoringLog,
 } from '../types';
 
 interface AppState {
@@ -22,6 +24,10 @@ interface AppState {
   measurements: BodyMeasurement[];
   streak: { currentStreak: number; longestStreak: number; lastActiveDate: string | null };
   uiLanguage: string;
+
+  // AI Governance & Monitoring State
+  dailyInsightCache: Record<string, CachedDailyInsight>; // Indexed by YYYY-MM-DD
+  aiLogs: AIMonitoringLog[];
 
   // Setters/Actions
   setUiLanguage: (lang: string) => void;
@@ -43,6 +49,11 @@ interface AppState {
 
   addMeasurement: (measurement: Omit<BodyMeasurement, 'id' | 'date'> & { date?: string }) => void;
   deleteMeasurement: (id: string) => void;
+
+  // AI Governance Actions
+  setCachedInsight: (date: string, insight: CachedDailyInsight) => void;
+  logAIUsage: (log: Omit<AIMonitoringLog, 'id' | 'timestamp'>) => void;
+  clearAICache: () => void;
 
   seedMockData: () => void;
   resetStore: () => void;
@@ -66,6 +77,8 @@ export const useAppStore = create<AppState>()(
       measurements: initialMockData.measurements,
       streak: initialMockData.streak,
       uiLanguage: 'en',
+      dailyInsightCache: {},
+      aiLogs: [],
 
       seedMockData: () => set(getMockSeedData()),
 
@@ -165,6 +178,31 @@ export const useAppStore = create<AppState>()(
           measurements: state.measurements.filter((m) => m.id !== id),
         })),
 
+      setCachedInsight: (date, insight) =>
+        set((state) => ({
+          dailyInsightCache: {
+            ...state.dailyInsightCache,
+            [date]: insight,
+          },
+        })),
+
+      logAIUsage: (log) =>
+        set((state) => {
+          const newEntry: AIMonitoringLog = {
+            ...log,
+            id: Math.random().toString(36).substring(7),
+            timestamp: new Date().toISOString(),
+          };
+          return {
+            aiLogs: [newEntry, ...state.aiLogs].slice(0, 100), // Keep last 100 logs
+          };
+        }),
+
+      clearAICache: () =>
+        set({
+          dailyInsightCache: {},
+        }),
+
       resetStore: () =>
         set({
           userProfile: null,
@@ -175,6 +213,8 @@ export const useAppStore = create<AppState>()(
           activities: [],
           measurements: [],
           streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: null },
+          dailyInsightCache: {},
+          aiLogs: [],
         }),
     }),
     {
@@ -183,3 +223,4 @@ export const useAppStore = create<AppState>()(
     }
   )
 );
+

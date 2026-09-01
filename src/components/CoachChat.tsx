@@ -108,6 +108,10 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
     const eatingPattern = analyzeEatingPatterns(meals, userProfile);
 
     return {
+      userName: userProfile?.name,
+      userAge: userProfile?.age,
+      userHeight: userProfile?.height,
+      userWeight: measurements[0]?.weight,
       userGoal: userProfile?.weightGoal || 'wellness',
       cycleState,
       readinessScore: readiness.score,

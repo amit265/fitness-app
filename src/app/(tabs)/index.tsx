@@ -23,6 +23,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { getCycleState } from '../../domain/cycle/cycleEngine';
 import { calculateReadinessScore } from '../../domain/readiness/readinessEngine';
 import { generateDailyInsight } from '../../services/ai/aiService';
+import { generateContextHash } from '../../services/ai/aiContextBuilder';
 import { getTodayStr, diffInDays } from '../../utils/date';
 import { PALETTE, SPACING, SEMANTICS, SHADOWS } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -65,6 +66,8 @@ export default function TodayScreen() {
   const meals = useAppStore((state) => state.meals);
   const measurements = useAppStore((state) => state.measurements);
   const streak = useAppStore((state) => state.streak);
+  const dailyInsightCache = useAppStore((state) => state.dailyInsightCache);
+  const setCachedInsight = useAppStore((state) => state.setCachedInsight);
   const setDailyCheckIn = useAppStore((state) => state.setDailyCheckIn);
   const recordActivityStreak = useAppStore((state) => state.recordActivityStreak);
 
@@ -122,9 +125,9 @@ export default function TodayScreen() {
     }
   }, [completedTargetsCount, todayStr, currentStreak]);
 
-  const fetchDailyInsight = async () => {
-    setInsightLoading(true);
+  const fetchDailyInsight = async (forceRefresh: boolean = false) => {
     const context = {
+      userName: userProfile?.name,
       userGoal: userProfile?.weightGoal || 'wellness',
       cycleState,
       readinessScore: readiness.score,
@@ -138,21 +141,37 @@ export default function TodayScreen() {
       remainingCalories: calorieBalance.remainingCalories,
     };
 
+    const contextHash = generateContextHash(context);
+    const cached = dailyInsightCache[todayStr];
+
+    // Use cached insight if available and context hasn't changed (unless force refresh requested)
+    if (!forceRefresh && cached && cached.contextHash === contextHash && cached.content) {
+      setDailyInsight(cached.content);
+      return;
+    }
+
+    setInsightLoading(true);
     try {
       const text = await generateDailyInsight(context, userProfile?.groqApiKey);
       setDailyInsight(text);
+      setCachedInsight(todayStr, {
+        date: todayStr,
+        generatedAt: new Date().toISOString(),
+        contextHash,
+        content: text,
+      });
     } catch (e) {
-      setDailyInsight(
-        `FACT: You have ${calorieBalance.remainingCalories} kcal remaining today.\nCONTEXT: You're in your ${cycleState.phase} phase (Day ${cycleState.cycleDay}) with energy ${todayCheckIn?.energy || 3}/5.\nCHOICE: A protein-dense dinner will fit comfortably. If you want movement, a gentle 20-minute walk is ideal.`
-      );
+      const fallbackText = `FACT: You have ${calorieBalance.remainingCalories} kcal remaining today.\nCONTEXT: You're in your ${cycleState.phase} phase (Day ${cycleState.cycleDay}) with energy ${todayCheckIn?.energy || 3}/5.\nCHOICE: A protein-dense dinner will fit comfortably. If you want movement, a gentle 20-minute walk is ideal.`;
+      setDailyInsight(fallbackText);
     } finally {
       setInsightLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDailyInsight();
-  }, [todayCheckIn]);
+    fetchDailyInsight(false);
+  }, [todayStr]);
+
 
   // Check-In Form State
   const [sleepDur, setSleepDur] = useState(todayCheckIn ? String(todayCheckIn.sleepDuration) : '8');
@@ -205,6 +224,7 @@ export default function TodayScreen() {
       symptoms: selectedSymptoms,
     });
     setCheckInModalVisible(false);
+    fetchDailyInsight(true);
   };
 
   // Calorie Circular Arc Math
@@ -218,10 +238,11 @@ export default function TodayScreen() {
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
-      await fetchDailyInsight();
+      await fetchDailyInsight(true);
     } catch (e) {}
     setRefreshing(false);
   };
+
 
   const openSiniWithQuery = (query?: string) => {
     setCoachInitialQuery(query);

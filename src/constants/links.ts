@@ -6,5 +6,5 @@ export const APP_LINKS = {
   groqConsole: 'https://console.groq.com/keys',
   githubRepo: 'https://github.com/destya-studio/destya-fitness-app',
   appStore: 'https://apps.apple.com/app/id6759521053',
-  googlePlay: 'https://play.google.com/store/apps/details?id=com.destya.sini',
+  googlePlay: 'https://play.google.com/store/apps/details?id=com.destyastudio.sini',
 };
