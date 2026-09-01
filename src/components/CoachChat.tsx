@@ -202,7 +202,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <StatusBar style={colors.statusBar.content} />
       <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
 
         {/* Header */}

@@ -72,6 +72,11 @@ export const PALETTE = {
   darkBorder: '#423642',
 };
 
+export interface StatusBarTokens {
+  background: string;
+  content: 'dark' | 'light';
+}
+
 export interface ThemeTokens {
   name: string;
   bg: string;
@@ -87,6 +92,9 @@ export interface ThemeTokens {
   border: string;
   borderLight: string;
   shadow: string;
+
+  // Status Bar explicit styling
+  statusBar: StatusBarTokens;
 
   // Cycle phase & domain accents
   period: string;
@@ -191,6 +199,11 @@ export const THEME_CLASSIC: ThemeTokens = {
   borderLight: '#F0E8E1',
   shadow: PALETTE.charcoal.default,
 
+  statusBar: {
+    background: PALETTE.oat.bg,
+    content: 'dark',
+  },
+
   period: '#D9939E',
   follicular: '#8FA89A',
   ovulation: '#C6A15B',
@@ -226,6 +239,11 @@ export const THEME_DARK: ThemeTokens = {
   border: PALETTE.darkBorder,
   borderLight: '#4F414F',
   shadow: '#000000',
+
+  statusBar: {
+    background: PALETTE.darkBg,
+    content: 'light',
+  },
 
   period: '#E89FA9',
   follicular: '#A2BCAC',
@@ -263,6 +281,11 @@ export const THEME_ROSE_DAWN: ThemeTokens = {
   borderLight: '#F9E5E8',
   shadow: '#3B2329',
 
+  statusBar: {
+    background: PALETTE.rose.bg,
+    content: 'dark',
+  },
+
   period: PALETTE.rose.default,
   follicular: PALETTE.sage.default,
   ovulation: PALETTE.gold.default,
@@ -298,6 +321,11 @@ export const THEME_SAGE_BLOOM: ThemeTokens = {
   border: PALETTE.sage.light, // #BDD2C6
   borderLight: '#D8E5DC',
   shadow: '#1F3127',
+
+  statusBar: {
+    background: PALETTE.sage.bg,
+    content: 'dark',
+  },
 
   period: PALETTE.rose.default,
   follicular: PALETTE.sage.default,
@@ -335,6 +363,11 @@ export const THEME_GOLDEN_GLOW: ThemeTokens = {
   borderLight: '#EFE0C2',
   shadow: '#3D311A',
 
+  statusBar: {
+    background: PALETTE.gold.bg,
+    content: 'dark',
+  },
+
   period: PALETTE.rose.default,
   follicular: PALETTE.sage.default,
   ovulation: PALETTE.gold.default,
@@ -370,6 +403,11 @@ export const THEME_PLUM_DUSK: ThemeTokens = {
   border: '#D2C4D1',
   borderLight: '#E4DAE3',
   shadow: '#261924',
+
+  statusBar: {
+    background: PALETTE.plum.bg,
+    content: 'dark',
+  },
 
   period: PALETTE.rose.default,
   follicular: PALETTE.sage.default,

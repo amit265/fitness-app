@@ -84,11 +84,11 @@ function NavigationGuard({
 }
 
 function AppSystemUI() {
-  const { isDark } = useAppTheme();
+  const { colors } = useAppTheme();
 
   return (
     <StatusBar
-      style={isDark ? 'light' : 'dark'}
+      style={colors.statusBar.content}
       animated
     />
   );
