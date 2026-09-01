@@ -23,7 +23,7 @@ import { setupDailyEngagementNotifications } from '../services/notificationServi
 import { EasUpdateModal } from '../components/EasUpdateModal';
 import { useDeepLinkHandler } from '../hooks/useDeepLinkHandler';
 import { AdProvider } from '../context/AdContext';
-import { ThemeCustomProvider } from '../context/ThemeContext';
+import { ThemeCustomProvider, useAppTheme } from '../context/ThemeContext';
 import { IAPProvider } from '../context/IAPContext';
 import { SplashScreenComponent } from '../components/SplashScreenComponent';
 
@@ -83,6 +83,17 @@ function NavigationGuard({
   return <>{children}</>;
 }
 
+function AppSystemUI() {
+  const { isDark } = useAppTheme();
+
+  return (
+    <StatusBar
+      style={isDark ? 'light' : 'dark'}
+      animated
+    />
+  );
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -137,6 +148,7 @@ export default function RootLayout() {
 
   const content = (
     <ThemeCustomProvider>
+      <AppSystemUI />
       <IAPProvider>
         <AdProvider>
           <NavigationGuard onHydrated={() => setHydrated(true)}>
@@ -163,7 +175,6 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
       <EasUpdateModal />
       {Platform.OS === 'web' ? (
         <View style={styles.webOuterContainer}>

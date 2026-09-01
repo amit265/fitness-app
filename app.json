@@ -7,6 +7,11 @@
     "icon": "./assets/icon.png",
     "scheme": "siniai",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F5EEE6"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.destyastudio.siniai",
