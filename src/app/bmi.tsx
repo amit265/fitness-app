@@ -22,6 +22,7 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft, Info, HelpCircle } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { BannerAdComponent } from '../services/AdManager';
+import { t } from '../i18n';
 
 export default function BMICalculatorScreen() {
   const router = useRouter();

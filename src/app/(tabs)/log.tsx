@@ -35,6 +35,7 @@ import {
   CheckCircle2,
   Activity as ActivityIcon,
 } from 'lucide-react-native';
+import { t, formatNumber } from '../../i18n';
 
 export default function LogScreen() {
   const { colors, isDark } = useAppTheme();

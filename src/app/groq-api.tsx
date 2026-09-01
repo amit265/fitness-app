@@ -19,6 +19,7 @@ import { SPACING } from '../constants/theme';
 import { ArrowLeft, Key, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { BannerAdComponent } from '../services/AdManager';
+import { APP_LINKS } from '../constants/links';
 
 export default function GroqApiScreen() {
   const router = useRouter();
@@ -122,7 +123,7 @@ export default function GroqApiScreen() {
                     variant="bodyMedium"
                     color={colors.primary}
                     style={{ fontFamily: 'Outfit-Bold', textDecorationLine: 'underline' }}
-                    onPress={() => Linking.openURL('https://console.groq.com/keys')}
+                    onPress={() => Linking.openURL(APP_LINKS.groqConsole)}
                   >
                     console.groq.com/keys
                   </Typography>
@@ -156,7 +157,7 @@ export default function GroqApiScreen() {
 
             <Pressable
               style={({ pressed }) => [styles.openGroqBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.8 }]}
-              onPress={() => Linking.openURL('https://console.groq.com/keys')}
+              onPress={() => Linking.openURL(APP_LINKS.groqConsole)}
             >
               <ExternalLink size={16} color={colors.primary} />
               <Typography variant="bodySmall" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>

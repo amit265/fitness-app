@@ -1,122 +1,114 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import i18n, {
+  LANGUAGE_STORAGE_KEY,
+  LANGUAGE_NAMES,
+  SUPPORTED_LOCALES,
+  detectDeviceLanguage,
+} from './config';
 
-export const LANGUAGE_STORAGE_KEY = 'ds_user_language_pref';
+export { LANGUAGE_STORAGE_KEY, LANGUAGE_NAMES, SUPPORTED_LOCALES };
 
-export interface Translations {
-  appName: string;
-  todayRhythm: string;
-  readinessScore: string;
-  logMeal: string;
-  logWorkout: string;
-  logCycle: string;
-  settings: string;
-  todayTargets: string;
-  askSiniCoach: string;
-  calorieTarget: string;
-  remainingCalories: string;
-  consumedCalories: string;
-  burnedCalories: string;
-  menstrualPhase: string;
-  follicularPhase: string;
-  ovulatoryPhase: string;
-  lutealPhase: string;
-  howItWorks: string;
-  reportOutput: string;
-  aiDisclaimer: string;
-}
-
-const en: Translations = {
-  appName: 'Sini AI',
-  todayRhythm: "Today's Rhythm",
-  readinessScore: 'Readiness Score',
-  logMeal: 'Log Meal',
-  logWorkout: 'Log Workout',
-  logCycle: 'Log Period',
-  settings: 'Settings',
-  todayTargets: "Today's Targets",
-  askSiniCoach: 'Ask Sini AI...',
-  calorieTarget: 'Calorie Target',
-  remainingCalories: 'Remaining',
-  consumedCalories: 'Consumed',
-  burnedCalories: 'Burned',
-  menstrualPhase: 'Menstrual Phase',
-  follicularPhase: 'Follicular Phase',
-  ovulatoryPhase: 'Ovulatory Phase',
-  lutealPhase: 'Luteal Phase',
-  howItWorks: 'How it works',
-  reportOutput: 'Report Output',
-  aiDisclaimer: '⚠️ Sini AI provides empathetic coaching & guidance. Always verify critical health facts.',
-};
-
-const es: Translations = {
-  appName: 'Sini AI',
-  todayRhythm: 'Ritmo de Hoy',
-  readinessScore: 'Puntuación de Preparación',
-  logMeal: 'Registrar Comida',
-  logWorkout: 'Registrar Entrenamiento',
-  logCycle: 'Registrar Período',
-  settings: 'Configuración',
-  todayTargets: 'Objetivos de Hoy',
-  askSiniCoach: 'Preguntar a Sini AI...',
-  calorieTarget: 'Objetivo Calórico',
-  remainingCalories: 'Restantes',
-  consumedCalories: 'Consumidas',
-  burnedCalories: 'Quemadas',
-  menstrualPhase: 'Fase Menstrual',
-  follicularPhase: 'Fase Folicular',
-  ovulatoryPhase: 'Fase Ovulatoria',
-  lutealPhase: 'Fase Lútea',
-  howItWorks: 'Cómo funciona',
-  reportOutput: 'Reportar Respuesta',
-  aiDisclaimer: '⚠️ Sini AI ofrece orientación empática. Verifique datos importantes.',
-};
-
-const id: Translations = {
-  appName: 'Sini AI',
-  todayRhythm: 'Ritme Hari Ini',
-  readinessScore: 'Skor Kesiapan',
-  logMeal: 'Catat Makanan',
-  logWorkout: 'Catat Latihan',
-  logCycle: 'Catat Haid',
-  settings: 'Pengaturan',
-  todayTargets: 'Target Hari Ini',
-  askSiniCoach: 'Tanya Sini AI...',
-  calorieTarget: 'Target Kalori',
-  remainingCalories: 'Sisa Kalori',
-  consumedCalories: 'Dikonsumsi',
-  burnedCalories: 'Dibatakar',
-  menstrualPhase: 'Fase Haid',
-  follicularPhase: 'Fase Folikular',
-  ovulatoryPhase: 'Fase Ovulasi',
-  lutealPhase: 'Fase Luteal',
-  howItWorks: 'Cara kerja',
-  reportOutput: 'Laporkan Respon',
-  aiDisclaimer: '⚠️ Sini AI memberikan panduan empati. Harap verifikasi fakta penting.',
-};
-
-export const LOCALES: Record<string, Translations> = { en, es, id };
-
-export const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  es: 'Español (Spanish)',
-  id: 'Bahasa Indonesia',
-};
-
+/**
+ * Get current application language code
+ */
 export const getCurrentLanguage = async (): Promise<string> => {
   try {
     const saved = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
-    if (saved && LOCALES[saved]) return saved;
-  } catch (e) {}
-  return 'en';
+    if (saved && SUPPORTED_LOCALES[saved as keyof typeof SUPPORTED_LOCALES]) {
+      return saved;
+    }
+  } catch (e) {
+    console.warn('Error reading stored language:', e);
+  }
+  return detectDeviceLanguage();
 };
 
+/**
+ * Set and persist application display language
+ */
 export const setAppLanguage = async (lang: string): Promise<void> => {
   try {
-    await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-  } catch (e) {}
+    if (SUPPORTED_LOCALES[lang as keyof typeof SUPPORTED_LOCALES]) {
+      await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+      await i18n.changeLanguage(lang);
+    }
+  } catch (e) {
+    console.warn('Error setting application language:', e);
+  }
 };
 
-export const t = (key: keyof Translations, lang: string = 'en'): string => {
-  const dict = LOCALES[lang] || LOCALES.en;
-  return dict[key] || LOCALES.en[key] || key;
+/**
+ * Initialize i18n language state on app launch
+ */
+export const initAppLanguage = async (): Promise<string> => {
+  const lang = await getCurrentLanguage();
+  if (i18n.language !== lang) {
+    await i18n.changeLanguage(lang);
+  }
+  return lang;
 };
+
+/**
+ * Translation helper wrapper around i18n.t
+ */
+export function t(key: string, options?: Record<string, any>): string {
+  return i18n.t(key, options);
+}
+
+/**
+ * Locale-aware number formatting wrapper using Intl.NumberFormat
+ */
+export function formatNumber(
+  val: number,
+  options?: Intl.NumberFormatOptions
+): string {
+  try {
+    const locale = i18n.language || 'en';
+    return new Intl.NumberFormat(locale, options).format(val);
+  } catch (e) {
+    return val.toString();
+  }
+}
+
+/**
+ * Locale-aware date formatting wrapper using Intl.DateTimeFormat
+ */
+export function formatDate(
+  date: Date | string,
+  options?: Intl.DateTimeFormatOptions
+): string {
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const locale = i18n.language || 'en';
+    const defaultOptions: Intl.DateTimeFormatOptions = options || {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    };
+    return new Intl.DateTimeFormat(locale, defaultOptions).format(d);
+  } catch (e) {
+    return typeof date === 'string' ? date : date.toLocaleDateString();
+  }
+}
+
+/**
+ * Locale-aware time formatting wrapper using Intl.DateTimeFormat
+ */
+export function formatTime(
+  date: Date | string,
+  options?: Intl.DateTimeFormatOptions
+): string {
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const locale = i18n.language || 'en';
+    const defaultOptions: Intl.DateTimeFormatOptions = options || {
+      hour: '2-digit',
+      minute: '2-digit',
+    };
+    return new Intl.DateTimeFormat(locale, defaultOptions).format(d);
+  } catch (e) {
+    return typeof date === 'string' ? date : date.toLocaleTimeString();
+  }
+}
+
+export default i18n;

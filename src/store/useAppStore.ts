@@ -21,8 +21,10 @@ interface AppState {
   activities: Activity[];
   measurements: BodyMeasurement[];
   streak: { currentStreak: number; longestStreak: number; lastActiveDate: string | null };
+  uiLanguage: string;
 
   // Setters/Actions
+  setUiLanguage: (lang: string) => void;
   setUserProfile: (profile: UserProfile | null) => void;
   setCyclePreferences: (prefs: CyclePreferences | null) => void;
   recordActivityStreak: (todayStr: string) => void;
@@ -63,10 +65,12 @@ export const useAppStore = create<AppState>()(
       activities: initialMockData.activities,
       measurements: initialMockData.measurements,
       streak: initialMockData.streak,
+      uiLanguage: 'en',
 
       seedMockData: () => set(getMockSeedData()),
 
       // Actions
+      setUiLanguage: (lang) => set({ uiLanguage: lang }),
       setUserProfile: (profile) => set({ userProfile: profile }),
       
       setCyclePreferences: (prefs) => set({ cyclePreferences: prefs }),

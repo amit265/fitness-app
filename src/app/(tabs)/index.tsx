@@ -50,6 +50,7 @@ import {
   MessageSquare,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../context/ThemeContext';
+import { t, formatNumber } from '../../i18n';
 
 export default function TodayScreen() {
   const { colors, isDark } = useAppTheme();

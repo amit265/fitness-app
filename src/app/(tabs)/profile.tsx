@@ -34,6 +34,7 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
+import { t } from '../../i18n';
 
 export default function ProfileScreen() {
   const { colors, isDark } = useAppTheme();

@@ -33,6 +33,7 @@ import {
   Plus,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { t, formatDate, formatNumber } from '../../i18n';
 
 type TimeWindow = 7 | 30 | 90;
 

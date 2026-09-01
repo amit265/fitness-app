@@ -27,6 +27,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { BannerAdComponent } from '../services/AdManager';
+import { t } from '../i18n';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -404,7 +405,7 @@ export default function DedicatedCyclePage() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Heart color={JEWEL_COLORS.period} size={22} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
-                {userProfile?.pauseCycleTracking ? 'Tracking Paused' : `Day ${todayCycleState.cycleDay} • ${todayCycleState.phase.toUpperCase()}`}
+                {userProfile?.pauseCycleTracking ? 'Tracking Paused' : `${t('cycle.currentDay', { day: todayCycleState.cycleDay })} • ${t('cycle.phase.' + todayCycleState.phase)}`}
               </Typography>
             </View>
             <View style={[styles.confidenceBadge, { backgroundColor: stats.confidence === 'high' ? '#D1FAE5' : '#FEF3C7' }]}>

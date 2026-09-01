@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable, Linking } from 'react-native';
 import { Typography } from './Typography';
 import { PALETTE } from '../constants/theme';
+import { APP_LINKS } from '../constants/links';
 
 interface DestyaStudioFooterProps {
   style?: object;
@@ -9,8 +10,8 @@ interface DestyaStudioFooterProps {
 
 export const DestyaStudioFooter: React.FC<DestyaStudioFooterProps> = ({ style }) => {
   const handleOpenWebsite = () => {
-    Linking.openURL('https://destyastudio.com').catch((err) =>
-      console.warn('Failed to open Desty Studio website:', err)
+    Linking.openURL(APP_LINKS.website).catch((err) =>
+      console.warn('Failed to open Destya Studio website:', err)
     );
   };
 

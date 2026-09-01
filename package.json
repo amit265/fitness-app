@@ -11,6 +11,7 @@
     "expo-constants": "~57.0.16",
     "expo-font": "~57.0.2",
     "expo-linking": "~57.0.8",
+    "expo-localization": "^57.0.1",
     "expo-network": "~57.0.1",
     "expo-notifications": "~57.0.15",
     "expo-router": "~57.0.17",
@@ -19,8 +20,10 @@
     "expo-store-review": "~57.0.2",
     "expo-updates": "~57.0.19",
     "expo-web-browser": "~57.0.2",
+    "i18next": "^26.4.1",
     "lucide-react-native": "^1.38.0",
     "react": "19.2.3",
+    "react-i18next": "^17.0.13",
     "react-native": "0.86.3",
     "react-native-google-mobile-ads": "^16.5.0",
     "react-native-iap": "^14.4.0",
@@ -43,6 +46,7 @@
     "web": "expo start --web",
     "lint": "tsc --noEmit",
     "test": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/domain/cycle/test-runner.ts",
+    "test:i18n": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/i18n/validate-i18n.ts",
     "build:apk": "cd android && ./gradlew assembleRelease"
   },
   "private": true

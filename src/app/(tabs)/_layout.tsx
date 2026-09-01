@@ -8,6 +8,9 @@ import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { useAppTheme } from '../../context/ThemeContext';
 
+import { t } from '../../i18n';
+import { APP_LINKS } from '../../constants/links';
+
 export default function TabsLayout() {
   const { colors, isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
@@ -24,7 +27,7 @@ export default function TabsLayout() {
   };
 
   const handleOpenStore = () => {
-    Linking.openURL('https://destyastudio.com').catch((err) =>
+    Linking.openURL(APP_LINKS.website).catch((err) =>
       console.warn('Failed to open Destya Studio link:', err)
     );
   };
@@ -62,7 +65,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Today',
+            title: t('common.today'),
             tabBarIcon: ({ color, size }) => <Sparkles color={color} size={size} />,
           }}
         />
@@ -70,7 +73,7 @@ export default function TabsLayout() {
           name="log"
           listeners={webTabListener}
           options={{
-            title: 'Log',
+            title: t('home.logMeal'),
             tabBarIcon: ({ color, size }) => <PlusCircle color={color} size={size} />,
           }}
         />
@@ -78,7 +81,7 @@ export default function TabsLayout() {
           name="progress"
           listeners={webTabListener}
           options={{
-            title: 'Progress',
+            title: t('progress.title'),
             tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
           }}
         />
@@ -86,7 +89,7 @@ export default function TabsLayout() {
           name="profile"
           listeners={webTabListener}
           options={{
-            title: 'Profile',
+            title: t('profile.title'),
             tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
           }}
         />

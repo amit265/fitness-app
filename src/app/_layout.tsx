@@ -30,6 +30,8 @@ import { SplashScreenComponent } from '../components/SplashScreenComponent';
 // Keep native splash screen visible while app resources initialize
 void SplashScreen.preventAutoHideAsync();
 
+import { initAppLanguage } from '../i18n';
+
 function NavigationGuard({
   children,
   onHydrated,
@@ -45,11 +47,12 @@ function NavigationGuard({
   useDeepLinkHandler();
 
   useEffect(() => {
-    const ensureSeededData = () => {
+    const ensureSeededData = async () => {
       const state = useAppStore.getState();
       if (!state.userProfile || state.periods.length < 2 || state.meals.length < 10) {
         state.seedMockData();
       }
+      await initAppLanguage();
       setHydrated(true);
       onHydrated();
     };

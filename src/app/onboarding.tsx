@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Sparkles, Calendar, Target, User, ShieldCheck } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 export default function OnboardingScreen() {
   const router = useRouter();
