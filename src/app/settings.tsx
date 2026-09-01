@@ -523,9 +523,9 @@ export default function SettingsScreen() {
       {/* API Key Tutorial Modal */}
       <Modal visible={tutorialModalVisible} transparent animationType="slide" onRequestClose={() => setTutorialModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setTutorialModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
             <View style={styles.modalHeader}>
-              <BookOpen color={PALETTE.plum.default} size={24} />
+              <BookOpen color={colors.primary} size={24} />
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
                 Free Groq API Key Setup
               </Typography>

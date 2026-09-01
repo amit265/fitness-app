@@ -651,7 +651,7 @@ export default function TodayScreen() {
             <View style={styles.modalHeader}>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Daily Feeling & Check-In</Typography>
               <Pressable onPress={() => setCheckInModalVisible(false)}>
-                <Typography variant="bodyMedium" color={PALETTE.plum.default}>Done</Typography>
+                <Typography variant="bodyMedium" color={colors.primary}>Done</Typography>
               </Pressable>
             </View>
 

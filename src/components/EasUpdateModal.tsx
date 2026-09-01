@@ -6,8 +6,10 @@ import { Button } from './Button';
 import { PALETTE, SPACING } from '../constants/theme';
 import { RefreshCw, Sparkles } from 'lucide-react-native';
 
+import { useAppTheme } from '../context/ThemeContext';
+
 export const EasUpdateModal: React.FC = () => {
-  const isDark = useColorScheme() === 'dark';
+  const { colors } = useAppTheme();
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [updating, setUpdating] = useState(false);
 
@@ -45,15 +47,15 @@ export const EasUpdateModal: React.FC = () => {
   return (
     <Modal visible={updateAvailable} transparent animationType="fade" onRequestClose={() => {}}>
       <View style={styles.overlay}>
-        <View style={[styles.modalCard, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
-          <View style={styles.iconCircle}>
-            <Sparkles color={PALETTE.sage.default} size={28} />
+        <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
+          <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
+            <Sparkles color={colors.primary} size={28} />
           </View>
 
           <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold', textAlign: 'center', marginBottom: 4 }}>
             App Update Ready!
           </Typography>
-          <Typography variant="caption" color={PALETTE.charcoal.light} style={{ textAlign: 'center', lineHeight: 18, marginBottom: SPACING.lg }}>
+          <Typography variant="caption" color={colors.subtext} style={{ textAlign: 'center', lineHeight: 18, marginBottom: SPACING.lg }}>
             A new version with performance improvements and feature updates has been downloaded. Restart now to apply!
           </Typography>
 

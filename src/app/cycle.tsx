@@ -821,7 +821,7 @@ export default function DedicatedCyclePage() {
       {/* Log Period Modal */}
       <Modal visible={periodModalVisible} transparent animationType="slide" onRequestClose={() => setPeriodModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setPeriodModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
             <Typography variant="h2" style={{ marginBottom: SPACING.md }}>
               {editingPeriodId ? 'Edit Period Record' : 'Log Period Record'}
             </Typography>
@@ -835,7 +835,7 @@ export default function DedicatedCyclePage() {
 
             <View style={styles.toggleRow}>
               <Typography variant="bodyMedium">Ongoing Period?</Typography>
-              <Switch value={isOngoing} onValueChange={setIsOngoing} trackColor={{ false: '#ECE9E4', true: PALETTE.sage.default }} />
+              <Switch value={isOngoing} onValueChange={setIsOngoing} trackColor={{ false: colors.borderLight, true: colors.primary }} />
             </View>
 
             {!isOngoing && (
@@ -852,10 +852,10 @@ export default function DedicatedCyclePage() {
               {(['spotting', 'light', 'medium', 'heavy'] as const).map((flow) => (
                 <Pressable
                   key={flow}
-                  style={[styles.flowPill, flowIntensity === flow && styles.flowPillActive]}
+                  style={[styles.flowPill, { backgroundColor: flowIntensity === flow ? colors.primary : colors.surface }]}
                   onPress={() => setFlowIntensity(flow)}
                 >
-                  <Typography variant="caption" color={flowIntensity === flow ? '#FFFFFF' : PALETTE.charcoal.light}>
+                  <Typography variant="caption" color={flowIntensity === flow ? colors.primaryText : colors.subtext}>
                     {flow.toUpperCase()}
                   </Typography>
                 </Pressable>
@@ -873,9 +873,9 @@ export default function DedicatedCyclePage() {
       {/* Log Symptoms Modal */}
       <Modal visible={symptomModalVisible} transparent animationType="slide" onRequestClose={() => setSymptomModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setSymptomModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
             <Typography variant="h2" style={{ marginBottom: 4 }}>Log Daily Symptoms</Typography>
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>
+            <Typography variant="caption" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
               Select symptoms experienced on {selectedDateStr}
             </Typography>
 
@@ -885,12 +885,12 @@ export default function DedicatedCyclePage() {
                 return (
                   <Pressable
                     key={sym}
-                    style={[styles.symptomSelectChip, isSelected && styles.symptomSelectChipActive]}
+                    style={[styles.symptomSelectChip, { backgroundColor: isSelected ? colors.primary : colors.surface, borderColor: isSelected ? colors.primary : colors.border }]}
                     onPress={() => handleToggleSymptom(sym)}
                   >
                     <Typography
                       variant="bodySmall"
-                      color={isSelected ? '#FFFFFF' : (isDark ? '#E5E0D8' : PALETTE.charcoal.default)}
+                      color={isSelected ? colors.primaryText : colors.textPrimary}
                       style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
                     >
                       {sym.toUpperCase()}
@@ -912,25 +912,25 @@ export default function DedicatedCyclePage() {
       <Modal visible={tutorialModalVisible} transparent animationType="fade" onRequestClose={() => setTutorialModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setTutorialModalVisible(false)} />
-          <View style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white, maxHeight: '85%', paddingBottom: 16 }]}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1, maxHeight: '85%', paddingBottom: 16 }]}>
             
             {/* Sticky Header with Top-Right Close Button */}
             <View style={styles.stickyModalHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-                <BookOpen color={PALETTE.sage.default} size={22} />
+                <BookOpen color={colors.primary} size={22} />
                 <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
                   How Cycle Tracking Works
                 </Typography>
               </View>
               <Pressable
-                style={styles.modalCloseBtn}
+                style={[styles.modalCloseBtn, { backgroundColor: colors.surface }]}
                 onPress={() => setTutorialModalVisible(false)}
               >
-                <X color={PALETTE.charcoal.light} size={20} />
+                <X color={colors.subtext} size={20} />
               </Pressable>
             </View>
 
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>
+            <Typography variant="caption" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
               A quick guide on logging, predictions, and calendar features.
             </Typography>
 

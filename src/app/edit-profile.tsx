@@ -255,14 +255,14 @@ export default function EditProfileScreen() {
       {/* Goal Dropdown Modal */}
       <Modal visible={goalModalVisible} transparent animationType="fade">
         <Pressable style={styles.modalOverlay} onPress={() => setGoalModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
             <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>Select Weight Goal</Typography>
             {['lose', 'maintain', 'gain', 'wellness'].map((g) => {
               const selected = weightGoal === g;
               return (
                 <Pressable
                   key={g}
-                  style={[styles.modalOption, selected && { backgroundColor: isDark ? '#25352A' : '#EAF0EC' }]}
+                  style={[styles.modalOption, selected && { backgroundColor: colors.surface }]}
                   onPress={() => {
                     setWeightGoal(g as any);
                     setGoalModalVisible(false);
@@ -270,12 +270,12 @@ export default function EditProfileScreen() {
                 >
                   <Typography
                     variant="bodyMedium"
-                    color={selected ? PALETTE.sage.default : undefined}
+                    color={selected ? colors.primary : undefined}
                     style={{ fontFamily: selected ? 'Outfit-Bold' : 'Outfit-Medium' }}
                   >
                     {g.toUpperCase()}
                   </Typography>
-                  {selected && <Check color={PALETTE.sage.default} size={18} />}
+                  {selected && <Check color={colors.primary} size={18} />}
                 </Pressable>
               );
             })}
@@ -286,14 +286,14 @@ export default function EditProfileScreen() {
       {/* Cuisine Dropdown Modal */}
       <Modal visible={cuisineModalVisible} transparent animationType="fade">
         <Pressable style={styles.modalOverlay} onPress={() => setCuisineModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
             <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>Select Regional Cuisine</Typography>
             {['indian', 'western', 'mediterranean', 'east_asian', 'latin_american', 'middle_eastern'].map((c) => {
               const selected = regionalCuisine === c;
               return (
                 <Pressable
                   key={c}
-                  style={[styles.modalOption, selected && { backgroundColor: isDark ? '#25352A' : '#EAF0EC' }]}
+                  style={[styles.modalOption, selected && { backgroundColor: colors.surface }]}
                   onPress={() => {
                     setRegionalCuisine(c as any);
                     setCuisineModalVisible(false);
@@ -301,12 +301,12 @@ export default function EditProfileScreen() {
                 >
                   <Typography
                     variant="bodyMedium"
-                    color={selected ? PALETTE.sage.default : undefined}
+                    color={selected ? colors.primary : undefined}
                     style={{ fontFamily: selected ? 'Outfit-Bold' : 'Outfit-Medium' }}
                   >
                     {c.replace('_', ' ').toUpperCase()}
                   </Typography>
-                  {selected && <Check color={PALETTE.sage.default} size={18} />}
+                  {selected && <Check color={colors.primary} size={18} />}
                 </Pressable>
               );
             })}
@@ -317,14 +317,14 @@ export default function EditProfileScreen() {
       {/* Diet Dropdown Modal */}
       <Modal visible={dietModalVisible} transparent animationType="fade">
         <Pressable style={styles.modalOverlay} onPress={() => setDietModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
             <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>Select Dietary Preference</Typography>
             {['anything', 'vegetarian', 'vegan', 'eggetarian', 'keto', 'high_protein'].map((d) => {
               const selected = dietaryPreference === d;
               return (
                 <Pressable
                   key={d}
-                  style={[styles.modalOption, selected && { backgroundColor: isDark ? '#25352A' : '#EAF0EC' }]}
+                  style={[styles.modalOption, selected && { backgroundColor: colors.surface }]}
                   onPress={() => {
                     setDietaryPreference(d as any);
                     setDietModalVisible(false);
@@ -332,12 +332,12 @@ export default function EditProfileScreen() {
                 >
                   <Typography
                     variant="bodyMedium"
-                    color={selected ? PALETTE.sage.default : undefined}
+                    color={selected ? colors.primary : undefined}
                     style={{ fontFamily: selected ? 'Outfit-Bold' : 'Outfit-Medium' }}
                   >
                     {d.replace('_', ' ').toUpperCase()}
                   </Typography>
-                  {selected && <Check color={PALETTE.sage.default} size={18} />}
+                  {selected && <Check color={colors.primary} size={18} />}
                 </Pressable>
               );
             })}
