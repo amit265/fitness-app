@@ -1,10 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 import i18n, {
   LANGUAGE_STORAGE_KEY,
   LANGUAGE_NAMES,
   SUPPORTED_LOCALES,
   detectDeviceLanguage,
 } from './config';
+import { useAppStore } from '../store/useAppStore';
 
 export { LANGUAGE_STORAGE_KEY, LANGUAGE_NAMES, SUPPORTED_LOCALES };
 
@@ -31,6 +33,7 @@ export const setAppLanguage = async (lang: string): Promise<void> => {
     if (SUPPORTED_LOCALES[lang as keyof typeof SUPPORTED_LOCALES]) {
       await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
       await i18n.changeLanguage(lang);
+      useAppStore.getState().setUiLanguage(lang);
     }
   } catch (e) {
     console.warn('Error setting application language:', e);
@@ -45,8 +48,23 @@ export const initAppLanguage = async (): Promise<string> => {
   if (i18n.language !== lang) {
     await i18n.changeLanguage(lang);
   }
+  useAppStore.getState().setUiLanguage(lang);
   return lang;
 };
+
+/**
+ * React Hook for i18n translation that automatically triggers component re-renders on language change
+ */
+export function useI18n() {
+  const { t, i18n } = useTranslation();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
+
+  return {
+    t,
+    currentLanguage: i18n.language || uiLanguage || 'en',
+    setLanguage: setAppLanguage,
+  };
+}
 
 /**
  * Translation helper wrapper around i18n.t

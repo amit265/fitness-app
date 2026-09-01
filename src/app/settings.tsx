@@ -12,7 +12,9 @@ import {
   Text,
   Share,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '../components/Typography';
 import { Button } from '../components/Button';
 import { InputField } from '../components/InputField';
@@ -65,17 +67,22 @@ export default function SettingsScreen() {
   const seedMockData = useAppStore((state) => state.seedMockData);
   const setUiLanguageStore = useAppStore((state) => state.setUiLanguage);
 
+  const { i18n } = useTranslation();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
+
   // States
   const [apiKey, setApiKey] = useState(userProfile?.groqApiKey || '');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [cycleAlertsEnabled, setCycleAlertsEnabled] = useState(true);
-  const [currentLang, setCurrentLangState] = useState('en');
+  const [currentLang, setCurrentLangState] = useState(i18n.language || 'en');
   const [langModalVisible, setLangModalVisible] = useState(false);
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
+  const [targetLangName, setTargetLangName] = useState('');
   const [timeRemainingStr, setTimeRemainingStr] = useState('');
 
   useEffect(() => {
     getCurrentLanguage().then(setCurrentLangState);
-  }, []);
+  }, [uiLanguage]);
 
   // Countdown timer for 1-Hour Ad-Free Pass
   useEffect(() => {
@@ -104,11 +111,23 @@ export default function SettingsScreen() {
     return () => clearInterval(interval);
   }, [adFreeExpiresAt]);
 
-  const handleLanguageSelect = (langCode: string) => {
-    setCurrentLangState(langCode);
-    setAppLanguage(langCode);
-    setUiLanguageStore(langCode);
+  const handleLanguageSelect = async (langCode: string) => {
+    if (langCode === currentLang) {
+      setLangModalVisible(false);
+      return;
+    }
+    const name = LANGUAGE_NAMES[langCode] || langCode;
     setLangModalVisible(false);
+    setTargetLangName(name);
+    setIsChangingLanguage(true);
+
+    await setAppLanguage(langCode);
+    setCurrentLangState(langCode);
+    setUiLanguageStore(langCode);
+
+    setTimeout(() => {
+      setIsChangingLanguage(false);
+    }, 750);
   };
 
   const handleRestorePurchases = async () => {
@@ -571,6 +590,21 @@ export default function SettingsScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* LANGUAGE CHANGING LOADING OVERLAY */}
+      <Modal visible={isChangingLanguage} transparent animationType="fade">
+        <View style={styles.loadingOverlay}>
+          <View style={[styles.loadingCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <ActivityIndicator size="large" color={colors.primary} />
+            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginTop: 16 }}>
+              {t('common.loading')}
+            </Typography>
+            <Typography variant="bodySmall" color={colors.subtext} style={{ marginTop: 6, textAlign: 'center' }}>
+              Updating language to {targetLangName}...
+            </Typography>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -701,5 +735,25 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 8,
+  },
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  loadingCard: {
+    width: '100%',
+    maxWidth: 320,
+    padding: 28,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
   },
 });

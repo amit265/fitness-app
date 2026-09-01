@@ -80,6 +80,7 @@ interface CalendarCellState {
 export default function DedicatedCyclePage() {
   const { colors, isDark } = useAppTheme();
   const router = useRouter();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
 
   // Dedicated Cycle Phase Colors (Preserves semantic distinctness across all global themes)
   const phaseColors = isDark ? CYCLE_PHASE_COLORS.dark : CYCLE_PHASE_COLORS.light;

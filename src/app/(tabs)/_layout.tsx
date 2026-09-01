@@ -11,8 +11,11 @@ import { useAppTheme } from '../../context/ThemeContext';
 import { t } from '../../i18n';
 import { APP_LINKS } from '../../constants/links';
 
+import { useAppStore } from '../../store/useAppStore';
+
 export default function TabsLayout() {
   const { colors, isDark } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
   const insets = useSafeAreaInsets();
   const bottomMargin = Math.max(insets.bottom, 16);
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
