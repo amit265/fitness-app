@@ -10,7 +10,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.destyastudio.siniai",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads and cycle-awareness recommendations."
+      }
     },
     "android": {
       "package": "com.destyastudio.siniai",
@@ -21,6 +24,9 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
+      "permissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -46,6 +52,37 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "expo-updates",
+      "expo-web-browser",
+      [
+        "react-native-iap",
+        {
+          "paymentProvider": "Play Store"
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7433519007687449~9269190746",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 36,
+            "targetSdkVersion": 36,
+            "minSdkVersion": 24,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "enableHermes": true
+          },
+          "ios": {
+            "deploymentTarget": "15.1"
+          }
+        }
+      ],
       [
         "./plugins/with-android-kotlin-version",
         {
@@ -53,6 +90,13 @@
         }
       ]
     ],
+    "updates": {
+      "enabled": true,
+      "url": "https://u.expo.dev/98499755-4c9f-47ac-a171-efd55333fbf8"
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "router": {},
       "eas": {
@@ -60,9 +104,5 @@
       }
     },
     "owner": "mindcraftlearning"
-  },
-  "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-7433519007687449~9269190746",
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511"
   }
 }

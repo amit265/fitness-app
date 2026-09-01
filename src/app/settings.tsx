@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,7 +10,10 @@ import {
   Platform,
   KeyboardAvoidingView,
   Text,
+  Share,
+  Linking,
 } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { Typography } from '../components/Typography';
 import { Button } from '../components/Button';
 import { InputField } from '../components/InputField';
@@ -29,21 +32,28 @@ import {
   ChevronRight,
   Globe,
   Database,
+  Share2,
+  Mail,
   ShieldCheck,
-  Smartphone,
-  Info,
+  Star,
+  Crown,
+  Timer,
   Sliders,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAdContext } from '../context/AdContext';
+import { useIAP } from '../context/IAPContext';
 import { showRewardedAdWithConsent } from '../services/AdManager';
 import { getCurrentLanguage, setAppLanguage } from '../i18n';
 import { useAppTheme, MOOD_THEME_PALETTES, MoodThemeKey } from '../context/ThemeContext';
 import { DestyaStudioFooter } from '../components/DestyaStudioFooter';
+import { DestyaStudioAppsHub } from '../components/DestyaStudioAppsHub';
+import { APP_CONFIG } from '../constants/appConfig';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { isAdFree, grantAdFreeHours, setPremiumStatus } = useAdContext();
+  const { isAdFree, grantAdFreeHours, adFreeExpiresAt } = useAdContext();
+  const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
   const { themeKey, isDark, setThemeKey, colors } = useAppTheme();
 
   // Store bindings
@@ -55,7 +65,7 @@ export default function SettingsScreen() {
   const resetStore = useAppStore((state) => state.resetStore);
   const seedMockData = useAppStore((state) => state.seedMockData);
 
-  // Settings States
+  // States
   const [apiKey, setApiKey] = useState(userProfile?.groqApiKey || '');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [cycleAlertsEnabled, setCycleAlertsEnabled] = useState(true);
@@ -63,20 +73,48 @@ export default function SettingsScreen() {
   const [savedKeySuccess, setSavedKeySuccess] = useState(false);
   const [currentLang, setCurrentLangState] = useState('en');
   const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric');
+  const [timeRemainingStr, setTimeRemainingStr] = useState('');
 
-  React.useEffect(() => {
+  useEffect(() => {
     getCurrentLanguage().then(setCurrentLangState);
   }, []);
+
+  // Countdown timer for 1-Hour Ad-Free Pass
+  useEffect(() => {
+    if (typeof adFreeExpiresAt !== 'number') {
+      setTimeRemainingStr('');
+      return;
+    }
+
+    const updateTimer = () => {
+      const remaining = adFreeExpiresAt - Date.now();
+      if (remaining <= 0) {
+        setTimeRemainingStr('00:00:00');
+      } else {
+        const totalSeconds = Math.floor(remaining / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        setTimeRemainingStr(
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        );
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [adFreeExpiresAt]);
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLangState(lang);
     setAppLanguage(lang);
-    Alert.alert('Language Updated', `App display language updated to ${lang.toUpperCase()}.`);
+    Alert.alert('Language Updated', `App display language set to ${lang.toUpperCase()}.`);
   };
 
-  const handleRestorePurchases = () => {
-    setPremiumStatus(true);
-    Alert.alert('Purchases Restored', 'Your account has been synced. Premium Ad-Free status activated!');
+  const handleRestorePurchases = async () => {
+    const res = await restorePurchases();
+    Alert.alert(res.success ? 'Purchases Restored! ✨' : 'Restore Notice', res.message);
   };
 
   const handleWatchAdReward = () => {
@@ -96,6 +134,32 @@ export default function SettingsScreen() {
       setSavedKeySuccess(true);
       setTimeout(() => setSavedKeySuccess(false), 2000);
     }
+  };
+
+  const handleShareApp = async () => {
+    try {
+      const shareUrl = APP_CONFIG.githubRepoUrl;
+      const shareMsg = `Check out Sini AI: Cycle & Fitness — Fitness that understands your cycle! ${shareUrl}`;
+      await Share.share({ message: shareMsg });
+    } catch (e) {
+      console.warn('Share app failed:', e);
+    }
+  };
+
+  const openWebLink = async (url: string) => {
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch {
+      Linking.openURL(url);
+    }
+  };
+
+  const handleContactUs = () => {
+    const email = APP_CONFIG.supportEmail;
+    const subject = `Sini AI Support Request`;
+    const body = `Hi Destya Studio Support,\n\n[Write your message here]\n\n---\nDevice OS: ${Platform.OS}\nApp Version: ${APP_CONFIG.version}`;
+    const mailUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    Linking.openURL(mailUrl).catch(() => Alert.alert('Error', 'Could not open email app.'));
   };
 
   const handleResetData = () => {
@@ -120,7 +184,7 @@ export default function SettingsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
 
-        {/* Top Navigation Header */}
+        {/* Top Header Bar */}
         <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <ArrowLeft color={colors.text} size={22} />
@@ -134,9 +198,82 @@ export default function SettingsScreen() {
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* SECTION 1: APPEARANCE & THEMES */}
+          {/* SECTION 1: IN-APP PURCHASES & MONETIZATION (QUESTION-GAMES STYLE) */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            APPEARANCE & PALETTE
+            MEMBERSHIP & AD-FREE UNLOCK
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.cardPadding}>
+              
+              {/* Lifetime Remove Ads Card */}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.premiumPurchaseBox,
+                  { backgroundColor: isDark ? '#2A2016' : '#FFF9F0', borderColor: PALETTE.gold.default },
+                  pressed && { opacity: 0.8 },
+                ]}
+                onPress={requestPurchase}
+              >
+                <View style={[styles.rowIconCircle, { backgroundColor: '#FBEED6' }]}>
+                  <Crown size={20} color={PALETTE.gold.default} />
+                </View>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                    Remove All Ads Permanently
+                  </Typography>
+                  <Typography variant="caption" color={colors.subtext}>
+                    {isIapPremium ? '✨ Lifetime Premium Active' : 'Permanent Ad-Free + Unlimited AI Coaching'}
+                  </Typography>
+                </View>
+                <View style={styles.priceTagBadge}>
+                  <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
+                    {premiumProduct?.displayPrice || '$2.99'}
+                  </Typography>
+                </View>
+              </Pressable>
+
+              {/* Temporary Ad-Free Pass */}
+              {!isIapPremium && (
+                <View style={{ marginTop: 12 }}>
+                  <View style={styles.settingRowInline}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+                      <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg, marginRight: 10 }]}>
+                        <Timer size={18} color={PALETTE.sage.default} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>1-Hour Ad-Free Pass</Typography>
+                        <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : colors.subtext}>
+                          {isAdFree && timeRemainingStr ? `Active: ${timeRemainingStr}` : 'Watch 1 short video ad to disable ads'}
+                        </Typography>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+                    {!isAdFree && (
+                      <Button
+                        title="🎬 Watch Ad for 1-Hour Pass"
+                        variant="outline"
+                        onPress={handleWatchAdReward}
+                        style={{ flex: 1 }}
+                      />
+                    )}
+                    <Button
+                      title="🔄 Restore Purchases"
+                      variant="secondary"
+                      onPress={handleRestorePurchases}
+                      style={{ flex: 1 }}
+                    />
+                  </View>
+                </View>
+              )}
+
+            </View>
+          </View>
+
+          {/* SECTION 2: APPEARANCE & MOOD THEMES */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            APPEARANCE & MOOD PALETTE
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
@@ -146,7 +283,7 @@ export default function SettingsScreen() {
                 </View>
                 <View style={{ marginLeft: 10, flex: 1 }}>
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>App Theme & Mood</Typography>
-                  <Typography variant="caption" color={colors.subtext}>Match your visual theme to your rhythm</Typography>
+                  <Typography variant="caption" color={colors.subtext}>Sync UI color palette with your phase</Typography>
                 </View>
               </View>
 
@@ -183,7 +320,7 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* SECTION 2: NOTIFICATIONS & REMINDERS */}
+          {/* SECTION 3: NOTIFICATIONS & REMINDERS */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             NOTIFICATIONS & ALERTS
           </Typography>
@@ -197,7 +334,7 @@ export default function SettingsScreen() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Daily Target Reminders</Typography>
-                    <Typography variant="caption" color={colors.subtext}>Gentle check-in & hydration notifications</Typography>
+                    <Typography variant="caption" color={colors.subtext}>Check-in & hydration notifications</Typography>
                   </View>
                 </View>
                 <Switch
@@ -215,7 +352,7 @@ export default function SettingsScreen() {
                     <Sparkles size={18} color={PALETTE.rose.default} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Cycle Phase Change Alerts</Typography>
+                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Cycle Transition Alerts</Typography>
                     <Typography variant="caption" color={colors.subtext}>Notify when entering new cycle phase</Typography>
                   </View>
                 </View>
@@ -229,7 +366,7 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* SECTION 3: AI ENGINE & PRIVACY */}
+          {/* SECTION 4: AI ENGINE INTEGRATION */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             AI & CLOUD INTEGRATION
           </Typography>
@@ -240,9 +377,9 @@ export default function SettingsScreen() {
                   <Key size={18} color={PALETTE.plum.default} />
                 </View>
                 <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Groq Cloud AI Key</Typography>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Groq Cloud AI Engine</Typography>
                   <Typography variant="caption" color={apiKey ? PALETTE.sage.default : colors.subtext}>
-                    {apiKey ? '✓ Custom Key Connected (Dynamic NLP Active)' : 'Using Local Regex Fallback Engine'}
+                    {apiKey ? '✓ Custom Key Connected (Dynamic NLP Active)' : 'Local Fallback Engine Active'}
                   </Typography>
                 </View>
               </View>
@@ -273,122 +410,52 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* SECTION 4: LANGUAGE & REGIONAL PREFERENCES */}
+          {/* SECTION 5: SUPPORT, SHARE & LEGAL */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            LANGUAGE & REGION
+            SUPPORT & ECOSYSTEM
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
-            <View style={styles.cardPadding}>
-              <View style={styles.settingRowInline}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg, marginRight: 10 }]}>
-                    <Globe size={18} color={PALETTE.sage.default} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Display Language</Typography>
-                    <Typography variant="caption" color={colors.subtext}>App interface language</Typography>
-                  </View>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 6 }}>
-                  {['en', 'es', 'id'].map((lang) => (
-                    <Pressable
-                      key={lang}
-                      onPress={() => handleLanguageChange(lang)}
-                      style={[
-                        styles.langPill,
-                        { backgroundColor: currentLang === lang ? PALETTE.plum.default : colors.border },
-                      ]}
-                    >
-                      <Typography
-                        variant="caption"
-                        color={currentLang === lang ? PALETTE.oat.default : colors.text}
-                        style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
-                      >
-                        {lang}
-                      </Typography>
-                    </Pressable>
-                  ))}
-                </View>
+            <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={handleShareApp}>
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg }]}>
+                <Share2 size={18} color={PALETTE.sage.default} />
               </View>
-
-              <View style={styles.rowSeparatorInCard} />
-
-              <View style={styles.settingRowInline}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg, marginRight: 10 }]}>
-                    <Sliders size={18} color={PALETTE.terracotta.default} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Measurement Units</Typography>
-                    <Typography variant="caption" color={colors.subtext}>Weight (kg/lbs) & Height (cm/in)</Typography>
-                  </View>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 6 }}>
-                  <Pressable
-                    onPress={() => setUnitSystem('metric')}
-                    style={[
-                      styles.langPill,
-                      { backgroundColor: unitSystem === 'metric' ? PALETTE.plum.default : colors.border },
-                    ]}
-                  >
-                    <Typography variant="caption" color={unitSystem === 'metric' ? PALETTE.oat.default : colors.text} style={{ fontFamily: 'Outfit-Bold' }}>
-                      METRIC
-                    </Typography>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setUnitSystem('imperial')}
-                    style={[
-                      styles.langPill,
-                      { backgroundColor: unitSystem === 'imperial' ? PALETTE.plum.default : colors.border },
-                    ]}
-                  >
-                    <Typography variant="caption" color={unitSystem === 'imperial' ? PALETTE.oat.default : colors.text} style={{ fontFamily: 'Outfit-Bold' }}>
-                      IMPERIAL
-                    </Typography>
-                  </Pressable>
-                </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Share Sini AI App</Typography>
+                <Typography variant="caption" color={colors.subtext}>Share with friends & fitness partners</Typography>
               </View>
-            </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={handleContactUs}>
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg }]}>
+                <Mail size={18} color={PALETTE.terracotta.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Contact Support & Feedback</Typography>
+                <Typography variant="caption" color={colors.subtext}>Reach out to Destya Studio team</Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={() => openWebLink('https://destyastudio.com/privacy')}>
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
+                <ShieldCheck size={18} color={PALETTE.plum.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Privacy Policy & Data Security</Typography>
+                <Typography variant="caption" color={colors.subtext}>100% Client-side local data storage</Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
           </View>
 
-          {/* SECTION 5: MEMBERSHIP & AD EXPERIENCE */}
+          {/* SECTION 6: SYSTEM DIAGNOSTICS & RESET */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            MEMBERSHIP & AD-FREE STATUS
-          </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
-            <View style={styles.cardPadding}>
-              <View style={styles.cardHeaderRow}>
-                <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.gold.bg }]}>
-                  <Sparkles size={18} color={PALETTE.gold.default} />
-                </View>
-                <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Ad-Free Experience</Typography>
-                  <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : colors.subtext}>
-                    {isAdFree ? '✨ AD-FREE UNLOCKED' : 'Free Tier (Non-intrusive banner ads)'}
-                  </Typography>
-                </View>
-              </View>
-
-              <View style={{ gap: 10, marginTop: 10 }}>
-                {!isAdFree && (
-                  <Button
-                    title="🎬 Watch Ad for 1-Hour Ad-Free"
-                    variant="outline"
-                    onPress={handleWatchAdReward}
-                  />
-                )}
-                <Button
-                  title="🔄 Restore Purchases"
-                  variant="secondary"
-                  onPress={handleRestorePurchases}
-                />
-              </View>
-            </View>
-          </View>
-
-          {/* SECTION 6: SYSTEM, DATA & RESET */}
-          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            DATA & SYSTEM DIAGNOSTICS
+            SYSTEM & DATA
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
@@ -422,6 +489,9 @@ export default function SettingsScreen() {
               </View>
             </View>
           </View>
+
+          {/* Cross Promo Hub */}
+          <DestyaStudioAppsHub />
 
           {/* APP ABOUT & FOOTER */}
           <View style={styles.aboutFooterBox}>
@@ -480,9 +550,6 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm + 4,
     borderBottomWidth: 1,
   },
-  headerTitle: {
-    fontFamily: 'Outfit-Bold',
-  },
   backBtn: {
     padding: 6,
   },
@@ -511,12 +578,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: SPACING.sm,
   },
+  premiumPurchaseBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
+  priceTagBadge: {
+    backgroundColor: PALETTE.gold.default,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 100,
+  },
+  rowItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+  },
+  pressedRow: {
+    opacity: 0.75,
+  },
   rowIconCircle: {
     width: 36,
     height: 36,
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  rowTextCol: {
+    flex: 1,
+    marginLeft: SPACING.sm,
+  },
+  rowTitle: {
+    fontFamily: 'Outfit-Bold',
+  },
+  rowSeparator: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    marginLeft: 62,
   },
   rowSeparatorInCard: {
     height: 1,
@@ -546,11 +646,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  langPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
   },
   aboutFooterBox: {
     alignItems: 'center',
