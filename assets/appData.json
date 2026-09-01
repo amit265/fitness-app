@@ -1,0 +1,50 @@
+[{
+        "name": "Decision Wheel: Random Picker",
+        "description": "Random decision picker wheel for food choices, party games, name raffles & AI.",
+        "icon": "https://destyastudio.com/_next/image?url=%2Fapps%2Fspin-the-wheel%2Ficon.png&w=1920&q=75",
+        "androidUrl": "https://play.google.com/store/apps/details?id=com.mindcraftlearning.spinthewheel",
+        "iosUrl": "https://apps.apple.com/us/app/spinny-random-picker-wheel/id6760378786",
+        "isAvailableOnIOS": true,
+        "show": true
+    },
+    {
+        "name": "CodeRespite: Tech Quiz & Prep",
+        "description": "Developer quiz, coding interview practice, and tech flashcards for engineers.",
+        "icon": "https://destyastudio.com/_next/image?url=%2Fapps%2Fcode-respite%2Ficon.png&w=1920&q=75",
+        "androidUrl": "https://play.google.com/store/apps/details?id=com.mindcraftlearning.coderespite",
+        "iosUrl": "",
+        "isAvailableOnIOS": false,
+        "show": true
+
+    },
+    {
+        "name": "Date Night: Couples Games",
+        "description": "Fun date night games, couples questions, relationship quizzes & romantic decks.",
+        "icon": "https://destyastudio.com/_next/image?url=%2Fapps%2Fquestion-games%2Ficon.png&w=1920&q=75",
+        "androidUrl": "https://play.google.com/store/apps/details?id=com.mindcraftlearning.questiongames",
+        "iosUrl": "https://apps.apple.com/us/app/ai-icebreaker-question-games/id6759521053",
+        "isAvailableOnIOS": true,
+        "show": true
+
+    },
+    {
+        "name": "Cheesy Lines: Dating Openers",
+        "description": "Never get ignored in DMs! Swipe 500+ funny pickup lines & AI openers.",
+        "icon": "https://destyastudio.com/_next/image?url=%2Fapps%2Fcheezylines%2Ficon.png&w=1920&q=75",
+        "androidUrl": "https://play.google.com/store/apps/details?id=com.mindcraftlearning.cheezylines",
+        "iosUrl": "",
+        "isAvailableOnIOS": false,
+        "show": true
+
+    },
+    {
+        "name": "Trivia Quest AI: Quiz Game",
+        "description": "Custom AI trivia quiz game, general knowledge challenges, and party quizzes.",
+        "icon": "https://destyastudio.com/_next/image?url=%2Fapps%2Ftrivia-quest-ai%2Ficon.png&w=1920&q=75",
+        "androidUrl": "https://play.google.com/store/apps/details?id=com.coderespite.triviaquestai",
+        "iosUrl": "https://apps.apple.com/us/app/trivia-quest-ai-brain-quiz/id6760843431",
+        "isAvailableOnIOS": true,
+        "show": true
+
+    }
+]
