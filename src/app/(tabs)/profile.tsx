@@ -112,7 +112,7 @@ export default function ProfileScreen() {
             <View style={styles.biometricsStrip}>
               <View style={styles.bioItem}>
                 <Typography variant="caption" color={colors.subtext}>{t('onboarding.ageLabel')}</Typography>
-                <Typography variant="bodyMedium" style={styles.bioValue}>{userProfile?.age || 28} {t('common.years')}</Typography>
+                <Typography variant="bodyMedium" style={styles.bioValue}>{userProfile?.age || 28} {t('common.yrs')}</Typography>
               </View>
               <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
