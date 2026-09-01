@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface AdContextType {
@@ -89,6 +90,24 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
   useEffect(() => {
     checkAdFreeStatus();
+
+    if (Platform.OS !== 'web') {
+      try {
+        const mobileAds = require('react-native-google-mobile-ads').default;
+        if (mobileAds) {
+          mobileAds()
+            .initialize()
+            .then((adapterStatuses: any) => {
+              console.log('[AdContext] Google Mobile Ads SDK Initialized Successfully:', adapterStatuses);
+            })
+            .catch((err: any) => {
+              console.warn('[AdContext] Google Mobile Ads SDK Init Error:', err);
+            });
+        }
+      } catch (e) {
+        console.warn('[AdContext] Google Mobile Ads module not loaded (Expo Go / Web):', e);
+      }
+    }
   }, []);
 
   return (
