@@ -6,10 +6,11 @@ export interface ParsedLogResult {
 }
 
 /**
- * Fallback parser using local Regex rules.
+ * Fallback parser using local Regex rules (returns array to support multi-item statements).
  */
-export function parseLocalInput(input: string): ParsedLogResult {
+export function parseLocalInput(input: string): ParsedLogResult[] {
   const text = input.trim().toLowerCase();
+  const results: ParsedLogResult[] = [];
 
   // 1. Check Weight Match (e.g. "Weight 65.5" or "65.5kg")
   const weightRegex = /(?:weight\s*|log\s*)?(\d+(?:\.\d+)?)\s*(?:kg|lbs|weight)/;
@@ -17,12 +18,12 @@ export function parseLocalInput(input: string): ParsedLogResult {
   if (weightMatch) {
     const val = parseFloat(weightMatch[1]);
     if (val >= 30 && val <= 250) {
-      return {
+      results.push({
         type: 'weight',
         payload: {
           weight: val,
         },
-      };
+      });
     }
   }
 
@@ -34,19 +35,16 @@ export function parseLocalInput(input: string): ParsedLogResult {
     let duration = 30;
     let activityKey = '';
 
-    // Determine which regex matched
     if (isNaN(Number(activityMatch[1]))) {
-      // First is keyword, second is number
       activityKey = activityMatch[1].trim();
       duration = parseInt(activityMatch[2]) || 30;
     } else {
-      // First is number, second is keyword
       duration = parseInt(activityMatch[1]) || 30;
       activityKey = activityMatch[2].trim();
     }
 
     const type = mapActivityType(activityKey);
-    if (type !== 'other' || ['workout', 'exercise', 'training', 'session'].some((w) => activityKey.includes(w))) {
+    if (type !== 'other' || ['workout', 'exercise', 'training', 'session', 'run', 'walk'].some((w) => activityKey.includes(w))) {
       const intensity = text.includes('hard') || text.includes('intense') || text.includes('heavy')
         ? 'challenging'
         : text.includes('easy') || text.includes('light') || text.includes('slow')
@@ -56,7 +54,7 @@ export function parseLocalInput(input: string): ParsedLogResult {
       const calPerMin = type === 'running' ? 10 : type === 'strength' ? 6 : type === 'cardio' ? 8 : 4;
       const caloriesBurned = duration * calPerMin;
 
-      return {
+      results.push({
         type: 'activity',
         payload: {
           type,
@@ -65,14 +63,14 @@ export function parseLocalInput(input: string): ParsedLogResult {
           caloriesBurned,
           notes: `Parsed: "${input}"`,
         },
-      };
+      });
     }
   }
 
-  // 3. Fallback to Meal Match via curated lookup (e.g. "2 eggs" or "chicken rice")
+  // 3. Check Food Match (e.g. "ate 2 eggs" or "had oatmeal")
   const foodResult = lookupFood(text);
   if (foodResult) {
-    return {
+    results.push({
       type: 'meal',
       payload: {
         name: foodResult.name,
@@ -81,28 +79,30 @@ export function parseLocalInput(input: string): ParsedLogResult {
         carbs: foodResult.carbs,
         fat: foodResult.fat,
       },
-    };
+    });
   }
 
-  // 4. Default Unknown
-  return {
-    type: 'unknown',
-    payload: null,
-  };
+  if (results.length > 0) {
+    return results;
+  }
+
+  return [
+    {
+      type: 'unknown',
+      payload: {},
+    },
+  ];
 }
 
-/**
- * Maps raw keyword string to standard Activity Type.
- */
-function mapActivityType(keyword: string): any {
-  const k = keyword.toLowerCase();
-  if (k.includes('walk')) return 'walking';
-  if (k.includes('run') || k.includes('jog') || k.includes('treadmill')) return 'running';
-  if (k.includes('strength') || k.includes('lift') || k.includes('weights') || k.includes('gym') || k.includes('squat') || k.includes('push')) return 'strength';
-  if (k.includes('cycling') || k.includes('cycle') || k.includes('bike') || k.includes('spin')) return 'cycling';
-  if (k.includes('swim') || k.includes('pool')) return 'swimming';
-  if (k.includes('yoga') || k.includes('stretch')) return 'yoga';
-  if (k.includes('mobility') || k.includes('foam')) return 'mobility';
-  if (k.includes('cardio') || k.includes('hiit') || k.includes('aerobics')) return 'cardio';
+function mapActivityType(key: string): 'strength' | 'cardio' | 'walking' | 'running' | 'swimming' | 'cycling' | 'mobility' | 'yoga' | 'restorative' | 'other' {
+  if (key.includes('walk')) return 'walking';
+  if (key.includes('run') || key.includes('jog')) return 'running';
+  if (key.includes('lift') || key.includes('strength') || key.includes('weights') || key.includes('gym')) return 'strength';
+  if (key.includes('swim')) return 'swimming';
+  if (key.includes('cycle') || key.includes('bike')) return 'cycling';
+  if (key.includes('yoga')) return 'yoga';
+  if (key.includes('stretch') || key.includes('mobility')) return 'mobility';
+  if (key.includes('rest') || key.includes('meditat')) return 'restorative';
+  if (key.includes('hiit') || key.includes('cardio')) return 'cardio';
   return 'other';
 }

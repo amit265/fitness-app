@@ -255,7 +255,7 @@ export default function TodayScreen() {
         <View style={styles.header}>
           <View>
             <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>
-              Today's Rhythm
+              Today's Rhythm • 🔥 {streak?.currentStreak || 1}d Streak
             </Typography>
             <Typography variant="h1" style={styles.userName}>
               Hello, {userProfile?.name || 'Sarah'}
@@ -263,52 +263,44 @@ export default function TodayScreen() {
           </View>
           
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            {/* Cycle Phase Badge */}
+            <Pressable
+              onPress={() => router.push('/cycle')}
+              style={[
+                styles.phaseBadge,
+                {
+                  backgroundColor: userProfile?.pauseCycleTracking
+                    ? (isDark ? '#2E2B28' : '#E8E5DF')
+                    : cycleState.phase === 'menstrual'
+                    ? PALETTE.rose.bg
+                    : PALETTE.sage.bg,
+                },
+              ]}
+            >
+              <Typography
+                variant="bodySmall"
+                color={
+                  userProfile?.pauseCycleTracking
+                    ? PALETTE.charcoal.light
+                    : cycleState.phase === 'menstrual'
+                    ? PALETTE.rose.dark
+                    : PALETTE.sage.dark
+                }
+                style={styles.phaseText}
+              >
+                {userProfile?.pauseCycleTracking
+                  ? 'CYCLE PAUSED'
+                  : `Day ${cycleState.cycleDay} • ${cycleState.phase.toUpperCase()}`}
+              </Typography>
+            </Pressable>
+
+            {/* Calendar Icon Button in Top Right */}
             <Pressable
               style={styles.headerCalendarBtn}
               onPress={() => router.push('/cycle')}
             >
               <CalendarIcon color={PALETTE.rose.default} size={22} />
             </Pressable>
-
-            <View style={{ flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-              {/* Streak Badge */}
-              <View style={[styles.streakHeaderBadge, { backgroundColor: isDark ? '#2B2318' : '#FEF3C7' }]}>
-                <Typography variant="caption" color="#D97706" style={{ fontFamily: 'Outfit-Bold' }}>
-                  🔥 {streak?.currentStreak || 1} Day Streak
-                </Typography>
-              </View>
-
-              {/* Cycle Phase Badge */}
-              <Pressable
-                onPress={() => router.push('/cycle')}
-                style={[
-                  styles.phaseBadge,
-                  {
-                    backgroundColor: userProfile?.pauseCycleTracking
-                      ? (isDark ? '#2E2B28' : '#E8E5DF')
-                      : cycleState.phase === 'menstrual'
-                      ? PALETTE.rose.bg
-                      : PALETTE.sage.bg,
-                  },
-                ]}
-              >
-                <Typography
-                  variant="bodySmall"
-                  color={
-                    userProfile?.pauseCycleTracking
-                      ? PALETTE.charcoal.light
-                      : cycleState.phase === 'menstrual'
-                      ? PALETTE.rose.dark
-                      : PALETTE.sage.dark
-                  }
-                  style={styles.phaseText}
-                >
-                  {userProfile?.pauseCycleTracking
-                    ? 'CYCLE PAUSED'
-                    : `Day ${cycleState.cycleDay} • ${cycleState.phase.toUpperCase()}`}
-                </Typography>
-              </Pressable>
-            </View>
           </View>
         </View>
 

@@ -18,6 +18,7 @@ import { Button } from '../../components/Button';
 import { InputField } from '../../components/InputField';
 import { useAppStore } from '../../store/useAppStore';
 import { parseUserInput } from '../../services/ai/aiService';
+import { ParsedLogResult } from '../../services/ai/regexParser';
 import { calculateActivityEquivalents } from '../../domain/calories/calorieEngine';
 import { getTodayStr } from '../../utils/date';
 import { BannerAdComponent } from '../../services/AdManager';
@@ -94,7 +95,7 @@ export default function LogScreen() {
   const [loading, setLoading] = useState(false);
 
   // Drafts state
-  const [draftLog, setDraftLog] = useState<any>(null);
+  const [draftLogs, setDraftLogs] = useState<ParsedLogResult[]>([]);
   const [draftError, setDraftError] = useState<string | null>(null);
 
   // Manual input modal states
@@ -121,15 +122,16 @@ export default function LogScreen() {
     if (!inputText.trim()) return;
     Keyboard.dismiss();
     setLoading(true);
-    setDraftLog(null);
+    setDraftLogs([]);
     setDraftError(null);
 
     try {
-      const result = await parseUserInput(inputText, userProfile?.groqApiKey);
-      if (result.type === 'unknown') {
+      const results = await parseUserInput(inputText, userProfile?.groqApiKey);
+      const validResults = results.filter((item) => item.type !== 'unknown');
+      if (validResults.length === 0) {
         setDraftError("We couldn't parse that text. Try adding details manually below!");
       } else {
-        setDraftLog(result);
+        setDraftLogs(validResults);
       }
     } catch (e) {
       setDraftError('Parsing error. Try manual input.');
@@ -138,39 +140,51 @@ export default function LogScreen() {
     }
   };
 
-  // Confirm and Save parsed inputs
-  const handleConfirmDraft = () => {
-    if (!draftLog) return;
-
-    if (draftLog.type === 'meal') {
+  // Save single item
+  const saveItemToStore = (item: ParsedLogResult) => {
+    if (item.type === 'meal') {
       addMeal({
-        name: draftLog.payload.name,
-        calories: Number(draftLog.payload.calories) || 0,
-        protein: Number(draftLog.payload.protein) || 0,
-        carbs: Number(draftLog.payload.carbs) || 0,
-        fat: Number(draftLog.payload.fat) || 0,
+        name: item.payload.name || 'Meal',
+        calories: Number(item.payload.calories) || 0,
+        protein: Number(item.payload.protein) || 0,
+        carbs: Number(item.payload.carbs) || 0,
+        fat: Number(item.payload.fat) || 0,
       });
-    } else if (draftLog.type === 'activity') {
+    } else if (item.type === 'activity') {
       addActivity({
-        type: draftLog.payload.type,
-        durationMinutes: Number(draftLog.payload.durationMinutes) || 30,
-        intensity: draftLog.payload.intensity,
-        caloriesBurned: Number(draftLog.payload.caloriesBurned) || 0,
-        notes: draftLog.payload.notes,
+        type: item.payload.type || 'other',
+        durationMinutes: Number(item.payload.durationMinutes) || 30,
+        intensity: item.payload.intensity || 'moderate',
+        caloriesBurned: Number(item.payload.caloriesBurned) || 0,
+        notes: item.payload.notes,
       });
-    } else if (draftLog.type === 'weight') {
+    } else if (item.type === 'weight') {
       addMeasurement({
-        weight: Number(draftLog.payload.weight),
+        weight: Number(item.payload.weight),
       });
     }
+  };
 
-    setDraftLog(null);
+  // Confirm All parsed inputs
+  const handleConfirmAllDrafts = () => {
+    if (draftLogs.length === 0) return;
+    draftLogs.forEach((item) => saveItemToStore(item));
+    Alert.alert('Logs Saved', `Successfully logged ${draftLogs.length} items!`);
+    setDraftLogs([]);
     setInputText('');
   };
 
-  // Submit Manual Form handlers
+  // Remove single item from drafts
+  const handleRemoveDraftIndex = (index: number) => {
+    setDraftLogs((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Submit Manual Form handlers with validation
   const handleManualMealSubmit = () => {
-    if (!manualMealName.trim()) return;
+    if (!manualMealName.trim()) {
+      Alert.alert('Missing Name', 'Please enter a description or name for your meal.');
+      return;
+    }
     addMeal({
       name: manualMealName.trim(),
       calories: parseFloat(manualMealCal) || 0,
@@ -178,7 +192,7 @@ export default function LogScreen() {
       carbs: parseFloat(manualMealCarb) || 0,
       fat: parseFloat(manualMealFat) || 0,
     });
-    // Reset Form
+    Alert.alert('Meal Logged', `${manualMealName.trim()} saved successfully!`);
     setManualMealName('');
     setManualMealCal('');
     setManualMealProt('');
@@ -188,7 +202,10 @@ export default function LogScreen() {
   };
 
   const handleManualWorkoutSubmit = () => {
-    if (!manualWorkDur) return;
+    if (!manualWorkDur || isNaN(Number(manualWorkDur))) {
+      Alert.alert('Missing Duration', 'Please enter the workout duration in minutes.');
+      return;
+    }
     const dur = parseInt(manualWorkDur) || 30;
     const cal = manualWorkCal ? parseFloat(manualWorkCal) : dur * (manualWorkType === 'strength' ? 6 : 8);
     
@@ -199,17 +216,21 @@ export default function LogScreen() {
       caloriesBurned: cal,
       notes: 'Logged manually',
     });
-
+    Alert.alert('Workout Logged', `${manualWorkType.toUpperCase()} workout saved successfully!`);
     setManualWorkDur('');
     setManualWorkCal('');
     setWorkoutModalVisible(false);
   };
 
   const handleManualWeightSubmit = () => {
-    if (!manualWeight) return;
+    if (!manualWeight || isNaN(Number(manualWeight))) {
+      Alert.alert('Missing Weight', 'Please enter your current weight in kg.');
+      return;
+    }
     addMeasurement({
       weight: parseFloat(manualWeight),
     });
+    Alert.alert('Weight Logged', `${manualWeight} kg logged successfully!`);
     setManualWeight('');
     setWeightModalVisible(false);
   };
@@ -284,130 +305,139 @@ export default function LogScreen() {
             </Card>
           )}
 
-          {draftLog && (
-            <Card style={[styles.draftCard, { borderColor: PALETTE.sage.default, backgroundColor: isDark ? '#1C1A18' : '#FFFFFF' }]}>
-              <View style={styles.draftHeaderRow}>
-                <Sparkles color={PALETTE.sage.default} size={20} />
-                <Typography variant="h3">Review Parse Draft</Typography>
+          {draftLogs.length > 0 && (
+            <View style={{ marginBottom: SPACING.md }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Typography variant="h3">Parsed Drafts ({draftLogs.length})</Typography>
+                <Pressable onPress={handleConfirmAllDrafts} style={{ backgroundColor: PALETTE.sage.default, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 100 }}>
+                  <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
+                    Confirm All ({draftLogs.length})
+                  </Typography>
+                </Pressable>
               </View>
 
-              {draftLog.type === 'meal' && (
-                <>
-                  <View style={styles.draftFieldsContainer}>
-                    <InputField
-                      label="Meal Name"
-                      value={draftLog.payload.name}
-                      onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, name: t } })}
-                    />
-                    <View style={styles.macroRow}>
-                      <View style={styles.macroCol}>
-                        <InputField
-                          label="Calories"
-                          value={String(draftLog.payload.calories)}
-                          keyboardType="number-pad"
-                          onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, calories: Number(t) } })}
-                        />
-                      </View>
-                      <View style={styles.macroCol}>
-                        <InputField
-                          label="Protein (g)"
-                          value={String(draftLog.payload.protein)}
-                          keyboardType="decimal-pad"
-                          onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, protein: Number(t) } })}
-                        />
-                      </View>
-                    </View>
-                    <View style={styles.macroRow}>
-                      <View style={styles.macroCol}>
-                        <InputField
-                          label="Carbs (g)"
-                          value={String(draftLog.payload.carbs)}
-                          keyboardType="decimal-pad"
-                          onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, carbs: Number(t) } })}
-                        />
-                      </View>
-                      <View style={styles.macroCol}>
-                        <InputField
-                          label="Fat (g)"
-                          value={String(draftLog.payload.fat)}
-                          keyboardType="decimal-pad"
-                          onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, fat: Number(t) } })}
-                        />
-                      </View>
-                    </View>
+              {draftLogs.map((draftItem, index) => (
+                <Card key={index} style={[styles.draftCard, { borderColor: PALETTE.sage.default, backgroundColor: isDark ? '#1C1A18' : '#FFFFFF', marginBottom: 12 }]}>
+                  <View style={styles.draftHeaderRow}>
+                    <Sparkles color={PALETTE.sage.default} size={18} />
+                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', flex: 1, marginLeft: 6 }}>
+                      {draftItem.type === 'meal' ? '🍳 Meal Draft' : draftItem.type === 'activity' ? '🏋️ Workout Draft' : '⚖️ Weight Draft'}
+                    </Typography>
+                    <Pressable onPress={() => handleRemoveDraftIndex(index)}>
+                      <Typography variant="caption" color={PALETTE.error}>Remove</Typography>
+                    </Pressable>
                   </View>
 
-                  {/* Educational Activity Perspective Box */}
-                  {draftLog.payload.calories > 0 && (() => {
-                    const latestWeight = measurements[0]?.weight ?? 60;
-                    const equiv = calculateActivityEquivalents(draftLog.payload.calories, latestWeight);
-                    return (
-                      <View style={[styles.equivBox, { backgroundColor: isDark ? '#282522' : '#FAF7F2' }]}>
-                        <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold', letterSpacing: 0.5, marginBottom: 2 }}>
-                          💡 ACTIVITY PERSPECTIVE (~{draftLog.payload.calories} KCAL)
-                        </Typography>
-                        <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={{ lineHeight: 16 }}>
-                          For perspective, this meal is roughly equivalent to:
-                        </Typography>
-                        <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Medium', marginTop: 4, color: isDark ? PALETTE.cream : PALETTE.charcoal.default }}>
-                          🚶 {equiv.walkingMins}m walking • 🏊 {equiv.swimmingMins}m swimming • 🏋️ {equiv.workoutMins}m workout
-                        </Typography>
-                        <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 4, fontStyle: 'italic', fontSize: 10 }}>
-                          Provided for awareness & energy flexibility — never punishment!
-                        </Typography>
+                  {draftItem.type === 'meal' && (
+                    <>
+                      <View style={styles.draftFieldsContainer}>
+                        <InputField
+                          label="Meal Name"
+                          value={draftItem.payload.name}
+                          onChangeText={(t) => {
+                            const updated = [...draftLogs];
+                            updated[index].payload.name = t;
+                            setDraftLogs(updated);
+                          }}
+                        />
+                        <View style={styles.macroRow}>
+                          <View style={styles.macroCol}>
+                            <InputField
+                              label="Calories"
+                              value={String(draftItem.payload.calories)}
+                              keyboardType="number-pad"
+                              onChangeText={(t) => {
+                                const updated = [...draftLogs];
+                                updated[index].payload.calories = Number(t);
+                                setDraftLogs(updated);
+                              }}
+                            />
+                          </View>
+                          <View style={styles.macroCol}>
+                            <InputField
+                              label="Protein (g)"
+                              value={String(draftItem.payload.protein)}
+                              keyboardType="decimal-pad"
+                              onChangeText={(t) => {
+                                const updated = [...draftLogs];
+                                updated[index].payload.protein = Number(t);
+                                setDraftLogs(updated);
+                              }}
+                            />
+                          </View>
+                        </View>
                       </View>
-                    );
-                  })()}
-                </>
-              )}
 
-              {draftLog.type === 'activity' && (
-                <View style={styles.draftFieldsContainer}>
-                  <Typography variant="bodySmall" style={styles.fieldLabel}>Workout Type</Typography>
-                  <Typography variant="bodyLarge" style={styles.fieldTextValue}>
-                    {draftLog.payload.type.toUpperCase()}
-                  </Typography>
+                      {draftItem.payload.calories > 0 && (() => {
+                        const latestWeight = measurements[0]?.weight ?? 60;
+                        const equiv = calculateActivityEquivalents(draftItem.payload.calories, latestWeight);
+                        return (
+                          <View style={[styles.equivBox, { backgroundColor: isDark ? '#282522' : '#FAF7F2' }]}>
+                            <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold', letterSpacing: 0.5, marginBottom: 2 }}>
+                              💡 ACTIVITY PERSPECTIVE (~{draftItem.payload.calories} KCAL)
+                            </Typography>
+                            <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Medium', color: isDark ? PALETTE.cream : PALETTE.charcoal.default }}>
+                              🚶 {equiv.walkingMins}m walking • 🏊 {equiv.swimmingMins}m swimming • 🏋️ {equiv.workoutMins}m workout
+                            </Typography>
+                          </View>
+                        );
+                      })()}
+                    </>
+                  )}
 
-                  <InputField
-                    label="Duration (minutes)"
-                    value={String(draftLog.payload.durationMinutes)}
-                    keyboardType="number-pad"
-                    onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, durationMinutes: Number(t) } })}
+                  {draftItem.type === 'activity' && (
+                    <View style={styles.draftFieldsContainer}>
+                      <Typography variant="bodySmall" style={styles.fieldLabel}>Type: {draftItem.payload.type?.toUpperCase()}</Typography>
+                      <InputField
+                        label="Duration (minutes)"
+                        value={String(draftItem.payload.durationMinutes)}
+                        keyboardType="number-pad"
+                        onChangeText={(t) => {
+                          const updated = [...draftLogs];
+                          updated[index].payload.durationMinutes = Number(t);
+                          setDraftLogs(updated);
+                        }}
+                      />
+                      <InputField
+                        label="Calories Burned (kcal)"
+                        value={String(draftItem.payload.caloriesBurned)}
+                        keyboardType="number-pad"
+                        onChangeText={(t) => {
+                          const updated = [...draftLogs];
+                          updated[index].payload.caloriesBurned = Number(t);
+                          setDraftLogs(updated);
+                        }}
+                      />
+                    </View>
+                  )}
+
+                  {draftItem.type === 'weight' && (
+                    <View style={styles.draftFieldsContainer}>
+                      <InputField
+                        label="Weight (kg)"
+                        value={String(draftItem.payload.weight)}
+                        keyboardType="decimal-pad"
+                        onChangeText={(t) => {
+                          const updated = [...draftLogs];
+                          updated[index].payload.weight = Number(t);
+                          setDraftLogs(updated);
+                        }}
+                      />
+                    </View>
+                  )}
+
+                  <Button
+                    title="Confirm This Item"
+                    onPress={() => {
+                      saveItemToStore(draftItem);
+                      Alert.alert('Item Logged', `${draftItem.type.toUpperCase()} saved!`);
+                      handleRemoveDraftIndex(index);
+                    }}
+                    style={{ marginTop: 8 }}
                   />
-                  <InputField
-                    label="Calories Burned (kcal)"
-                    value={String(draftLog.payload.caloriesBurned)}
-                    keyboardType="number-pad"
-                    onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, caloriesBurned: Number(t) } })}
-                  />
-                </View>
-              )}
-
-              {draftLog.type === 'weight' && (
-                <View style={styles.draftFieldsContainer}>
-                  <InputField
-                    label="Weight (kg)"
-                    value={String(draftLog.payload.weight)}
-                    keyboardType="decimal-pad"
-                    onChangeText={(t) => setDraftLog({ ...draftLog, payload: { ...draftLog.payload, weight: Number(t) } })}
-                  />
-                </View>
-              )}
-
-              <View style={styles.draftActionsRow}>
-                <Button
-                  title="Discard"
-                  variant="outline"
-                  onPress={() => setDraftLog(null)}
-                  style={styles.draftActionBtn}
-                />
-                <Button
-                  title="Confirm & Save"
-                  onPress={handleConfirmDraft}
-                  style={styles.draftActionSaveBtn}
-                />
-              </View>
-            </Card>
+                </Card>
+              ))}
+            </View>
           )}
 
           {/* Manual Actions Grid */}
