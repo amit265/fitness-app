@@ -254,7 +254,7 @@ export default function ProgressScreen() {
         </Card>
 
         {/* Native Ad Card */}
-        <NativeAdComponent style={{ marginVertical: SPACING.md }} />
+        <NativeAdComponent screen="progress" style={{ marginVertical: SPACING.md }} />
 
       </ScrollView>
 

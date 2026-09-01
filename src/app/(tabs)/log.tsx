@@ -23,7 +23,6 @@ import { getTodayStr } from '../../utils/date';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import { BannerAdComponent } from '../../services/AdManager';
 import {
   Sparkles,
   Utensils,
@@ -354,8 +353,7 @@ export default function LogScreen() {
             </Card>
           ))}
 
-          {/* SPONSORED BANNER AD */}
-          <BannerAdComponent />
+// BannerAdComponent removed per spec section 13 & 14
 
         </ScrollView>
       </KeyboardAvoidingView>

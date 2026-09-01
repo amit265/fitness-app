@@ -206,7 +206,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.priceTagBadge}>
               <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
-                {premiumProduct?.displayPrice || '$2.99'}
+                {premiumProduct?.displayPrice || t('common.loading')}
               </Typography>
             </View>
           </Pressable>

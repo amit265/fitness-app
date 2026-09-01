@@ -18,7 +18,6 @@ import { useAppTheme } from '../context/ThemeContext';
 import { SPACING } from '../constants/theme';
 import { ArrowLeft, Key, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { BannerAdComponent } from '../services/AdManager';
 import { APP_LINKS } from '../constants/links';
 
 export default function GroqApiScreen() {
@@ -222,10 +221,6 @@ export default function GroqApiScreen() {
             </Typography>
           </View>
 
-          {/* Sticky Bottom Ad */}
-          <View style={{ alignItems: 'center', marginTop: SPACING.md }}>
-            <BannerAdComponent />
-          </View>
 
         </ScrollView>
       </KeyboardAvoidingView>

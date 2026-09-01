@@ -21,7 +21,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Info, HelpCircle } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
-import { BannerAdComponent } from '../services/AdManager';
 import { t } from '../i18n';
 
 export default function BMICalculatorScreen() {
@@ -249,10 +248,6 @@ export default function BMICalculatorScreen() {
 
         </ScrollView>
 
-        {/* STICKY BOTTOM BANNER AD */}
-        <View style={[styles.bottomStickyBanner, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <BannerAdComponent />
-        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

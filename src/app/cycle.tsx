@@ -26,7 +26,6 @@ import { PALETTE, SPACING, CYCLE_PHASE_COLORS } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
-import { BannerAdComponent } from '../services/AdManager';
 import { t } from '../i18n';
 import {
   ArrowLeft,
@@ -814,10 +813,6 @@ export default function DedicatedCyclePage() {
 
       </ScrollView>
 
-      {/* STICKY BOTTOM BANNER AD */}
-      <View style={[styles.bottomStickyBanner, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <BannerAdComponent />
-      </View>
 
       {/* Log Period Modal */}
       <Modal visible={periodModalVisible} transparent animationType="slide" onRequestClose={() => setPeriodModalVisible(false)}>

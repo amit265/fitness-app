@@ -21,7 +21,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, User, Heart, Utensils, Target, Check } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
-import { BannerAdComponent } from '../services/AdManager';
 
 export default function EditProfileScreen() {
   const { colors, isDark } = useAppTheme();
@@ -246,10 +245,6 @@ export default function EditProfileScreen() {
 
         </ScrollView>
 
-        {/* STICKY BOTTOM BANNER AD */}
-        <View style={[styles.bottomStickyBanner, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <BannerAdComponent />
-        </View>
       </KeyboardAvoidingView>
 
       {/* Goal Dropdown Modal */}

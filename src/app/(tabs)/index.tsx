@@ -32,7 +32,7 @@ import { getDailyCalorieBalance } from '../../domain/calories/calorieEngine';
 import { getRecommendedMealsForToday } from '../../domain/calories/mealRecommendationEngine';
 import { triggerStoreReviewIfAppropriate } from '../../utils/storeReview';
 import { logAnalyticsEvent } from '../../services/analyticsService';
-import { BannerAdComponent, NativeAdComponent } from '../../services/AdManager';
+import { NativeAdComponent } from '../../services/AdManager';
 import {
   Sparkles,
   Droplet,
@@ -528,7 +528,7 @@ export default function TodayScreen() {
         </Card>
 
         {/* SPONSORED NATIVE AD */}
-        <NativeAdComponent />
+        <NativeAdComponent screen="home" />
 
         {/* 4. ACTIVITY & RECOVERY PLAN */}
         <Card style={styles.activityPlanCard}>
@@ -619,7 +619,7 @@ export default function TodayScreen() {
         </Card>
 
         {/* Native Ad Card */}
-        <NativeAdComponent style={{ marginVertical: SPACING.md }} />
+        <NativeAdComponent screen="home" style={{ marginVertical: SPACING.md }} />
 
       </ScrollView>
 

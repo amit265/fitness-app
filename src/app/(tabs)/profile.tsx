@@ -194,7 +194,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Native Ad Card */}
-          <NativeAdComponent style={{ marginVertical: SPACING.sm }} />
+          <NativeAdComponent screen="settings" style={{ marginVertical: SPACING.sm }} />
 
           {/* Destya Studio Footer */}
           <DestyaStudioFooter />
