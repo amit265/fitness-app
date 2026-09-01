@@ -6,5 +6,5 @@ export const APP_CONFIG = {
   supportEmail: 'support@destyastudio.com',
   githubRepoUrl: 'https://github.com/destya-studio/destya-fitness-app',
   groqEndpoint: 'https://api.groq.com/openai/v1/chat/completions',
-  groqModel: 'llama-3.3-70b-versatile',
+  groqModel: 'openai/gpt-oss-120b',
 };

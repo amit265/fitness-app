@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-const NOTIFICATION_SCHEDULED_KEY = 'ds_daily_notification_scheduled_v1';
+const NOTIFICATION_SCHEDULED_KEY = 'ds_daily_notification_scheduled_v2';
 
 // Configure notification behavior when app is in foreground
 Notifications.setNotificationHandler({
@@ -21,10 +21,10 @@ export const setupDailyEngagementNotifications = async (): Promise<boolean> => {
   }
 
   try {
-    // 1. Check if already scheduled once
+    // 1. Check if already scheduled
     const alreadyScheduled = await AsyncStorage.getItem(NOTIFICATION_SCHEDULED_KEY);
     if (alreadyScheduled === 'true') {
-      return true; // Already scheduled, exit immediately to prevent re-triggering on every open!
+      return true;
     }
 
     // 2. Request permissions if not granted
@@ -40,24 +40,34 @@ export const setupDailyEngagementNotifications = async (): Promise<boolean> => {
       return false;
     }
 
-    // 3. Cancel existing scheduled notifications to avoid duplicates
+    // 3. Android notification channel setup
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'Daily Check-In Reminders',
+        importance: Notifications.AndroidImportance.DEFAULT,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#3B2938',
+      });
+    }
+
+    // 4. Cancel existing scheduled notifications to avoid duplicates
     await Notifications.cancelAllScheduledNotificationsAsync();
 
-    // 4. Schedule a single recurring daily reminder at 7:00 PM (19:00)
-    const triggerInput: any = Platform.OS === 'android'
-      ? { hour: 19, minute: 0, repeats: true }
-      : { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: 19, minute: 0 };
-
+    // 5. Schedule a recurring daily reminder at 7:00 PM (19:00) with explicit type
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: 'Time for your daily readiness check-in! 🧘‍♀️',
+        title: 'Time for your daily Sini check-in! 🧘‍♀️',
         body: "Track today's workout, log your energy & check your cycle readiness.",
         sound: true,
       },
-      trigger: triggerInput,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 19,
+        minute: 0,
+      },
     });
 
-    // 5. Mark as scheduled in AsyncStorage so it NEVER runs again on subsequent cold starts
+    // 6. Mark as scheduled in AsyncStorage
     await AsyncStorage.setItem(NOTIFICATION_SCHEDULED_KEY, 'true');
     return true;
   } catch (error) {

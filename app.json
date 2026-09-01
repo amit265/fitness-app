@@ -25,9 +25,16 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "destyastudio.com", "pathPrefix": "/sini-ai" }
+            {
+              "scheme": "https",
+              "host": "destyastudio.com",
+              "pathPrefix": "/sini-ai"
+            }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ],
       "predictiveBackGestureEnabled": true
@@ -44,7 +51,14 @@
           "version": "2.3.0"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "98499755-4c9f-47ac-a171-efd55333fbf8"
+      }
+    },
+    "owner": "mindcraftlearning"
   },
   "react-native-google-mobile-ads": {
     "android_app_id": "ca-app-pub-3940256099942544~3347511713",

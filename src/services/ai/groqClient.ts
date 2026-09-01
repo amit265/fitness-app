@@ -5,6 +5,7 @@ interface GroqMessage {
   content: string;
 }
 
+// User-specified models array with explicit fallback ordering
 const GROQ_MODELS = [
   'openai/gpt-oss-120b',
   'openai/gpt-oss-20b',
@@ -14,7 +15,7 @@ const GROQ_MODELS = [
 ];
 
 /**
- * Direct client-side Groq API completion wrapper.
+ * Direct client-side Groq API completion wrapper with 5-tier model fallback chain.
  */
 export async function callGroqAPI(
   userPrompt: string,
@@ -26,14 +27,9 @@ export async function callGroqAPI(
   }
 
   const endpoint = APP_CONFIG.groqEndpoint;
-  const candidates = [
-    APP_CONFIG.groqModel,
-    ...GROQ_MODELS.filter((m) => m !== APP_CONFIG.groqModel),
-  ];
-
   let lastError: any = null;
 
-  for (const model of candidates) {
+  for (const model of GROQ_MODELS) {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -60,31 +56,30 @@ export async function callGroqAPI(
         } catch {
           parsedErr = null;
         }
-        
+
         const errMsg = parsedErr?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
         throw new Error(errMsg);
       }
 
       const data = await response.json();
       const reply = data?.choices?.[0]?.message?.content;
-      
+
       if (!reply) {
-        throw new Error('Received an empty response from Groq AI.');
+        throw new Error('Received empty response from Groq AI model: ' + model);
       }
 
       return reply;
     } catch (error: any) {
-      console.warn(`Groq API call failed with model "${model}", trying fallback... Error:`, error.message || error);
+      console.warn(`Groq API call failed with model "${model}", attempting next fallback... Error:`, error.message || error);
       lastError = error;
     }
   }
 
-  throw new Error(`Groq API failed. Last error: ${lastError?.message || lastError || 'Unknown error'}`);
+  throw new Error(`All 5 Groq AI model fallbacks failed. Last error: ${lastError?.message || lastError || 'Unknown error'}`);
 }
 
 /**
- * Dynamic chat helper for Aura Coach conversation.
- * It takes an array of messages and returns a plain text response.
+ * Dynamic chat helper for Sini AI Coach conversation with 5-tier fallback chain.
  */
 export async function callGroqChatAPI(
   messages: GroqMessage[],
@@ -95,14 +90,9 @@ export async function callGroqChatAPI(
   }
 
   const endpoint = APP_CONFIG.groqEndpoint;
-  const candidates = [
-    APP_CONFIG.groqModel,
-    ...GROQ_MODELS.filter((m) => m !== APP_CONFIG.groqModel),
-  ];
-
   let lastError: any = null;
 
-  for (const model of candidates) {
+  for (const model of GROQ_MODELS) {
     try {
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -131,17 +121,17 @@ export async function callGroqChatAPI(
 
       const data = await response.json();
       const reply = data?.choices?.[0]?.message?.content;
-      
+
       if (!reply) {
-        throw new Error('Empty response from coach.');
+        throw new Error('Empty response from coach model: ' + model);
       }
 
       return reply;
     } catch (error: any) {
-      console.warn(`Groq Chat API call failed with model "${model}", trying fallback... Error:`, error.message || error);
+      console.warn(`Groq Chat API call failed with model "${model}", attempting next fallback... Error:`, error.message || error);
       lastError = error;
     }
   }
 
-  throw new Error(`Groq Chat API failed. Last error: ${lastError?.message || lastError || 'Unknown error'}`);
+  throw new Error(`All 5 Groq Chat AI model fallbacks failed. Last error: ${lastError?.message || lastError || 'Unknown error'}`);
 }
