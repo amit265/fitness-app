@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
@@ -27,6 +28,8 @@ import Svg, { Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { getDailyCalorieBalance } from '../../domain/calories/calorieEngine';
 import { getRecommendedMealsForToday } from '../../domain/calories/mealRecommendationEngine';
+import { triggerStoreReviewIfAppropriate } from '../../utils/storeReview';
+import { logAnalyticsEvent } from '../../services/analyticsService';
 import {
   Sparkles,
   Droplet,
@@ -104,41 +107,47 @@ export default function TodayScreen() {
 
   const completedTargetsCount = [isCheckInMet, isWaterMet, isExerciseMet, isNutritionMet].filter(Boolean).length;
 
+  const currentStreak = streak?.currentStreak || 0;
+
   useEffect(() => {
     if (completedTargetsCount >= 2) {
       recordActivityStreak(todayStr);
+      if (currentStreak >= 3) {
+        logAnalyticsEvent('streak_milestone_hit', { streak: currentStreak });
+        triggerStoreReviewIfAppropriate('streak_milestone');
+      }
     }
-  }, [completedTargetsCount, todayStr]);
+  }, [completedTargetsCount, todayStr, currentStreak]);
+
+  const fetchDailyInsight = async () => {
+    setInsightLoading(true);
+    const context = {
+      userGoal: userProfile?.weightGoal || 'wellness',
+      cycleState,
+      readinessScore: readiness.score,
+      sleepDuration: todayCheckIn?.sleepDuration ?? 8,
+      sleepQuality: todayCheckIn?.sleepQuality ?? 4,
+      energy: todayCheckIn?.energy ?? 3,
+      stress: todayCheckIn?.stress ?? 2,
+      hydration: todayCheckIn?.hydration ?? 1.5,
+      symptoms: todayCheckIn?.symptoms ?? [],
+      recentWorkoutMinutes: recentWorkouts.reduce((sum, act) => sum + act.durationMinutes, 0),
+    };
+
+    try {
+      const text = await generateDailyInsight(context, userProfile?.groqApiKey);
+      setDailyInsight(text);
+    } catch (e) {
+      setDailyInsight('Focus on simple hydration and listen to your body today.');
+    } finally {
+      setInsightLoading(false);
+    }
+  };
 
   // Load Daily Insight on mount & check-in changes
   useEffect(() => {
-    async function loadInsight() {
-      setInsightLoading(true);
-      const context = {
-        userGoal: userProfile?.weightGoal || 'wellness',
-        cycleState,
-        readinessScore: readiness.score,
-        sleepDuration: todayCheckIn?.sleepDuration ?? 8,
-        sleepQuality: todayCheckIn?.sleepQuality ?? 4,
-        energy: todayCheckIn?.energy ?? 3,
-        stress: todayCheckIn?.stress ?? 2,
-        hydration: todayCheckIn?.hydration ?? 1.5,
-        symptoms: todayCheckIn?.symptoms ?? [],
-        recentWorkoutMinutes: recentWorkouts.reduce((sum, act) => sum + act.durationMinutes, 0),
-      };
-
-      try {
-        const text = await generateDailyInsight(context, userProfile?.groqApiKey);
-        setDailyInsight(text);
-      } catch (e) {
-        setDailyInsight('Focus on simple hydration and listen to your body today.');
-      } finally {
-        setInsightLoading(false);
-      }
-    }
-
-    loadInsight();
-  }, [todayCheckIn, cycleState.cycleDay]);
+    fetchDailyInsight();
+  }, [todayCheckIn]);
 
   // Check-In Form State
   const [sleepDur, setSleepDur] = useState(todayCheckIn ? String(todayCheckIn.sleepDuration) : '8');
@@ -217,9 +226,30 @@ export default function TodayScreen() {
   const calProgress = Math.min(1, calorieBalance.consumedCalories / (calorieBalance.targetCalories || 1850));
   const calStrokeDashoffset = calCircumference - calProgress * calCircumference;
 
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchDailyInsight();
+    } catch (e) {}
+    setRefreshing(false);
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={[PALETTE.sage.default]}
+            tintColor={PALETTE.sage.default}
+          />
+        }
+      >
         
         {/* Header Greeting */}
         <View style={styles.header}>

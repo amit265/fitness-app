@@ -20,6 +20,7 @@ import { PALETTE } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
 import { setupDailyEngagementNotifications } from '../services/notificationService';
 import { EasUpdateModal } from '../components/EasUpdateModal';
+import { useDeepLinkHandler } from '../hooks/useDeepLinkHandler';
 
 function NavigationGuard({ children }: { children: React.ReactNode }) {
   const userProfile = useAppStore((state) => state.userProfile);
@@ -27,6 +28,8 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [hydrated, setHydrated] = useState(false);
   const isDark = useColorScheme() === 'dark';
+
+  useDeepLinkHandler();
 
   useEffect(() => {
     // Check if already hydrated

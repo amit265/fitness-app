@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, Image, Linking } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Typography } from './Typography';
 import { Card } from './Card';
 import { PALETTE, SPACING } from '../constants/theme';
 import { ExternalLink } from 'lucide-react-native';
+import { logAnalyticsEvent } from '../services/analyticsService';
 
 const DESTYA_STUDIO_APPS = [
   {
@@ -44,7 +46,12 @@ const DESTYA_STUDIO_APPS = [
 ];
 
 export const DestyaStudioAppsHub: React.FC = () => {
-  const handleOpenApp = (url: string) => {
+  const handleOpenApp = async (slug: string, url: string) => {
+    try {
+      await AsyncStorage.setItem(`ds_cross_promo_${slug}_clicked`, 'true');
+      logAnalyticsEvent('cross_promo_clicked', { target_app: slug });
+    } catch (e) {}
+
     Linking.openURL(url).catch((err) =>
       console.warn('Failed to open Destya Studio app link:', err)
     );
@@ -69,7 +76,7 @@ export const DestyaStudioAppsHub: React.FC = () => {
           <Pressable
             key={app.slug}
             style={({ pressed }) => [styles.appItem, pressed && styles.appItemPressed]}
-            onPress={() => handleOpenApp(app.url)}
+            onPress={() => handleOpenApp(app.slug, app.url)}
           >
             <Image source={{ uri: app.icon }} style={styles.appIcon} defaultSource={{ uri: 'https://destyastudio.com/favicon.ico' }} />
             <View style={{ flex: 1, marginLeft: 10 }}>
