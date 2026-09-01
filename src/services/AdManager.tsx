@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Alert, Platform, Text, Pressable } from 'react-native';
 import { useAdContext } from '../context/AdContext';
+import { useAppTheme } from '../context/ThemeContext';
 import { getAdUnitId } from '../constants/adConfig';
 import { ExternalLink } from 'lucide-react-native';
 
@@ -66,26 +67,33 @@ export const BannerAdComponent: React.FC<{ style?: object }> = ({ style }) => {
 // ─── 2. NATIVE ADVANCED / FEED BLENDED AD ──────────────────────────────────
 export const NativeAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   const { isAdFree } = useAdContext();
+  const { colors } = useAppTheme();
 
   if (isAdFree) return null;
 
   return (
-    <View style={[styles.nativeCard, style]}>
+    <View style={[styles.nativeCard, { backgroundColor: colors.card, borderColor: colors.border }, style]}>
       <View style={styles.nativeHeaderRow}>
-        <View style={styles.adBadge}>
-          <Text style={styles.adBadgeText}>Ad</Text>
+        <View style={[styles.adBadge, { backgroundColor: colors.primary }]}>
+          <Text style={styles.adBadgeText}>SPONSORED</Text>
         </View>
-        <Text style={styles.nativeTitle}>Destya Fitness Partner & Recommendations</Text>
+        <Text style={[styles.nativeTitle, { color: colors.textPrimary }]}>
+          Destya Fitness & Cycle Partner
+        </Text>
       </View>
-      <Text style={styles.nativeBody}>
-        Explore cycle-syncing organic supplements, mindfulness tools & certified fitness gear.
+      <Text style={[styles.nativeBody, { color: colors.textSecondary }]}>
+        Explore cycle-synced organic nutrition, recovery tools & certified fitness gear tailored for your active phase.
       </Text>
       <Pressable
-        style={styles.nativeCtaBtn}
-        onPress={() => Alert.alert('Sponsored Offer', 'Opening Destya partner catalog...')}
+        style={({ pressed }) => [
+          styles.nativeCtaBtn,
+          { backgroundColor: colors.primary },
+          pressed && { opacity: 0.85 },
+        ]}
+        onPress={() => Alert.alert('Sponsored Offer', 'Opening Destya Studio partner catalog...')}
       >
-        <Text style={styles.nativeCtaText}>Explore Offers</Text>
-        <ExternalLink color="#FFFFFF" size={12} style={{ marginLeft: 4 }} />
+        <Text style={[styles.nativeCtaText, { color: colors.primaryText }]}>Explore Offers</Text>
+        <ExternalLink color={colors.primaryText} size={12} style={{ marginLeft: 6 }} />
       </Pressable>
     </View>
   );

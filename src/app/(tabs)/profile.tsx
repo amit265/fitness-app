@@ -16,7 +16,7 @@ import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import { BannerAdComponent } from '../../services/AdManager';
+import { NativeAdComponent } from '../../services/AdManager';
 import {
   Settings,
   Trash2,
@@ -222,8 +222,8 @@ export default function ProfileScreen() {
             </Pressable>
           </View>
 
-          {/* SPONSORED BANNER AD */}
-          <BannerAdComponent />
+          {/* Native Ad Card */}
+          <NativeAdComponent style={{ marginVertical: SPACING.sm }} />
 
           {/* Cross Promotion Hub & Destya Footer */}
           <DestyaStudioAppsHub />

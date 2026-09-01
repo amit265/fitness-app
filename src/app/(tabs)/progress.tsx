@@ -20,7 +20,7 @@ import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import { BannerAdComponent } from '../../services/AdManager';
+import { NativeAdComponent } from '../../services/AdManager';
 import {
   Scale,
   Ruler,
@@ -252,8 +252,8 @@ export default function ProgressScreen() {
           </Typography>
         </Card>
 
-        {/* SPONSORED BANNER AD */}
-        <BannerAdComponent />
+        {/* Native Ad Card */}
+        <NativeAdComponent style={{ marginVertical: SPACING.md }} />
 
       </ScrollView>
 

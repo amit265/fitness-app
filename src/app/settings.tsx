@@ -249,20 +249,20 @@ export default function SettingsScreen() {
                     </View>
                   </View>
 
-                  <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+                  <View style={{ flexDirection: 'column', gap: 10, marginTop: 12, width: '100%' }}>
                     {!isAdFree && (
                       <Button
-                        title="🎬 Watch Ad for 15-Min Pass"
+                        title="🎬 Watch Ad for 15-Min Ad-Free Pass"
                         variant="outline"
                         onPress={handleWatchAdReward}
-                        style={{ flex: 1 }}
+                        style={{ width: '100%' }}
                       />
                     )}
                     <Button
                       title="🔄 Restore Purchases"
                       variant="secondary"
                       onPress={handleRestorePurchases}
-                      style={{ flex: 1 }}
+                      style={{ width: '100%' }}
                     />
                   </View>
                 </View>

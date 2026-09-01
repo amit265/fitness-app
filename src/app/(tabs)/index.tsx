@@ -617,8 +617,8 @@ export default function TodayScreen() {
           )}
         </Card>
 
-        {/* SPONSORED BANNER AD */}
-        <BannerAdComponent />
+        {/* Native Ad Card */}
+        <NativeAdComponent style={{ marginVertical: SPACING.md }} />
 
       </ScrollView>
 
