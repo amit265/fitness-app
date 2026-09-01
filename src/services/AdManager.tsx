@@ -43,9 +43,12 @@ export const BannerAdComponent: React.FC<{ style?: object }> = ({ style }) => {
         <BannerAd
           unitId={adUnitId}
           size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-          onAdLoaded={() => setIsAdLoaded(true)}
+          onAdLoaded={() => {
+            console.log('[AdManager] Banner Ad Successfully Loaded!');
+            setIsAdLoaded(true);
+          }}
           onAdFailedToLoad={(err: any) => {
-            console.warn('[AdManager] Banner Ad Failed to Load:', err);
+            console.warn('[AdManager] Banner Ad Failed to Load -> Error Code:', err?.code, 'Message:', err?.message || err);
             setAdError(true);
           }}
         />
