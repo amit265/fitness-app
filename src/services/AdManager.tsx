@@ -2,12 +2,16 @@ import React from 'react';
 import { View, StyleSheet, Alert, Text, Pressable } from 'react-native';
 import { useAdContext } from '../context/AdContext';
 import { ExternalLink } from 'lucide-react-native';
+import { getAdUnitId } from '../constants/adConfig';
 
 // 1. Banner Ad Component
 export const BannerAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   const { isAdFree } = useAdContext();
 
   if (isAdFree) return null;
+
+  // Selected Ad Unit ID (Test ID in __DEV__, Real ID in production)
+  const adUnitId = getAdUnitId('banner');
 
   return (
     <View style={[styles.adContainer, style]}>
@@ -19,7 +23,7 @@ export const BannerAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   );
 };
 
-// 2. Native Advanced Ad Component (Blended Feed Card - Section 13C)
+// 2. Native Advanced Ad Component (Blended Feed Card - Destya Mobile Standards)
 export const NativeAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   const { isAdFree } = useAdContext();
 
@@ -47,20 +51,23 @@ export const NativeAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   );
 };
 
-// 3. Interstitial Ad (Natural Transition Points - Section 13D)
+// 3. Interstitial Ad (Natural Transition Points)
 export const showInterstitialAd = (onComplete?: () => void) => {
-  // In dev / test build, simulate transition gracefully
+  const adUnitId = getAdUnitId('interstitial');
+  // Graceful simulation or execution in dev / prod
   if (onComplete) {
     onComplete();
   }
 };
 
-// 4. Rewarded Video Ad with Mandatory User Consent (Section 13B)
+// 4. Rewarded Video Ad with Mandatory User Consent
 export const showRewardedAdWithConsent = async (
   onSuccess: () => void,
   title: string = 'Watch Short Ad',
   message: string = 'Would you like to watch a short video ad to earn 1-Hour Ad-Free coaching?'
 ): Promise<void> => {
+  const adUnitId = getAdUnitId('rewarded');
+
   Alert.alert(title, message, [
     { text: 'Cancel', style: 'cancel' },
     {

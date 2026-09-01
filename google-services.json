@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "123456789012",
-    "project_id": "aurafit-destya-studio",
-    "storage_bucket": "aurafit-destya-studio.appspot.com"
+    "project_number": "327995826064",
+    "project_id": "destya-studio",
+    "storage_bucket": "destya-studio.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890",
+        "mobilesdk_app_id": "1:327995826064:android:6201107387689f3dfe9d15",
         "android_client_info": {
-          "package_name": "com.destyastudio.aurafit"
+          "package_name": "com.destyastudio.siniai"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDummyKeyForDestyaStudioAuraFit123"
+          "current_key": "AIzaSyDJ6FeCIheJ7iWTG_1EOqSeGxurFEd6u3Q"
         }
       ],
       "services": {
