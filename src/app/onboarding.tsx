@@ -17,11 +17,11 @@ import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Sparkles, Calendar, Target, User, ShieldCheck } from 'lucide-react-native';
+import { useAppTheme } from '../context/ThemeContext';
 
 export default function OnboardingScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
   const setUserProfile = useAppStore((state) => state.setUserProfile);
   const setCyclePreferences = useAppStore((state) => state.setCyclePreferences);
   const addPeriodLog = useAppStore((state) => state.addPeriodLog);

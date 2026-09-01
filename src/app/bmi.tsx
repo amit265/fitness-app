@@ -20,11 +20,11 @@ import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Info, HelpCircle } from 'lucide-react-native';
+import { useAppTheme } from '../context/ThemeContext';
 
 export default function BMICalculatorScreen() {
   const router = useRouter();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
 
   // Store data & actions
   const userProfile = useAppStore((state) => state.userProfile);
@@ -139,7 +139,7 @@ export default function BMICalculatorScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
@@ -147,7 +147,7 @@ export default function BMICalculatorScreen() {
         {/* Navigation Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ChevronLeft color={PALETTE.charcoal.default} size={24} />
+            <ChevronLeft color={colors.textPrimary} size={24} />
           </Pressable>
           <Typography variant="h3">BMI Calculator</Typography>
           <View style={{ width: 24 }} />

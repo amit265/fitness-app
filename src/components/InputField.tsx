@@ -4,10 +4,10 @@ import {
   TextInput,
   TextInputProps,
   StyleSheet,
-  useColorScheme,
 } from 'react-native';
 import { Typography } from './Typography';
-import { PALETTE, SPACING } from '../constants/theme';
+import { SPACING } from '../constants/theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface InputFieldProps extends TextInputProps {
   label: string;
@@ -20,17 +20,12 @@ export const InputField: React.FC<InputFieldProps> = ({
   style,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors } = useAppTheme();
   const [isFocused, setIsFocused] = useState(false);
-
-  const activeColor = PALETTE.sage.default;
-  const inactiveColor = isDark ? '#2E2B28' : '#ECE9E4';
-  const backgroundColor = isDark ? '#1C1A18' : PALETTE.white;
 
   return (
     <View style={styles.container}>
-      <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.label}>
+      <Typography variant="bodySmall" color={colors.textSecondary} style={styles.label}>
         {label}
       </Typography>
       <TextInput
@@ -39,17 +34,17 @@ export const InputField: React.FC<InputFieldProps> = ({
         style={[
           styles.input,
           {
-            backgroundColor,
-            borderColor: error ? PALETTE.error : isFocused ? activeColor : inactiveColor,
-            color: isDark ? PALETTE.cream : PALETTE.charcoal.default,
+            backgroundColor: colors.card,
+            borderColor: error ? colors.error : isFocused ? colors.primary : colors.border,
+            color: colors.textPrimary,
           },
           style,
         ]}
-        placeholderTextColor={isDark ? '#6B6256' : '#A89E90'}
+        placeholderTextColor={colors.textMuted}
         {...props}
       />
       {error && (
-        <Typography variant="caption" color={PALETTE.error} style={styles.errorText}>
+        <Typography variant="caption" color={colors.error} style={styles.errorText}>
           {error}
         </Typography>
       )}
@@ -78,3 +73,4 @@ const styles = StyleSheet.create({
     marginTop: SPACING.xs,
   },
 });
+

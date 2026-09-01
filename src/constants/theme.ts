@@ -72,6 +72,259 @@ export const PALETTE = {
   darkBorder: '#423642',
 };
 
+export interface ThemeTokens {
+  name: string;
+  bg: string;
+  card: string;
+  cardElevated: string;
+  surface: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  primary: string;
+  primaryText: string;
+  accent: string;
+  border: string;
+  borderLight: string;
+  shadow: string;
+
+  // Cycle phase & domain accents
+  period: string;
+  follicular: string;
+  ovulation: string;
+  luteal: string;
+  cycle: string; // active phase accent
+  activity: string;
+  nutrition: string;
+  recovery: string;
+
+  // System feedback
+  success: string;
+  successBg: string;
+  warning: string;
+  warningBg: string;
+  error: string;
+  errorBg: string;
+
+  isDark: boolean;
+}
+
+/** SINI CLASSIC: The original application theme (Warm Oat & Deep Plum) */
+export const THEME_CLASSIC: ThemeTokens = {
+  name: 'Sini Classic',
+  bg: PALETTE.oat.bg,
+  card: PALETTE.white,
+  cardElevated: PALETTE.cream,
+  surface: PALETTE.cream,
+  textPrimary: PALETTE.charcoal.default,
+  textSecondary: PALETTE.charcoal.light,
+  textMuted: PALETTE.lavender,
+  primary: PALETTE.plum.default,
+  primaryText: PALETTE.oat.default,
+  accent: PALETTE.plum.default,
+  border: PALETTE.sand,
+  borderLight: '#F0E8E1',
+  shadow: PALETTE.charcoal.default,
+
+  period: PALETTE.rose.default,
+  follicular: PALETTE.sage.default,
+  ovulation: PALETTE.gold.default,
+  luteal: PALETTE.plum.light,
+  cycle: PALETTE.plum.default,
+  activity: PALETTE.sage.default,
+  nutrition: PALETTE.terracotta.default,
+  recovery: PALETTE.lavender,
+
+  success: PALETTE.success,
+  successBg: '#D1FAE5',
+  warning: PALETTE.warning,
+  warningBg: '#FEF3C7',
+  error: PALETTE.error,
+  errorBg: '#FFEBEB',
+
+  isDark: false,
+};
+
+/** SINI DARK MODE: Deep Plum Night */
+export const THEME_DARK: ThemeTokens = {
+  name: 'Dark Mode',
+  bg: PALETTE.darkBg,
+  card: PALETTE.darkCard,
+  cardElevated: '#3A2E3A',
+  surface: '#2B232B',
+  textPrimary: PALETTE.darkText,
+  textSecondary: PALETTE.darkSubtext,
+  textMuted: '#9B8B9B',
+  primary: PALETTE.plum.light,
+  primaryText: PALETTE.darkText,
+  accent: PALETTE.plum.light,
+  border: PALETTE.darkBorder,
+  borderLight: '#4F414F',
+  shadow: '#000000',
+
+  period: '#E89FA9',
+  follicular: '#A2BCAC',
+  ovulation: '#D9B46E',
+  luteal: '#9B8398',
+  cycle: PALETTE.plum.light,
+  activity: '#A2BCAC',
+  nutrition: '#D98A75',
+  recovery: '#B8ACC0',
+
+  success: '#81B28F',
+  successBg: '#1C2920',
+  warning: '#D9AA67',
+  warningBg: '#2B2318',
+  error: '#C9737E',
+  errorBg: '#2E1A1A',
+
+  isDark: true,
+};
+
+/** MENSTRUAL PHASE: Rose Dawn (Quiet · Soft · Restorative) */
+export const THEME_ROSE_DAWN: ThemeTokens = {
+  name: 'Rose Dawn',
+  bg: PALETTE.rose.bg, // #FBF2F4
+  card: PALETTE.white,
+  cardElevated: '#FFF8F9',
+  surface: '#FAF0F2',
+  textPrimary: '#3B2329',
+  textSecondary: '#7C4F57',
+  textMuted: '#A68288',
+  primary: PALETTE.rose.dark, // #B86F7B
+  primaryText: PALETTE.white,
+  accent: PALETTE.rose.default, // #D9939E
+  border: PALETTE.rose.light, // #F4D4D9
+  borderLight: '#F9E5E8',
+  shadow: '#3B2329',
+
+  period: PALETTE.rose.default,
+  follicular: PALETTE.sage.default,
+  ovulation: PALETTE.gold.default,
+  luteal: PALETTE.plum.light,
+  cycle: PALETTE.rose.default,
+  activity: PALETTE.sage.default,
+  nutrition: PALETTE.terracotta.default,
+  recovery: PALETTE.lavender,
+
+  success: PALETTE.success,
+  successBg: '#D1FAE5',
+  warning: PALETTE.warning,
+  warningBg: '#FEF3C7',
+  error: PALETTE.error,
+  errorBg: '#FFEBEB',
+
+  isDark: false,
+};
+
+/** FOLLICULAR PHASE: Sage Bloom (Fresh · Light · Renewing) */
+export const THEME_SAGE_BLOOM: ThemeTokens = {
+  name: 'Sage Bloom',
+  bg: PALETTE.sage.bg, // #F1F6F3
+  card: PALETTE.white,
+  cardElevated: '#F7FAF8',
+  surface: '#EBF2EE',
+  textPrimary: '#1F3127',
+  textSecondary: '#4E695A',
+  textMuted: '#849E90',
+  primary: PALETTE.sage.dark, // #5F7C6B
+  primaryText: PALETTE.white,
+  accent: PALETTE.sage.default, // #8FA89A
+  border: PALETTE.sage.light, // #BDD2C6
+  borderLight: '#D8E5DC',
+  shadow: '#1F3127',
+
+  period: PALETTE.rose.default,
+  follicular: PALETTE.sage.default,
+  ovulation: PALETTE.gold.default,
+  luteal: PALETTE.plum.light,
+  cycle: PALETTE.sage.default,
+  activity: PALETTE.sage.default,
+  nutrition: PALETTE.terracotta.default,
+  recovery: PALETTE.lavender,
+
+  success: PALETTE.success,
+  successBg: '#D1FAE5',
+  warning: PALETTE.warning,
+  warningBg: '#FEF3C7',
+  error: PALETTE.error,
+  errorBg: '#FFEBEB',
+
+  isDark: false,
+};
+
+/** OVULATORY PHASE: Golden Glow (Bright · Energetic · Vibrant) */
+export const THEME_GOLDEN_GLOW: ThemeTokens = {
+  name: 'Golden Glow',
+  bg: PALETTE.gold.bg, // #FAF5EA
+  card: PALETTE.white,
+  cardElevated: '#FFFDF7',
+  surface: '#F7EFE0',
+  textPrimary: '#3D311A',
+  textSecondary: '#7A6232',
+  textMuted: '#A69268',
+  primary: PALETTE.gold.dark, // #937331
+  primaryText: PALETTE.white,
+  accent: PALETTE.gold.default, // #C6A15B
+  border: PALETTE.gold.light, // #E2C78E
+  borderLight: '#EFE0C2',
+  shadow: '#3D311A',
+
+  period: PALETTE.rose.default,
+  follicular: PALETTE.sage.default,
+  ovulation: PALETTE.gold.default,
+  luteal: PALETTE.plum.light,
+  cycle: PALETTE.gold.default,
+  activity: PALETTE.sage.default,
+  nutrition: PALETTE.terracotta.default,
+  recovery: PALETTE.lavender,
+
+  success: PALETTE.success,
+  successBg: '#D1FAE5',
+  warning: PALETTE.warning,
+  warningBg: '#FEF3C7',
+  error: PALETTE.error,
+  errorBg: '#FFEBEB',
+
+  isDark: false,
+};
+
+/** LUTEAL PHASE: Plum Dusk (Grounded · Warm · Reflective) */
+export const THEME_PLUM_DUSK: ThemeTokens = {
+  name: 'Plum Dusk',
+  bg: PALETTE.plum.bg, // #F5EEF6
+  card: PALETTE.white,
+  cardElevated: '#FAF5FC',
+  surface: '#EFE6F0',
+  textPrimary: '#261924',
+  textSecondary: '#5A4257',
+  textMuted: '#8E738B',
+  primary: PALETTE.plum.default, // #3B2938
+  primaryText: PALETTE.oat.default,
+  accent: PALETTE.plum.light, // #765C73
+  border: '#D2C4D1',
+  borderLight: '#E4DAE3',
+  shadow: '#261924',
+
+  period: PALETTE.rose.default,
+  follicular: PALETTE.sage.default,
+  ovulation: PALETTE.gold.default,
+  luteal: PALETTE.plum.light,
+  cycle: PALETTE.plum.light,
+  activity: PALETTE.sage.default,
+  nutrition: PALETTE.terracotta.default,
+  recovery: PALETTE.lavender,
+
+  success: PALETTE.success,
+  successBg: '#D1FAE5',
+  warning: PALETTE.warning,
+  warningBg: '#FEF3C7',
+  error: PALETTE.error,
+  errorBg: '#FFEBEB',
+
+  isDark: false,
+};
+
 export const SEMANTICS = {
   nutrition: PALETTE.terracotta.default,
   activity: PALETTE.sage.default,
@@ -166,3 +419,5 @@ export const SHADOWS = {
     elevation: 3,
   },
 };
+
+

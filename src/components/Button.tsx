@@ -7,7 +7,8 @@ import {
   StyleProp,
 } from 'react-native';
 import { Typography } from './Typography';
-import { PALETTE, SPACING } from '../constants/theme';
+import { SPACING } from '../constants/theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'positive' | 'nutrition';
 
@@ -30,37 +31,39 @@ export const Button: React.FC<ButtonProps> = ({
   icon,
   style,
 }) => {
+  const { colors } = useAppTheme();
+
   const getButtonStyles = (): StyleProp<ViewStyle> => {
     const baseStyles: any[] = [styles.button];
 
     switch (variant) {
       case 'primary':
         baseStyles.push({
-          backgroundColor: PALETTE.plum.default,
+          backgroundColor: colors.primary,
         });
         break;
       case 'secondary':
         baseStyles.push({
-          backgroundColor: PALETTE.oat.default,
+          backgroundColor: colors.surface,
           borderWidth: 1.5,
-          borderColor: PALETTE.plum.default,
+          borderColor: colors.primary,
         });
         break;
       case 'outline':
         baseStyles.push({
           backgroundColor: 'transparent',
           borderWidth: 1.5,
-          borderColor: PALETTE.plum.default,
+          borderColor: colors.primary,
         });
         break;
       case 'positive':
         baseStyles.push({
-          backgroundColor: PALETTE.sage.default,
+          backgroundColor: colors.activity,
         });
         break;
       case 'nutrition':
         baseStyles.push({
-          backgroundColor: PALETTE.terracotta.default,
+          backgroundColor: colors.nutrition,
         });
         break;
     }
@@ -73,16 +76,16 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const getTextColor = (): string => {
-    if (disabled) return PALETTE.charcoal.light;
+    if (disabled) return colors.textMuted;
     switch (variant) {
       case 'primary':
-        return PALETTE.oat.default;
+        return colors.primaryText;
       case 'secondary':
       case 'outline':
-        return PALETTE.plum.default;
+        return colors.primary;
       case 'positive':
       case 'nutrition':
-        return PALETTE.white;
+        return '#FFFFFF';
     }
   };
 
@@ -132,3 +135,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+

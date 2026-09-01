@@ -20,10 +20,10 @@ import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, User, Heart, Utensils, Target, Check } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useAppTheme } from '../context/ThemeContext';
 
 export default function EditProfileScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
   const router = useRouter();
 
   // Store data & actions
@@ -95,7 +95,7 @@ export default function EditProfileScreen() {
           {/* Header */}
           <View style={styles.header}>
             <Pressable style={styles.backBtn} onPress={() => router.back()}>
-              <ArrowLeft color={PALETTE.sage.default} size={24} />
+              <ArrowLeft color={colors.primary} size={24} />
             </Pressable>
             <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
               Edit Profile
@@ -106,7 +106,7 @@ export default function EditProfileScreen() {
           {/* Section 1: Biometrics & Personal Info */}
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
-              <User color={PALETTE.sage.default} size={20} />
+              <User color={colors.primary} size={20} />
               <Typography variant="h3">Personal Information</Typography>
             </View>
 

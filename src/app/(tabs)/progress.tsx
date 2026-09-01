@@ -20,6 +20,7 @@ import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
+import { BannerAdComponent } from '../../services/AdManager';
 import {
   Scale,
   Ruler,
@@ -113,14 +114,14 @@ export default function ProgressScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Scale color={PALETTE.plum.default} size={20} />
+              <Scale color={colors.primary} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
                 Weight Progress
               </Typography>
             </View>
             <Pressable onPress={() => setMeasureModalVisible(true)} style={styles.addBtn}>
-              <Plus size={16} color={PALETTE.plum.default} />
-              <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+              <Plus size={16} color={colors.primary} />
+              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
                 Log Weight
               </Typography>
             </Pressable>
@@ -133,11 +134,11 @@ export default function ProgressScreen() {
                 key={days}
                 style={[
                   styles.windowChip,
-                  timeWindow === days && { backgroundColor: PALETTE.plum.default },
+                  timeWindow === days ? { backgroundColor: colors.primary } : { backgroundColor: colors.surface },
                 ]}
                 onPress={() => setTimeWindow(days as TimeWindow)}
               >
-                <Typography variant="caption" color={timeWindow === days ? PALETTE.oat.default : colors.text}>
+                <Typography variant="caption" color={timeWindow === days ? colors.primaryText : colors.textPrimary}>
                   {days} Days
                 </Typography>
               </Pressable>
@@ -154,13 +155,13 @@ export default function ProgressScreen() {
             </View>
             <View style={styles.statBox}>
               <Typography variant="caption" color={colors.subtext}>Overall Change</Typography>
-              <Typography variant="h2" color={weightChange && weightChange <= 0 ? PALETTE.sage.default : PALETTE.terracotta.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h2" color={weightChange && weightChange <= 0 ? colors.activity : colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
                 {weightChange !== null ? `${weightChange > 0 ? '+' : ''}${weightChange} kg` : '--'}
               </Typography>
             </View>
             <View style={styles.statBox}>
               <Typography variant="caption" color={colors.subtext}>BMI Category</Typography>
-              <Typography variant="h3" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', textTransform: 'capitalize' }}>
+              <Typography variant="h3" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', textTransform: 'capitalize' }}>
                 {bmiCategory || '--'}
               </Typography>
             </View>
@@ -176,38 +177,38 @@ export default function ProgressScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ruler color={PALETTE.rose.default} size={20} />
+              <Ruler color={colors.period} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
                 Body Measurements (cm)
               </Typography>
             </View>
             <Pressable onPress={() => setMeasureModalVisible(true)}>
-              <Typography variant="caption" color={PALETTE.rose.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.period} style={{ fontFamily: 'Outfit-Bold' }}>
                 + Update
               </Typography>
             </Pressable>
           </View>
 
           <View style={styles.measurementsGrid}>
-            <View style={[styles.measureCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.bg }]}>
+            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>Waist</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestWaist ? `${latestWaist} cm` : '--'}
               </Typography>
             </View>
-            <View style={[styles.measureCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.bg }]}>
+            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>Hips</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestHips ? `${latestHips} cm` : '--'}
               </Typography>
             </View>
-            <View style={[styles.measureCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.bg }]}>
+            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>Chest</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestChest ? `${latestChest} cm` : '--'}
               </Typography>
             </View>
-            <View style={[styles.measureCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.bg }]}>
+            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>Thigh</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestThigh ? `${latestThigh} cm` : '--'}
@@ -220,7 +221,7 @@ export default function ProgressScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Flame color={PALETTE.terracotta.default} size={20} />
+              <Flame color={colors.nutrition} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
                 Nutrition & Activity Summary
               </Typography>
@@ -235,13 +236,13 @@ export default function ProgressScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <CalendarIcon color={PALETTE.sage.default} size={20} />
+              <CalendarIcon color={colors.activity} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
                 Cycle & Recovery History
               </Typography>
             </View>
             <Pressable onPress={() => router.push('/cycle')}>
-              <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                 Full Calendar →
               </Typography>
             </Pressable>
@@ -250,6 +251,9 @@ export default function ProgressScreen() {
             Recorded Period Cycles: {periods.length} · Check-Ins: {Object.keys(dailyCheckIns).length}
           </Typography>
         </Card>
+
+        {/* SPONSORED BANNER AD */}
+        <BannerAdComponent />
 
       </ScrollView>
 
@@ -277,7 +281,11 @@ export default function ProgressScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { padding: SPACING.md, gap: SPACING.md },
+  scrollContent: {
+    padding: SPACING.md,
+    paddingBottom: 140,
+    gap: SPACING.md,
+  },
   header: { marginBottom: SPACING.xs },
   card: { padding: SPACING.md },
   cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.sm },

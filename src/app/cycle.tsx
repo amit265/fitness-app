@@ -25,6 +25,7 @@ import { addDays, getTodayStr } from '../utils/date';
 import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useAppTheme } from '../context/ThemeContext';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -59,23 +60,6 @@ const SYMPTOM_OPTIONS = [
   'mood changes',
 ] as const;
 
-// Sini AI Cycle Color Tokens
-const JEWEL_COLORS = {
-  period: PALETTE.rose.default, // Soft Rose (#D9939E)
-  periodBg: PALETTE.rose.bg,
-  periodText: PALETTE.plum.default,
-  fertile: PALETTE.sage.default, // Sage (#8FA89A)
-  fertileBg: PALETTE.sage.bg,
-  fertileText: PALETTE.charcoal.default,
-  ovulation: PALETTE.gold.default, // Warm Gold (#C6A15B)
-  ovulationBg: PALETTE.gold.bg,
-  ovulationText: PALETTE.plum.default,
-  luteal: PALETTE.lavender, // Muted Lavender (#A79AAA)
-  lutealBg: PALETTE.plum.bg,
-  lutealText: PALETTE.plum.default,
-  expected: PALETTE.rose.light,
-};
-
 interface CalendarCellState {
   cycleDay: number;
   phase: CyclePhase;
@@ -92,9 +76,25 @@ interface CalendarCellState {
 }
 
 export default function DedicatedCyclePage() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
   const router = useRouter();
+
+  // Dynamic Sini AI Cycle Color Tokens
+  const JEWEL_COLORS = {
+    period: colors.period,
+    periodBg: colors.surface,
+    periodText: colors.primary,
+    fertile: colors.follicular,
+    fertileBg: colors.surface,
+    fertileText: colors.textPrimary,
+    ovulation: colors.ovulation,
+    ovulationBg: colors.surface,
+    ovulationText: colors.primary,
+    luteal: colors.luteal,
+    lutealBg: colors.surface,
+    lutealText: colors.primary,
+    expected: colors.borderLight,
+  };
 
   // Store data & actions
   const periods = useAppStore((state) => state.periods);
@@ -1126,7 +1126,7 @@ const styles = StyleSheet.create({
   },
   selectedCellBorder: {
     borderWidth: 2,
-    borderColor: JEWEL_COLORS.fertile,
+    borderColor: PALETTE.sage.default,
   },
   todayCellHighlight: {
     borderWidth: 2.5,
@@ -1147,13 +1147,13 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: JEWEL_COLORS.fertileText,
+    backgroundColor: PALETTE.charcoal.default,
   },
   jewelDotOvulation: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: JEWEL_COLORS.ovulationText,
+    backgroundColor: PALETTE.plum.default,
   },
   legendRow: {
     flexDirection: 'row',

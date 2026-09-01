@@ -32,6 +32,7 @@ import { getDailyCalorieBalance } from '../../domain/calories/calorieEngine';
 import { getRecommendedMealsForToday } from '../../domain/calories/mealRecommendationEngine';
 import { triggerStoreReviewIfAppropriate } from '../../utils/storeReview';
 import { logAnalyticsEvent } from '../../services/analyticsService';
+import { BannerAdComponent, NativeAdComponent } from '../../services/AdManager';
 import {
   Sparkles,
   Droplet,
@@ -320,7 +321,7 @@ export default function TodayScreen() {
               style={styles.headerIconBtn}
               onPress={() => router.push('/cycle')}
             >
-              <CalendarIcon color={PALETTE.plum.default} size={22} />
+              <CalendarIcon color={colors.primary} size={22} />
             </Pressable>
 
             {/* Settings Link Icon */}
@@ -328,7 +329,7 @@ export default function TodayScreen() {
               style={styles.headerIconBtn}
               onPress={() => router.push('/settings')}
             >
-              <Settings color={PALETTE.plum.default} size={22} />
+              <Settings color={colors.primary} size={22} />
             </Pressable>
           </View>
         </View>
@@ -342,37 +343,22 @@ export default function TodayScreen() {
                 style={[
                   styles.phasePill,
                   {
-                    backgroundColor:
-                      cycleState.phase === 'menstrual'
-                        ? PALETTE.rose.bg
-                        : cycleState.phase === 'ovulatory'
-                        ? PALETTE.gold.bg
-                        : cycleState.phase === 'follicular'
-                        ? PALETTE.sage.bg
-                        : PALETTE.plum.bg,
+                    backgroundColor: colors.surface,
                   },
                 ]}
               >
                 <Typography
                   variant="caption"
-                  color={
-                    cycleState.phase === 'menstrual'
-                      ? PALETTE.rose.default
-                      : cycleState.phase === 'ovulatory'
-                      ? PALETTE.gold.default
-                      : cycleState.phase === 'follicular'
-                      ? PALETTE.sage.default
-                      : PALETTE.plum.default
-                  }
+                  color={colors.primary}
                   style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
                 >
                   {cycleState.phase.toUpperCase()} · DAY {cycleState.cycleDay}
                 </Typography>
               </Pressable>
 
-              <View style={[styles.energyPill, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default }]}>
-                <Zap size={14} color={PALETTE.gold.default} />
-                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+              <View style={[styles.energyPill, { backgroundColor: colors.surface }]}>
+                <Zap size={14} color={colors.ovulation} />
+                <Typography variant="caption" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
                   Energy {todayCheckIn ? todayCheckIn.energy : 3}/5
                 </Typography>
               </View>
@@ -382,7 +368,7 @@ export default function TodayScreen() {
               style={styles.checkInBtn}
               onPress={() => setCheckInModalVisible(true)}
             >
-              <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
                 {todayCheckIn ? 'Edit Check-In' : '+ Log Feeling'}
               </Typography>
             </Pressable>
@@ -391,18 +377,18 @@ export default function TodayScreen() {
           <View style={styles.feelingSummaryRow}>
             <View style={styles.feelingStat}>
               <Typography variant="caption" color={colors.subtext}>Readiness</Typography>
-              <Typography variant="h2" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h2" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                 {readiness.score}/100
               </Typography>
             </View>
-            <View style={styles.feelingDivider} />
+            <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
             <View style={styles.feelingStat}>
               <Typography variant="caption" color={colors.subtext}>Sleep</Typography>
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
                 {todayCheckIn ? `${todayCheckIn.sleepDuration}h` : '8.0h'}
               </Typography>
             </View>
-            <View style={styles.feelingDivider} />
+            <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
             <View style={styles.feelingStat}>
               <Typography variant="caption" color={colors.subtext}>Hydration</Typography>
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
@@ -416,15 +402,15 @@ export default function TodayScreen() {
         <Card style={styles.heroCalorieCard}>
           <View style={styles.calorieHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Flame color={PALETTE.terracotta.default} size={20} />
+              <Flame color={colors.nutrition} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
                 TODAY'S CALORIES
               </Typography>
             </View>
-            <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? PALETTE.rose.bg : PALETTE.sage.bg }]}>
+            <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? colors.errorBg : colors.successBg }]}>
               <Typography
                 variant="caption"
-                color={calorieBalance.isOverTarget ? PALETTE.rose.default : PALETTE.sage.default}
+                color={calorieBalance.isOverTarget ? colors.error : colors.success}
                 style={{ fontFamily: 'Outfit-Bold' }}
               >
                 {calorieBalance.percentageUsed}% TARGET
@@ -448,7 +434,7 @@ export default function TodayScreen() {
                   cx={calRadius + calStrokeWidth}
                   cy={calRadius + calStrokeWidth}
                   r={calRadius}
-                  stroke={calorieBalance.isOverTarget ? PALETTE.rose.default : PALETTE.terracotta.default}
+                  stroke={calorieBalance.isOverTarget ? colors.error : colors.nutrition}
                   strokeWidth={calStrokeWidth}
                   strokeDasharray={calCircumference}
                   strokeDashoffset={calStrokeDashoffset}
@@ -469,7 +455,7 @@ export default function TodayScreen() {
 
             {/* Calories Hierarchy & Stats */}
             <View style={styles.heroCalorieStatsCol}>
-              <Typography variant="display" color={calorieBalance.isOverTarget ? PALETTE.rose.default : PALETTE.plum.default} style={styles.remainingHeroNumber}>
+              <Typography variant="display" color={calorieBalance.isOverTarget ? colors.error : colors.primary} style={styles.remainingHeroNumber}>
                 {calorieBalance.isOverTarget
                   ? `${calorieBalance.overAmount}`
                   : `${calorieBalance.remainingCalories}`}
@@ -481,13 +467,13 @@ export default function TodayScreen() {
               <View style={styles.macroMiniRow}>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>Food</Typography>
-                  <Typography variant="bodyMedium" color={PALETTE.terracotta.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
                     {calorieBalance.consumedCalories} kcal
                   </Typography>
                 </View>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>Activity</Typography>
-                  <Typography variant="bodyMedium" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                     ~{calorieBalance.activityCalories} kcal
                   </Typography>
                 </View>
@@ -513,7 +499,7 @@ export default function TodayScreen() {
         </Card>
 
         {/* 3. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) */}
-        <Card style={[styles.siniSuggestionCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.cream }]}>
+        <Card style={[styles.siniSuggestionCard, { backgroundColor: colors.surface }]}>
           <View style={styles.siniHeaderRow}>
             <SiniAvatar size={30} variant="plum" />
             <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
@@ -523,7 +509,7 @@ export default function TodayScreen() {
 
           <View style={{ marginTop: SPACING.xs }}>
             {insightLoading ? (
-              <ActivityIndicator size="small" color={PALETTE.plum.default} style={{ marginVertical: 12 }} />
+              <ActivityIndicator size="small" color={colors.primary} style={{ marginVertical: 12 }} />
             ) : (
               renderFormattedInsight(dailyInsight)
             )}
@@ -533,31 +519,34 @@ export default function TodayScreen() {
             style={styles.askSiniSubBtn}
             onPress={() => openSiniWithQuery('Explain my remaining calories for today')}
           >
-            <Sparkles size={14} color={PALETTE.plum.default} />
-            <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+            <Sparkles size={14} color={colors.primary} />
+            <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
               Ask Sini to elaborate
             </Typography>
           </Pressable>
         </Card>
 
+        {/* SPONSORED NATIVE AD */}
+        <NativeAdComponent />
+
         {/* 4. ACTIVITY & RECOVERY PLAN */}
         <Card style={styles.activityPlanCard}>
           <View style={styles.cardTitleRow}>
-            <ActivityIcon color={PALETTE.sage.default} size={20} />
+            <ActivityIcon color={colors.activity} size={20} />
             <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
               Activity & Movement
             </Typography>
           </View>
 
           <View style={styles.activityBadgeRow}>
-            <View style={[styles.actBadge, { backgroundColor: PALETTE.sage.bg }]}>
-              <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+            <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+              <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                 {readiness.recommendation.activityType.replace('_', ' ').toUpperCase()}
               </Typography>
             </View>
             {readiness.recommendation.durationMinutes && (
-              <View style={[styles.actBadge, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default }]}>
-                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>
+              <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+                <Typography variant="caption" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
                   ⏱ {readiness.recommendation.durationMinutes} mins
                 </Typography>
               </View>
@@ -574,13 +563,13 @@ export default function TodayScreen() {
           {/* Quick Hydration Tracker */}
           <View style={styles.hydrationBox}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-              <Droplet color={PALETTE.sage.default} size={18} />
+              <Droplet color={colors.activity} size={18} />
               <Typography variant="bodyMedium" style={{ marginLeft: 8, fontFamily: 'Outfit-Medium' }}>
                 Hydration Target: {recommendedWaterL}L
               </Typography>
             </View>
             <Pressable onPress={openWaterModal} style={styles.quickAddWaterBtn}>
-              <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                 + Add Water
               </Typography>
             </Pressable>
@@ -591,14 +580,14 @@ export default function TodayScreen() {
         <Card style={styles.targetsCard}>
           <Pressable onPress={() => setIsTargetsFolded(!isTargetsFolded)} style={styles.targetsHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Award color={PALETTE.gold.default} size={20} />
+              <Award color={colors.ovulation} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
                 Today's Targets
               </Typography>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? PALETTE.sage.bg : PALETTE.gold.bg }]}>
-                <Typography variant="caption" color={completedTargetsCount >= 2 ? PALETTE.sage.default : PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? colors.successBg : colors.warningBg }]}>
+                <Typography variant="caption" color={completedTargetsCount >= 2 ? colors.success : colors.warning} style={{ fontFamily: 'Outfit-Bold' }}>
                   {completedTargetsCount}/4 Done
                 </Typography>
               </View>
@@ -609,24 +598,27 @@ export default function TodayScreen() {
           {!isTargetsFolded && (
             <View style={styles.targetsList}>
               <View style={styles.targetItem}>
-                {isCheckInMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                {isCheckInMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
                 <Typography variant="bodyMedium" style={styles.targetLabel}>Check-in & Energy logged</Typography>
               </View>
               <View style={styles.targetItem}>
-                {isWaterMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                {isWaterMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
                 <Typography variant="bodyMedium" style={styles.targetLabel}>Hydration target ({recommendedWaterL}L)</Typography>
               </View>
               <View style={styles.targetItem}>
-                {isExerciseMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                {isExerciseMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
                 <Typography variant="bodyMedium" style={styles.targetLabel}>Movement ({readiness.recommendation.durationMinutes || 20}m)</Typography>
               </View>
               <View style={styles.targetItem}>
-                {isNutritionMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                {isNutritionMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
                 <Typography variant="bodyMedium" style={styles.targetLabel}>Nutrition logged</Typography>
               </View>
             </View>
           )}
         </Card>
+
+        {/* SPONSORED BANNER AD */}
+        <BannerAdComponent />
 
       </ScrollView>
 
@@ -634,13 +626,13 @@ export default function TodayScreen() {
       <Pressable
         style={({ pressed }) => [
           styles.siniFloatingFab,
-          { backgroundColor: PALETTE.plum.default },
+          { backgroundColor: colors.primary },
           pressed && styles.pressedFab,
         ]}
         onPress={() => openSiniWithQuery()}
       >
         <SiniAvatar size={34} variant="plum" />
-        <Typography variant="caption" color={PALETTE.oat.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+        <Typography variant="caption" color={colors.primaryText} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
           Ask Sini
         </Typography>
       </Pressable>
@@ -796,12 +788,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: SPACING.sm,
   },
   cycleBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 6,
+    flex: 1,
   },
   phasePill: {
     paddingHorizontal: 12,
@@ -816,8 +812,10 @@ const styles = StyleSheet.create({
     borderRadius: 100,
   },
   checkInBtn: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
     paddingVertical: 6,
+    borderRadius: 100,
+    backgroundColor: PALETTE.plum.bg,
   },
   feelingSummaryRow: {
     flexDirection: 'row',

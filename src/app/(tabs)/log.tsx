@@ -23,6 +23,7 @@ import { getTodayStr } from '../../utils/date';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
+import { BannerAdComponent } from '../../services/AdManager';
 import {
   Sparkles,
   Utensils,
@@ -212,7 +213,7 @@ export default function LogScreen() {
           {/* Natural Language Input Card */}
           <Card style={styles.aiInputCard}>
             <View style={styles.aiHeaderRow}>
-              <Sparkles color={PALETTE.plum.default} size={20} />
+              <Sparkles color={colors.primary} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
                 Tell Sini what you ate or did
               </Typography>
@@ -226,7 +227,7 @@ export default function LogScreen() {
                 placeholderTextColor={colors.subtext}
                 style={[
                   styles.nlpInput,
-                  { borderColor: colors.border, color: colors.text, backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg },
+                  { borderColor: colors.border, color: colors.text, backgroundColor: colors.bg },
                 ]}
                 onSubmitEditing={handleParseInput}
                 returnKeyType="send"
@@ -236,10 +237,10 @@ export default function LogScreen() {
                 disabled={loading || !inputText.trim()}
                 style={[
                   styles.sendBtn,
-                  { backgroundColor: inputText.trim() ? PALETTE.plum.default : colors.border },
+                  { backgroundColor: inputText.trim() ? colors.primary : colors.border },
                 ]}
               >
-                {loading ? <ActivityIndicator size="small" color={PALETTE.oat.default} /> : <Send color={PALETTE.oat.default} size={18} />}
+                {loading ? <ActivityIndicator size="small" color={colors.primaryText} /> : <Send color={colors.primaryText} size={18} />}
               </Pressable>
             </View>
 
@@ -250,7 +251,7 @@ export default function LogScreen() {
 
           {/* Draft Results Preview */}
           {draftLogs.length > 0 && (
-            <Card style={[styles.draftsCard, { borderColor: PALETTE.plum.default }]}>
+            <Card style={[styles.draftsCard, { borderColor: colors.primary }]}>
               <Typography variant="h3" style={{ marginBottom: 12 }}>Parsed Drafts ({draftLogs.length})</Typography>
               {draftLogs.map((item, idx) => (
                 <View key={idx} style={styles.draftItemRow}>
@@ -267,7 +268,7 @@ export default function LogScreen() {
                     </Typography>
                   </View>
                   <Pressable onPress={() => handleRemoveDraftIndex(idx)} style={{ padding: 4 }}>
-                    <Trash2 color={PALETTE.error} size={18} />
+                    <Trash2 color={colors.error} size={18} />
                   </Pressable>
                 </View>
               ))}
@@ -276,7 +277,7 @@ export default function LogScreen() {
           )}
 
           {draftError && (
-            <Typography variant="bodySmall" color={PALETTE.error} style={{ textAlign: 'center' }}>
+            <Typography variant="bodySmall" color={colors.error} style={{ textAlign: 'center' }}>
               {draftError}
             </Typography>
           )}
@@ -285,31 +286,31 @@ export default function LogScreen() {
           <Typography variant="h3" style={{ marginTop: SPACING.md }}>Manual Quick Logging</Typography>
           <View style={styles.quickButtonsGrid}>
             <Pressable
-              style={[styles.quickBtnCard, { backgroundColor: PALETTE.terracotta.bg, borderColor: PALETTE.terracotta.default }]}
+              style={[styles.quickBtnCard, { backgroundColor: colors.surface, borderColor: colors.nutrition }]}
               onPress={() => setMealModalVisible(true)}
             >
-              <Utensils color={PALETTE.terracotta.default} size={22} />
-              <Typography variant="dataLabel" color={PALETTE.terracotta.dark} style={{ marginTop: 6 }}>
+              <Utensils color={colors.nutrition} size={22} />
+              <Typography variant="dataLabel" color={colors.nutrition} style={{ marginTop: 6 }}>
                 + Food & Meal
               </Typography>
             </Pressable>
 
             <Pressable
-              style={[styles.quickBtnCard, { backgroundColor: PALETTE.sage.bg, borderColor: PALETTE.sage.default }]}
+              style={[styles.quickBtnCard, { backgroundColor: colors.surface, borderColor: colors.activity }]}
               onPress={() => setWorkoutModalVisible(true)}
             >
-              <Flame color={PALETTE.sage.default} size={22} />
-              <Typography variant="dataLabel" color={PALETTE.sage.dark} style={{ marginTop: 6 }}>
+              <Flame color={colors.activity} size={22} />
+              <Typography variant="dataLabel" color={colors.activity} style={{ marginTop: 6 }}>
                 + Workout
               </Typography>
             </Pressable>
 
             <Pressable
-              style={[styles.quickBtnCard, { backgroundColor: PALETTE.rose.bg, borderColor: PALETTE.rose.default }]}
+              style={[styles.quickBtnCard, { backgroundColor: colors.surface, borderColor: colors.period }]}
               onPress={() => setWeightModalVisible(true)}
             >
-              <Scale color={PALETTE.rose.default} size={22} />
-              <Typography variant="dataLabel" color={PALETTE.rose.dark} style={{ marginTop: 6 }}>
+              <Scale color={colors.period} size={22} />
+              <Typography variant="dataLabel" color={colors.period} style={{ marginTop: 6 }}>
                 + Weight Log
               </Typography>
             </Pressable>
@@ -323,7 +324,7 @@ export default function LogScreen() {
               <View style={styles.entryHeaderRow}>
                 <View style={{ flex: 1 }}>
                   <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold' }}>{meal.name}</Typography>
-                  <Typography variant="caption" color={PALETTE.terracotta.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="caption" color={colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
                     {meal.calories} kcal • P: {meal.protein}g | C: {meal.carbs}g | F: {meal.fat}g
                   </Typography>
                 </View>
@@ -341,7 +342,7 @@ export default function LogScreen() {
                   <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', textTransform: 'capitalize' }}>
                     {act.type} ({act.durationMinutes} min)
                   </Typography>
-                  <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                     ~{act.caloriesBurned} kcal burned • {act.intensity} intensity
                   </Typography>
                 </View>
@@ -351,6 +352,9 @@ export default function LogScreen() {
               </View>
             </Card>
           ))}
+
+          {/* SPONSORED BANNER AD */}
+          <BannerAdComponent />
 
         </ScrollView>
       </KeyboardAvoidingView>
@@ -408,7 +412,11 @@ export default function LogScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { padding: SPACING.md, gap: SPACING.md },
+  scrollContent: {
+    padding: SPACING.md,
+    paddingBottom: 140,
+    gap: SPACING.md,
+  },
   header: { marginBottom: SPACING.xs },
   aiInputCard: { padding: SPACING.md },
   aiHeaderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm },

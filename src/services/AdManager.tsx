@@ -1,18 +1,58 @@
-import React from 'react';
-import { View, StyleSheet, Alert, Text, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, Alert, Platform, Text, Pressable } from 'react-native';
 import { useAdContext } from '../context/AdContext';
-import { ExternalLink } from 'lucide-react-native';
 import { getAdUnitId } from '../constants/adConfig';
+import { ExternalLink } from 'lucide-react-native';
 
-// 1. Banner Ad Component
+// Dynamically import react-native-google-mobile-ads on native platforms
+let BannerAd: any = null;
+let BannerAdSize: any = null;
+let RewardedAd: any = null;
+let RewardedAdEventType: any = null;
+let InterstitialAd: any = null;
+let AdEventType: any = null;
+
+if (Platform.OS !== 'web') {
+  try {
+    const mobileAds = require('react-native-google-mobile-ads');
+    BannerAd = mobileAds.BannerAd;
+    BannerAdSize = mobileAds.BannerAdSize;
+    RewardedAd = mobileAds.RewardedAd;
+    RewardedAdEventType = mobileAds.RewardedAdEventType;
+    InterstitialAd = mobileAds.InterstitialAd;
+    AdEventType = mobileAds.AdEventType;
+  } catch (e) {
+    console.warn('[AdManager] Mobile ads module failed to load:', e);
+  }
+}
+
+// ─── 1. BANNER AD COMPONENT ──────────────────────────────────────────────────
 export const BannerAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   const { isAdFree } = useAdContext();
+  const [isAdLoaded, setIsAdLoaded] = useState(false);
+  const [adError, setAdError] = useState(false);
 
   if (isAdFree) return null;
 
-  // Selected Ad Unit ID (Test ID in __DEV__, Real ID in production)
   const adUnitId = getAdUnitId('banner');
 
+  if (Platform.OS !== 'web' && BannerAd && BannerAdSize && !adError) {
+    return (
+      <View style={[styles.adWrapper, style, !isAdLoaded && { height: 0, overflow: 'hidden' }]}>
+        <BannerAd
+          unitId={adUnitId}
+          size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+          onAdLoaded={() => setIsAdLoaded(true)}
+          onAdFailedToLoad={(err: any) => {
+            console.warn('[AdManager] Banner Ad Failed to Load:', err);
+            setAdError(true);
+          }}
+        />
+      </View>
+    );
+  }
+
+  // Fallback for Web or Dev placeholder
   return (
     <View style={[styles.adContainer, style]}>
       <View style={styles.adBadge}>
@@ -23,7 +63,7 @@ export const BannerAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   );
 };
 
-// 2. Native Advanced Ad Component (Blended Feed Card - Destya Mobile Standards)
+// ─── 2. NATIVE ADVANCED / FEED BLENDED AD ──────────────────────────────────
 export const NativeAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   const { isAdFree } = useAdContext();
 
@@ -42,7 +82,7 @@ export const NativeAdComponent: React.FC<{ style?: object }> = ({ style }) => {
       </Text>
       <Pressable
         style={styles.nativeCtaBtn}
-        onPress={() => Alert.alert('Sponsored Link', 'Opening partner offer...')}
+        onPress={() => Alert.alert('Sponsored Offer', 'Opening Destya partner catalog...')}
       >
         <Text style={styles.nativeCtaText}>Explore Offers</Text>
         <ExternalLink color="#FFFFFF" size={12} style={{ marginLeft: 4 }} />
@@ -51,36 +91,112 @@ export const NativeAdComponent: React.FC<{ style?: object }> = ({ style }) => {
   );
 };
 
-// 3. Interstitial Ad (Natural Transition Points)
+// ─── 3. INTERSTITIAL AD ──────────────────────────────────────────────────────
 export const showInterstitialAd = (onComplete?: () => void) => {
-  const adUnitId = getAdUnitId('interstitial');
-  // Graceful simulation or execution in dev / prod
-  if (onComplete) {
-    onComplete();
+  if (Platform.OS === 'web' || !InterstitialAd) {
+    if (onComplete) onComplete();
+    return;
+  }
+
+  try {
+    const adUnitId = getAdUnitId('interstitial');
+    const interstitial = InterstitialAd.createForAdRequest(adUnitId);
+
+    const unsubscribeLoaded = interstitial.addAdEventListener(AdEventType.LOADED, () => {
+      interstitial.show();
+    });
+
+    const unsubscribeClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+      unsubscribeLoaded();
+      unsubscribeClosed();
+      if (onComplete) onComplete();
+    });
+
+    const unsubscribeError = interstitial.addAdEventListener(AdEventType.ERROR, (err: any) => {
+      console.warn('[AdManager] Interstitial error:', err);
+      unsubscribeLoaded();
+      unsubscribeClosed();
+      unsubscribeError();
+      if (onComplete) onComplete();
+    });
+
+    interstitial.load();
+  } catch (e) {
+    console.warn('[AdManager] Interstitial exception:', e);
+    if (onComplete) onComplete();
   }
 };
 
-// 4. Rewarded Video Ad with Mandatory User Consent
+// ─── 4. REWARDED VIDEO AD WITH CONSENT & PASS UNLOCK ───────────────────────
 export const showRewardedAdWithConsent = async (
   onSuccess: () => void,
   title: string = 'Watch Short Ad',
-  message: string = 'Would you like to watch a short video ad to earn 15-Minute Ad-Free coaching?'
+  message: string = 'Would you like to watch a short video ad to earn a 15-Minute Ad-Free Pass?'
 ): Promise<void> => {
-  const adUnitId = getAdUnitId('rewarded');
-
   Alert.alert(title, message, [
     { text: 'Cancel', style: 'cancel' },
     {
       text: 'Watch Ad',
       onPress: () => {
-        // Grant reward
-        onSuccess();
+        if (Platform.OS === 'web' || !RewardedAd) {
+          // On Web / Dev simulation, grant reward immediately
+          onSuccess();
+          return;
+        }
+
+        try {
+          const adUnitId = getAdUnitId('rewarded');
+          const rewarded = RewardedAd.createForAdRequest(adUnitId);
+          let rewardEarned = false;
+
+          const unsubscribeLoaded = rewarded.addAdEventListener(AdEventType.LOADED, () => {
+            rewarded.show();
+          });
+
+          const unsubscribeEarned = rewarded.addAdEventListener(
+            RewardedAdEventType.EARNED_REWARD,
+            () => {
+              rewardEarned = true;
+            }
+          );
+
+          const unsubscribeClosed = rewarded.addAdEventListener(AdEventType.CLOSED, () => {
+            unsubscribeLoaded();
+            unsubscribeEarned();
+            unsubscribeClosed();
+            if (rewardEarned) {
+              onSuccess();
+            } else {
+              Alert.alert('Notice', 'Ad was closed early. Watch the full ad to earn the pass.');
+            }
+          });
+
+          const unsubscribeError = rewarded.addAdEventListener(AdEventType.ERROR, (err: any) => {
+            console.warn('[AdManager] Rewarded Ad Error:', err);
+            unsubscribeLoaded();
+            unsubscribeEarned();
+            unsubscribeClosed();
+            unsubscribeError();
+            // Fallback reward on ad load failure so user experience isn't blocked
+            onSuccess();
+          });
+
+          rewarded.load();
+        } catch (e) {
+          console.warn('[AdManager] Rewarded Ad Exception:', e);
+          onSuccess();
+        }
       },
     },
   ]);
 };
 
 const styles = StyleSheet.create({
+  adWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
   adContainer: {
     height: 50,
     backgroundColor: 'rgba(0, 0, 0, 0.03)',

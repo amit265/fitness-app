@@ -3,9 +3,10 @@ import { View, StyleSheet, Pressable, Image, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Typography } from './Typography';
 import { Card } from './Card';
-import { PALETTE, SPACING } from '../constants/theme';
+import { SPACING } from '../constants/theme';
 import { ExternalLink } from 'lucide-react-native';
 import { logAnalyticsEvent } from '../services/analyticsService';
+import { useAppTheme } from '../context/ThemeContext';
 
 const DESTYA_STUDIO_APPS = [
   {
@@ -46,6 +47,8 @@ const DESTYA_STUDIO_APPS = [
 ];
 
 export const DestyaStudioAppsHub: React.FC = () => {
+  const { colors } = useAppTheme();
+
   const handleOpenApp = async (slug: string, url: string) => {
     try {
       await AsyncStorage.setItem(`ds_cross_promo_${slug}_clicked`, 'true');
@@ -63,31 +66,35 @@ export const DestyaStudioAppsHub: React.FC = () => {
         <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
           More from Destya Studio
         </Typography>
-        <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+        <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
           5 APPS
         </Typography>
       </View>
-      <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>
-        Discover our suit of productivity, social, and entertainment mobile apps.
+      <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: SPACING.md }}>
+        Discover our suite of productivity, social, and entertainment mobile apps.
       </Typography>
 
       <View style={styles.appList}>
         {DESTYA_STUDIO_APPS.map((app) => (
           <Pressable
             key={app.slug}
-            style={({ pressed }) => [styles.appItem, pressed && styles.appItemPressed]}
+            style={({ pressed }) => [
+              styles.appItem,
+              { backgroundColor: colors.surface },
+              pressed && styles.appItemPressed,
+            ]}
             onPress={() => handleOpenApp(app.slug, app.url)}
           >
-            <Image source={{ uri: app.icon }} style={styles.appIcon} defaultSource={{ uri: 'https://destyastudio.com/favicon.ico' }} />
+            <Image source={{ uri: app.icon }} style={[styles.appIcon, { backgroundColor: colors.border }]} defaultSource={{ uri: 'https://destyastudio.com/favicon.ico' }} />
             <View style={{ flex: 1, marginLeft: 10 }}>
               <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>
                 {app.name}
               </Typography>
-              <Typography variant="caption" color={PALETTE.charcoal.light} numberOfLines={2} style={{ marginTop: 2 }}>
+              <Typography variant="caption" color={colors.textSecondary} numberOfLines={2} style={{ marginTop: 2 }}>
                 {app.description}
               </Typography>
             </View>
-            <ExternalLink color={PALETTE.sage.default} size={16} style={{ marginLeft: 6 }} />
+            <ExternalLink color={colors.primary} size={16} style={{ marginLeft: 6 }} />
           </Pressable>
         ))}
       </View>
@@ -114,7 +121,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderRadius: 14,
-    backgroundColor: '#F5F3EF',
   },
   appItemPressed: {
     opacity: 0.7,
@@ -123,6 +129,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#E2DFD8',
   },
 });
+

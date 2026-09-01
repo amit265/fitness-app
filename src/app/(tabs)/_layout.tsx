@@ -35,13 +35,13 @@ export default function TabsLayout() {
         backBehavior="history"
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: PALETTE.plum.default,
-          tabBarInactiveTintColor: isDark ? PALETTE.darkSubtext : PALETTE.charcoal.light,
+          tabBarActiveTintColor: colors.primary,
+          tabBarInactiveTintColor: colors.textSecondary,
           tabBarStyle: {
             position: 'absolute',
             bottom: bottomMargin,
             marginHorizontal: 16,
-            backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white,
+            backgroundColor: colors.card,
             borderTopWidth: 0,
             borderRadius: 24,
             height: 64,
@@ -50,7 +50,7 @@ export default function TabsLayout() {
             elevation: 12,
             shadowOpacity: 0.1,
             shadowRadius: 16,
-            shadowColor: PALETTE.charcoal.default,
+            shadowColor: colors.shadow,
             shadowOffset: { width: 0, height: 6 },
           },
           tabBarLabelStyle: {
@@ -95,7 +95,7 @@ export default function TabsLayout() {
       {/* Web Preview Gatekeeping Download Modal */}
       <Modal visible={downloadModalVisible} transparent animationType="fade" onRequestClose={() => setDownloadModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setDownloadModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginBottom: 4 }}>
               Sini AI: Cycle & Fitness
             </Typography>

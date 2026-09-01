@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, useColorScheme, Dimensions } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Path, Circle, Line, Text as SvgText } from 'react-native-svg';
 import { Typography } from './Typography';
-import { PALETTE, SPACING } from '../constants/theme';
+import { SPACING } from '../constants/theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface LineChartProps {
   data: number[];
@@ -19,15 +20,14 @@ export const LineChart: React.FC<LineChartProps> = ({
   height = 180,
   width,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
 
   const containerWidth = width || Dimensions.get('window').width - 64; // Fallback to card width
 
   if (data.length <= 1) {
     return (
       <View style={[styles.emptyContainer, { height }]}>
-        <Typography variant="bodySmall" color={PALETTE.charcoal.light} align="center">
+        <Typography variant="bodySmall" color={colors.textSecondary} align="center">
           Not enough log points yet. Keep logging daily to view your trend!
         </Typography>
       </View>
@@ -81,17 +81,18 @@ export const LineChart: React.FC<LineChartProps> = ({
 
   // Color helper for cycle phases
   const getPhaseColor = (phase?: string): string => {
-    if (!phase) return PALETTE.sage.default;
+    if (!phase) return colors.activity;
     switch (phase.toLowerCase()) {
       case 'menstrual':
-        return PALETTE.rose.default;
+        return colors.period;
       case 'luteal':
-        return PALETTE.plum.default;
+        return colors.luteal;
       case 'follicular':
+        return colors.follicular;
       case 'ovulatory':
-        return PALETTE.sage.default;
+        return colors.ovulation;
       default:
-        return PALETTE.sage.light;
+        return colors.activity;
     }
   };
 
@@ -109,14 +110,14 @@ export const LineChart: React.FC<LineChartProps> = ({
                 y1={y}
                 x2={containerWidth - paddingRight}
                 y2={y}
-                stroke={isDark ? '#2E2B28' : '#F0EDE8'}
+                stroke={colors.border}
                 strokeWidth={1}
                 strokeDasharray="4 4"
               />
               <SvgText
                 x={paddingLeft - 8}
                 y={y + 4}
-                fill={isDark ? '#8D8070' : PALETTE.charcoal.light}
+                fill={colors.textSecondary}
                 fontSize="10"
                 fontFamily="Outfit-Regular"
                 textAnchor="end"
@@ -131,8 +132,8 @@ export const LineChart: React.FC<LineChartProps> = ({
         {fillPath !== '' && (
           <Path
             d={fillPath}
-            fill={PALETTE.sage.default}
-            opacity={isDark ? 0.08 : 0.05}
+            fill={colors.activity}
+            opacity={isDark ? 0.12 : 0.08}
           />
         )}
 
@@ -140,7 +141,7 @@ export const LineChart: React.FC<LineChartProps> = ({
         {linePath !== '' && (
           <Path
             d={linePath}
-            stroke={PALETTE.sage.default}
+            stroke={colors.activity}
             strokeWidth={3}
             fill="transparent"
           />
@@ -159,7 +160,7 @@ export const LineChart: React.FC<LineChartProps> = ({
                 cy={p.y}
                 r={isSelected ? 6 : 4}
                 fill={dotColor}
-                stroke={isDark ? '#1C1A18' : '#FFFFFF'}
+                stroke={colors.card}
                 strokeWidth={2}
               />
               {/* X-Axis labels (only show first, middle, last to avoid overlap) */}
@@ -167,7 +168,7 @@ export const LineChart: React.FC<LineChartProps> = ({
                 <SvgText
                   x={p.x}
                   y={height - 4}
-                  fill={isDark ? '#8D8070' : PALETTE.charcoal.light}
+                  fill={colors.textSecondary}
                   fontSize="9"
                   fontFamily="Outfit-Regular"
                   textAnchor="middle"
@@ -196,3 +197,4 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
   },
 });
+

@@ -237,13 +237,13 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                   key={idx}
                   style={({ pressed }) => [
                     styles.actionChip,
-                    { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default, borderColor: colors.border },
+                    { backgroundColor: colors.surface, borderColor: colors.border },
                     pressed && styles.pressedChip,
                   ]}
                   onPress={() => handleSendText(action)}
                 >
-                  <Sparkles size={13} color={PALETTE.plum.default} style={{ marginRight: 5 }} />
-                  <Typography variant="caption" color={PALETTE.plum.default} style={{ fontWeight: '600' }}>
+                  <Sparkles size={13} color={colors.primary} style={{ marginRight: 5 }} />
+                  <Typography variant="caption" color={colors.primary} style={{ fontWeight: '600' }}>
                     {action}
                   </Typography>
                 </Pressable>
@@ -271,8 +271,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                     {isCoach ? (
                       <SiniAvatar size={28} variant="plum" />
                     ) : (
-                      <View style={[styles.userAvatar, { backgroundColor: PALETTE.oat.default }]}>
-                        <UserIcon color={PALETTE.plum.default} size={16} />
+                      <View style={[styles.userAvatar, { backgroundColor: colors.surface }]}>
+                        <UserIcon color={colors.primary} size={16} />
                       </View>
                     )}
                   </View>
@@ -282,8 +282,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                       {
                         backgroundColor: isCoach
                           ? colors.card
-                          : PALETTE.plum.default,
-                        borderColor: isCoach ? colors.border : PALETTE.plum.default,
+                          : colors.primary,
+                        borderColor: isCoach ? colors.border : colors.primary,
                       },
                       isCoach ? styles.coachBubble : styles.userBubble,
                     ]}
@@ -310,14 +310,14 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
               <View style={[styles.messageRow, styles.coachRow]}>
                 <SiniAvatar size={28} variant="plum" />
                 <View style={[styles.bubble, styles.coachBubble, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <ActivityIndicator size="small" color={PALETTE.plum.default} />
+                  <ActivityIndicator size="small" color={colors.primary} />
                 </View>
               </View>
             )}
           </ScrollView>
 
           {/* AI Compliance Disclaimer Banner */}
-          <View style={[styles.disclaimerRow, { backgroundColor: isDark ? '#1A161A' : PALETTE.oat.default }]}>
+          <View style={[styles.disclaimerRow, { backgroundColor: colors.surface }]}>
             <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10, textAlign: 'center', lineHeight: 14 }}>
               Sini AI provides empathetic coaching & guidance. Not medical diagnosis.
             </Typography>
@@ -335,7 +335,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                 {
                   borderColor: colors.border,
                   color: colors.text,
-                  backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg,
+                  backgroundColor: colors.bg,
                 },
               ]}
               onSubmitEditing={() => handleSendText(inputText)}
@@ -346,11 +346,11 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
               disabled={sending || !inputText.trim()}
               style={({ pressed }) => [
                 styles.sendBtn,
-                { backgroundColor: inputText.trim() ? PALETTE.plum.default : colors.border },
+                { backgroundColor: inputText.trim() ? colors.primary : colors.border },
                 pressed && { opacity: 0.8 },
               ]}
             >
-              <Send color={inputText.trim() ? PALETTE.oat.default : colors.subtext} size={18} />
+              <Send color={inputText.trim() ? colors.primaryText : colors.subtext} size={18} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>

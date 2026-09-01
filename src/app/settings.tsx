@@ -54,7 +54,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const { isAdFree, grantAdFreeMinutes, adFreeExpiresAt } = useAdContext();
   const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
-  const { themeKey, isDark, setThemeKey, colors } = useAppTheme();
+  const { themeMode, activeThemeName, isDark, setThemeMode, colors } = useAppTheme();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -271,48 +271,60 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* SECTION 2: APPEARANCE & MOOD THEMES */}
+          {/* SECTION 2: APPEARANCE & CYCLE-ADAPTIVE THEMES */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            APPEARANCE & MOOD PALETTE
+            APPEARANCE & CYCLE-ADAPTIVE THEMES
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
               <View style={styles.cardHeaderRow}>
-                <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
-                  <Palette size={18} color={PALETTE.plum.default} />
+                <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                  <Palette size={18} color={colors.primary} />
                 </View>
                 <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>App Theme & Mood</Typography>
-                  <Typography variant="caption" color={colors.subtext}>Sync UI color palette with your phase</Typography>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Cycle-Adaptive Theme</Typography>
+                  <Typography variant="caption" color={colors.subtext}>
+                    Active Palette: <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>{activeThemeName}</Typography>
+                  </Typography>
                 </View>
               </View>
 
               <View style={styles.themeGrid}>
-                {(Object.keys(MOOD_THEME_PALETTES) as MoodThemeKey[]).map((key) => {
-                  const item = MOOD_THEME_PALETTES[key];
-                  const isSelected = themeKey === key;
+                {[
+                  { mode: 'automatic', name: 'Automatic (Cycle-Adaptive)', icon: '✨', desc: 'Adapts to your current cycle phase' },
+                  { mode: 'classic', name: 'Sini Classic', icon: '🌾', desc: 'Original Warm Oat & Deep Plum' },
+                  { mode: 'dark', name: 'Dark Mode', icon: '🌙', desc: 'Deep Plum Night theme' },
+                ].map((item) => {
+                  const isSelected = themeMode === item.mode;
                   return (
                     <Pressable
-                      key={key}
-                      onPress={() => setThemeKey(key)}
+                      key={item.mode}
+                      onPress={() => setThemeMode(item.mode as any)}
                       style={[
                         styles.themeChip,
                         {
-                          borderColor: isSelected ? PALETTE.plum.default : colors.border,
-                          backgroundColor: isSelected
-                            ? (isDark ? PALETTE.darkBg : PALETTE.oat.default)
-                            : (isDark ? PALETTE.darkCard : PALETTE.cream),
+                          borderColor: isSelected ? colors.primary : colors.border,
+                          backgroundColor: isSelected ? colors.surface : colors.card,
+                          width: '100%',
                         },
                       ]}
                     >
-                      <Text style={{ fontSize: 16, marginRight: 6 }}>{item.icon}</Text>
-                      <Typography
-                        variant="caption"
-                        style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
-                        color={isSelected ? PALETTE.plum.default : colors.text}
-                      >
-                        {item.name}
-                      </Typography>
+                      <Text style={{ fontSize: 20, marginRight: 10 }}>{item.icon}</Text>
+                      <View style={{ flex: 1 }}>
+                        <Typography
+                          variant="bodyMedium"
+                          style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
+                          color={isSelected ? colors.primary : colors.textPrimary}
+                        >
+                          {item.name}
+                        </Typography>
+                        <Typography variant="caption" color={colors.subtext} style={{ fontSize: 11 }}>
+                          {item.desc}
+                        </Typography>
+                      </View>
+                      {isSelected && (
+                        <View style={[styles.activeDot, { backgroundColor: colors.primary }]} />
+                      )}
                     </Pressable>
                   );
                 })}
@@ -638,9 +650,15 @@ const styles = StyleSheet.create({
     width: '48%',
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 12,
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 1.5,
+  },
+  activeDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginLeft: 6,
   },
   settingRowInline: {
     flexDirection: 'row',

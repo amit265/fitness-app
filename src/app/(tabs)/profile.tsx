@@ -16,6 +16,7 @@ import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
+import { BannerAdComponent } from '../../services/AdManager';
 import {
   Settings,
   Trash2,
@@ -73,12 +74,12 @@ export default function ProfileScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
           {/* Top Hero User Identity Card */}
-          <View style={[styles.heroProfileCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.heroProfileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.avatarWrapper}>
               <SiniAvatar size={76} variant="plum" />
               <View style={styles.streakBadgeOverlay}>
-                <Flame size={14} color={PALETTE.gold.default} />
-                <Typography variant="caption" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 2 }}>
+                <Flame size={14} color={colors.ovulation} />
+                <Typography variant="caption" color={colors.ovulation} style={{ fontFamily: 'Outfit-Bold', marginLeft: 2 }}>
                   {streak?.currentStreak || 1}d
                 </Typography>
               </View>
@@ -88,8 +89,8 @@ export default function ProfileScreen() {
               {userProfile?.name || 'Sarah'}
             </Typography>
             <View style={styles.memberTagPill}>
-              <Sparkles size={13} color={PALETTE.plum.default} />
-              <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+              <Sparkles size={13} color={colors.primary} />
+              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
                 Sini AI Member · Cycle-Aware Fitness
               </Typography>
             </View>
@@ -99,20 +100,20 @@ export default function ProfileScreen() {
                 <Typography variant="caption" color={colors.subtext}>AGE</Typography>
                 <Typography variant="bodyMedium" style={styles.bioValue}>{userProfile?.age || 28} yrs</Typography>
               </View>
-              <View style={styles.bioDivider} />
+              <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
                 <Typography variant="caption" color={colors.subtext}>HEIGHT</Typography>
                 <Typography variant="bodyMedium" style={styles.bioValue}>{currentHeight} cm</Typography>
               </View>
-              <View style={styles.bioDivider} />
+              <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
                 <Typography variant="caption" color={colors.subtext}>WEIGHT</Typography>
                 <Typography variant="bodyMedium" style={styles.bioValue}>{currentWeight} kg</Typography>
               </View>
-              <View style={styles.bioDivider} />
+              <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
                 <Typography variant="caption" color={colors.subtext}>BMI</Typography>
-                <Typography variant="bodyMedium" color={PALETTE.plum.default} style={styles.bioValue}>{bmiVal.toFixed(1)}</Typography>
+                <Typography variant="bodyMedium" color={colors.primary} style={styles.bioValue}>{bmiVal.toFixed(1)}</Typography>
               </View>
             </View>
           </View>
@@ -121,13 +122,13 @@ export default function ProfileScreen() {
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             HEALTH & CYCLE PROFILE
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/edit-profile')}
             >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg }]}>
-                <User size={18} color={PALETTE.terracotta.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <User size={18} color={colors.nutrition} />
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Profile & Goals</Typography>
@@ -144,8 +145,8 @@ export default function ProfileScreen() {
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/cycle')}
             >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.rose.bg }]}>
-                <CalendarIcon size={18} color={PALETTE.rose.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <CalendarIcon size={18} color={colors.period} />
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Cycle Parameters</Typography>
@@ -162,8 +163,8 @@ export default function ProfileScreen() {
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/bmi')}
             >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg }]}>
-                <Ruler size={18} color={PALETTE.sage.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Ruler size={18} color={colors.activity} />
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>BMI & Body Composition</Typography>
@@ -179,13 +180,13 @@ export default function ProfileScreen() {
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             APP & PREFERENCES
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/settings')}
             >
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
-                <Settings size={18} color={PALETTE.plum.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Settings size={18} color={colors.primary} />
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>App Settings & Groq AI Key</Typography>
@@ -201,16 +202,16 @@ export default function ProfileScreen() {
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             DATA & ECOSYSTEM
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={handleResetData}
             >
-              <View style={[styles.rowIconCircle, { backgroundColor: '#FADBD8' }]}>
-                <Trash2 size={18} color={PALETTE.error} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.errorBg }]}>
+                <Trash2 size={18} color={colors.error} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" color={PALETTE.error} style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="bodyMedium" color={colors.error} style={{ fontFamily: 'Outfit-Bold' }}>
                   Reset All Logs & App Data
                 </Typography>
                 <Typography variant="caption" color={colors.subtext}>
@@ -220,6 +221,9 @@ export default function ProfileScreen() {
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
           </View>
+
+          {/* SPONSORED BANNER AD */}
+          <BannerAdComponent />
 
           {/* Cross Promotion Hub & Destya Footer */}
           <DestyaStudioAppsHub />
