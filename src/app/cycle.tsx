@@ -22,7 +22,7 @@ import {
   CycleStats,
 } from '../domain/cycle/cycleEngine';
 import { addDays, getTodayStr } from '../utils/date';
-import { PALETTE, SPACING } from '../constants/theme';
+import { PALETTE, SPACING, CYCLE_PHASE_COLORS } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
@@ -80,21 +80,29 @@ export default function DedicatedCyclePage() {
   const { colors, isDark } = useAppTheme();
   const router = useRouter();
 
-  // Dynamic Sini AI Cycle Color Tokens
+  // Dedicated Cycle Phase Colors (Preserves semantic distinctness across all global themes)
+  const phaseColors = isDark ? CYCLE_PHASE_COLORS.dark : CYCLE_PHASE_COLORS.light;
+
   const JEWEL_COLORS = {
-    period: colors.period,
-    periodBg: colors.surface,
-    periodText: colors.primary,
-    fertile: colors.follicular,
-    fertileBg: colors.surface,
-    fertileText: colors.textPrimary,
-    ovulation: colors.ovulation,
-    ovulationBg: colors.surface,
-    ovulationText: colors.primary,
-    luteal: colors.luteal,
-    lutealBg: colors.surface,
-    lutealText: colors.primary,
-    expected: colors.borderLight,
+    period: phaseColors.menstrual,
+    periodBg: phaseColors.menstrualBg,
+    periodText: phaseColors.menstrualText,
+
+    fertile: phaseColors.follicular,
+    fertileBg: phaseColors.follicularBg,
+    fertileText: phaseColors.follicularText,
+
+    ovulation: phaseColors.ovulatory,
+    ovulationBg: phaseColors.ovulatoryBg,
+    ovulationText: phaseColors.ovulatoryText,
+
+    luteal: phaseColors.luteal,
+    lutealBg: phaseColors.lutealBg,
+    lutealText: phaseColors.lutealText,
+
+    confirmed: phaseColors.confirmedPeriod,
+    confirmedText: phaseColors.confirmedPeriodText,
+    expected: isDark ? '#3D2D38' : '#F4D4D9',
   };
 
   // Store data & actions
@@ -300,7 +308,7 @@ export default function DedicatedCyclePage() {
       days: 'Days 1 – 5',
       icon: Droplet,
       color: JEWEL_COLORS.period,
-      bgColor: isDark ? '#2E1A1A' : '#FFEBEB',
+      bgColor: JEWEL_COLORS.periodBg,
       hormones: 'Estrogen and Progesterone drop to baseline levels as the uterine lining sheds.',
       experience: 'Restorative phase. Energy is naturally lower, with potential mild cramping or lower back tightness. Introspective, calm mental focus.',
       workouts: 'Gentle mobility, restorative yoga, light walking, active stretching, or complete rest.',
@@ -312,7 +320,7 @@ export default function DedicatedCyclePage() {
       days: 'Days 6 – 13',
       icon: Zap,
       color: JEWEL_COLORS.fertile,
-      bgColor: isDark ? '#1C2920' : '#EAF0EC',
+      bgColor: JEWEL_COLORS.fertileBg,
       hormones: 'FSH stimulates egg follicles; Estrogen climbs steadily to build uterine lining.',
       experience: 'Energy surge! High mental stamina, sharp cognitive focus, vibrant mood, and high social motivation.',
       workouts: 'Progressive strength training, heavy resistance, high-intensity intervals (HIIT), running, or trying new workout skills.',
@@ -324,7 +332,7 @@ export default function DedicatedCyclePage() {
       days: 'Days 14 – 17',
       icon: Sparkles,
       color: JEWEL_COLORS.ovulation,
-      bgColor: isDark ? '#2B2318' : '#FEF3C7',
+      bgColor: JEWEL_COLORS.ovulationBg,
       hormones: 'Peak Estrogen triggers an LH surge, releasing a mature egg. Peak fertility window.',
       experience: 'Peak power and confidence! Heightened strength output, radiant energy, maximum libido, and high social presence.',
       workouts: 'Personal record (PR) strength lifts, intense cardio sessions, energetic group fitness, and high-output workouts.',
@@ -336,7 +344,7 @@ export default function DedicatedCyclePage() {
       days: 'Days 18 – 28',
       icon: Moon,
       color: JEWEL_COLORS.luteal,
-      bgColor: isDark ? '#231B30' : '#EDE9FE',
+      bgColor: JEWEL_COLORS.lutealBg,
       hormones: 'Progesterone rises to maintain uterine lining; resting body temp and heart rate naturally increase.',
       experience: 'Energy shifts inward. High stamina early luteal, transitioning to grounding near end. Possible PMS, bloating, or appetite changes.',
       workouts: 'Moderate resistance training, Pilates, steady-state cardio, Barre, and fluid yoga flows.',
@@ -481,26 +489,23 @@ export default function DedicatedCyclePage() {
               let textColor = isDark ? '#E5E0D8' : PALETTE.charcoal.default;
 
               if (cellState.isConfirmed) {
-                bgColor = JEWEL_COLORS.period;
-                textColor = '#FFFFFF';
+                bgColor = JEWEL_COLORS.confirmed;
+                textColor = JEWEL_COLORS.confirmedText;
               } else if (cellState.phase === 'menstrual') {
                 bgColor = JEWEL_COLORS.periodBg;
                 textColor = JEWEL_COLORS.periodText;
-              } else if (cellState.isOvulation) {
+              } else if (cellState.isOvulation || cellState.phase === 'ovulatory') {
                 bgColor = JEWEL_COLORS.ovulationBg;
                 textColor = JEWEL_COLORS.ovulationText;
               } else if (cellState.isFertile) {
-                bgColor = JEWEL_COLORS.fertileBg;
-                textColor = JEWEL_COLORS.fertileText;
+                bgColor = JEWEL_COLORS.ovulationBg;
+                textColor = JEWEL_COLORS.ovulationText;
               } else if (cellState.phase === 'follicular') {
-                bgColor = isDark ? '#1C2920' : '#EAF0EC';
+                bgColor = JEWEL_COLORS.fertileBg;
                 textColor = JEWEL_COLORS.fertileText;
               } else if (cellState.phase === 'luteal') {
                 bgColor = JEWEL_COLORS.lutealBg;
                 textColor = JEWEL_COLORS.lutealText;
-              } else if (cellState.phase === 'ovulatory') {
-                bgColor = JEWEL_COLORS.ovulationBg;
-                textColor = JEWEL_COLORS.ovulationText;
               }
 
               return (
@@ -509,8 +514,8 @@ export default function DedicatedCyclePage() {
                   style={[
                     styles.calendarCell,
                     { backgroundColor: bgColor },
-                    isSelected && styles.selectedCellBorder,
-                    isToday && styles.todayCellHighlight,
+                    isSelected && { borderWidth: 2.5, borderColor: colors.primary },
+                    isToday && !isSelected && { borderWidth: 2, borderColor: colors.primary, borderStyle: 'dashed' },
                   ]}
                   onPress={() => setSelectedDateStr(cellDateStr)}
                 >
@@ -518,7 +523,7 @@ export default function DedicatedCyclePage() {
                     variant="caption"
                     style={{
                       fontFamily: isToday || isSelected ? 'Outfit-Bold' : 'Outfit-Medium',
-                      color: isToday && !cellState.isConfirmed ? PALETTE.sage.dark : textColor,
+                      color: textColor,
                     }}
                   >
                     {dayNum}
@@ -526,9 +531,9 @@ export default function DedicatedCyclePage() {
 
                   {/* Indicators */}
                   <View style={styles.indicatorRow}>
-                    {cellState.isConfirmed && <View style={styles.jewelDotPeriod} />}
-                    {cellState.isFertile && !cellState.isConfirmed && <View style={styles.jewelDotFertile} />}
-                    {cellState.isOvulation && !cellState.isConfirmed && <View style={styles.jewelDotOvulation} />}
+                    {cellState.isConfirmed && <View style={[styles.jewelDot, { backgroundColor: '#FFFFFF' }]} />}
+                    {cellState.isFertile && !cellState.isConfirmed && <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.fertile }]} />}
+                    {cellState.isOvulation && !cellState.isConfirmed && <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.ovulation }]} />}
                   </View>
                 </Pressable>
               );
@@ -1149,23 +1154,10 @@ const styles = StyleSheet.create({
     gap: 2,
     marginTop: 2,
   },
-  jewelDotPeriod: {
+  jewelDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#FFFFFF',
-  },
-  jewelDotFertile: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: PALETTE.charcoal.default,
-  },
-  jewelDotOvulation: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: PALETTE.plum.default,
   },
   legendRow: {
     flexDirection: 'row',

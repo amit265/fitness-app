@@ -109,6 +109,71 @@ export interface ThemeTokens {
   isDark: boolean;
 }
 
+export interface CyclePhaseTokens {
+  menstrual: string;
+  menstrualBg: string;
+  menstrualText: string;
+
+  follicular: string;
+  follicularBg: string;
+  follicularText: string;
+
+  ovulatory: string;
+  ovulatoryBg: string;
+  ovulatoryText: string;
+
+  luteal: string;
+  lutealBg: string;
+  lutealText: string;
+
+  confirmedPeriod: string;
+  confirmedPeriodText: string;
+}
+
+/** Dedicated cycle-phase color system strictly for cycle data visualization */
+export const CYCLE_PHASE_COLORS: { light: CyclePhaseTokens; dark: CyclePhaseTokens } = {
+  light: {
+    menstrual: '#D9939E',
+    menstrualBg: '#FBF2F4',
+    menstrualText: '#8B424E',
+
+    follicular: '#8FA89A',
+    follicularBg: '#F1F6F3',
+    follicularText: '#3B5748',
+
+    ovulatory: '#C6A15B',
+    ovulatoryBg: '#FAF5EA',
+    ovulatoryText: '#73561A',
+
+    luteal: '#6B5267',
+    lutealBg: '#F5EEF6',
+    lutealText: '#3D263A',
+
+    confirmedPeriod: '#D9939E',
+    confirmedPeriodText: '#FFFFFF',
+  },
+  dark: {
+    menstrual: '#E89FA9',
+    menstrualBg: '#3B2329',
+    menstrualText: '#F4D4D9',
+
+    follicular: '#A2BCAC',
+    follicularBg: '#1F3127',
+    follicularText: '#BDD2C6',
+
+    ovulatory: '#D9B46E',
+    ovulatoryBg: '#3D311A',
+    ovulatoryText: '#E2C78E',
+
+    luteal: '#9B8398',
+    lutealBg: '#2E1E2D',
+    lutealText: '#E4DAE3',
+
+    confirmedPeriod: '#E89FA9',
+    confirmedPeriodText: '#FFFFFF',
+  },
+};
+
 /** SINI CLASSIC: The original application theme (Warm Oat & Deep Plum) */
 export const THEME_CLASSIC: ThemeTokens = {
   name: 'Sini Classic',
@@ -126,10 +191,10 @@ export const THEME_CLASSIC: ThemeTokens = {
   borderLight: '#F0E8E1',
   shadow: PALETTE.charcoal.default,
 
-  period: PALETTE.rose.default,
-  follicular: PALETTE.sage.default,
-  ovulation: PALETTE.gold.default,
-  luteal: PALETTE.plum.light,
+  period: '#D9939E',
+  follicular: '#8FA89A',
+  ovulation: '#C6A15B',
+  luteal: '#6B5267',
   cycle: PALETTE.plum.default,
   activity: PALETTE.sage.default,
   nutrition: PALETTE.terracotta.default,
