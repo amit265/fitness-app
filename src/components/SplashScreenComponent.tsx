@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { PALETTE } from '../constants/theme';
+import { t } from '../i18n';
 
 interface SplashScreenComponentProps {
   showBranding?: boolean;
@@ -146,7 +147,7 @@ export function SplashScreenComponent({
                 Sini AI
               </Text>
               <Text style={[styles.appTaglineText, { color: colors.primary }]}>
-                Cycle-Aware Fitness & Wellness
+                {t('common.tagline')}
               </Text>
             </Animated.View>
           </View>

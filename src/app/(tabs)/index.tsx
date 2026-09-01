@@ -29,11 +29,11 @@ import { PALETTE, SPACING, SEMANTICS, SHADOWS } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import { getDailyCalorieBalance } from '../../domain/calories/calorieEngine';
+import { getDailyCalorieBalance, calculateMacroTargets } from '../../domain/calories/calorieEngine';
 import { getRecommendedMealsForToday } from '../../domain/calories/mealRecommendationEngine';
 import { triggerStoreReviewIfAppropriate } from '../../utils/storeReview';
 import { logAnalyticsEvent } from '../../services/analyticsService';
-import { NativeAdComponent } from '../../services/AdManager';
+import { NativeAdComponent, showInterstitialAd } from '../../services/AdManager';
 import {
   Sparkles,
   Droplet,
@@ -113,6 +113,8 @@ export default function TodayScreen() {
   const isExerciseMet = recentWorkoutMinutes >= (readiness.recommendation.durationMinutes || 20);
   const isNutritionMet = todayMeals.length > 0;
 
+  const macroTargets = calculateMacroTargets(calorieBalance.targetCalories, userWeight, userProfile?.weightGoal || 'wellness');
+
   const completedTargetsCount = [isCheckInMet, isWaterMet, isExerciseMet, isNutritionMet].filter(Boolean).length;
   const currentStreak = streak?.currentStreak || 1;
 
@@ -143,7 +145,8 @@ export default function TodayScreen() {
     };
 
     const contextHash = generateContextHash(context) + '_' + uiLanguage;
-    const cached = dailyInsightCache[todayStr];
+    const cacheKey = `${todayStr}_${uiLanguage}`;
+    const cached = dailyInsightCache[cacheKey];
 
     // Use cached insight if available and context hasn't changed (unless force refresh requested)
     if (!forceRefresh && cached && cached.contextHash === contextHash && cached.content) {
@@ -155,7 +158,7 @@ export default function TodayScreen() {
     try {
       const text = await generateDailyInsight(context, userProfile?.groqApiKey);
       setDailyInsight(text);
-      setCachedInsight(todayStr, {
+      setCachedInsight(cacheKey, {
         date: todayStr,
         generatedAt: new Date().toISOString(),
         contextHash,
@@ -164,6 +167,12 @@ export default function TodayScreen() {
     } catch (e) {
       const fallbackText = `FACT: You have ${calorieBalance.remainingCalories} kcal remaining today.\nCONTEXT: You're in your ${cycleState.phase} phase (Day ${cycleState.cycleDay}) with energy ${todayCheckIn?.energy || 3}/5.\nCHOICE: A protein-dense dinner will fit comfortably. If you want movement, a gentle 20-minute walk is ideal.`;
       setDailyInsight(fallbackText);
+      setCachedInsight(cacheKey, {
+        date: todayStr,
+        generatedAt: new Date().toISOString(),
+        contextHash,
+        content: fallbackText,
+      });
     } finally {
       setInsightLoading(false);
     }
@@ -226,6 +235,7 @@ export default function TodayScreen() {
     });
     setCheckInModalVisible(false);
     fetchDailyInsight(true);
+    showInterstitialAd({ screen: 'home', isPremium: userProfile?.isPremium || false });
   };
 
   // Calorie Circular Arc Math
@@ -334,7 +344,7 @@ export default function TodayScreen() {
               Sini AI: Cycle & Fitness • 🔥 {streak?.currentStreak || 1}d Streak
             </Typography>
             <Typography variant="h1" style={styles.userName}>
-              Good morning, {userProfile?.name || 'Sarah'}
+              {userProfile?.name ? t('home.greeting', { name: userProfile.name }) : t('home.greetingDefault')}
             </Typography>
           </View>
 
@@ -375,14 +385,14 @@ export default function TodayScreen() {
                   color={colors.primary}
                   style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
                 >
-                  {cycleState.phase.toUpperCase()} · DAY {cycleState.cycleDay}
+                  {t('cycle.phase.' + cycleState.phase.toLowerCase(), { defaultValue: cycleState.phase }).toUpperCase()} · {t('cycle.currentDay', { day: cycleState.cycleDay }).toUpperCase()}
                 </Typography>
               </Pressable>
 
               <View style={[styles.energyPill, { backgroundColor: colors.surface }]}>
                 <Zap size={14} color={colors.ovulation} />
                 <Typography variant="caption" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
-                  Energy {todayCheckIn ? todayCheckIn.energy : 3}/5
+                  {t('home.energyLabel')} {todayCheckIn ? todayCheckIn.energy : 3}/5
                 </Typography>
               </View>
             </View>
@@ -392,28 +402,28 @@ export default function TodayScreen() {
               onPress={() => setCheckInModalVisible(true)}
             >
               <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
-                {todayCheckIn ? 'Edit Check-In' : '+ Log Feeling'}
+                {todayCheckIn ? t('home.editCheckIn') : t('home.logFeeling')}
               </Typography>
             </Pressable>
           </View>
 
           <View style={styles.feelingSummaryRow}>
             <View style={styles.feelingStat}>
-              <Typography variant="caption" color={colors.subtext}>Readiness</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('home.readiness')}</Typography>
               <Typography variant="h2" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                 {readiness.score}/100
               </Typography>
             </View>
             <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
             <View style={styles.feelingStat}>
-              <Typography variant="caption" color={colors.subtext}>Sleep</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('home.sleep')}</Typography>
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
                 {todayCheckIn ? `${todayCheckIn.sleepDuration}h` : '8.0h'}
               </Typography>
             </View>
             <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
             <View style={styles.feelingStat}>
-              <Typography variant="caption" color={colors.subtext}>Hydration</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('home.hydration')}</Typography>
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
                 {todayCheckIn ? `${todayCheckIn.hydration}L` : '1.5L'}
               </Typography>
@@ -427,7 +437,7 @@ export default function TodayScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Flame color={colors.nutrition} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-                TODAY'S CALORIES
+                {t('home.todaysCalories')}
               </Typography>
             </View>
             <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? colors.errorBg : colors.successBg }]}>
@@ -436,7 +446,7 @@ export default function TodayScreen() {
                 color={calorieBalance.isOverTarget ? colors.error : colors.success}
                 style={{ fontFamily: 'Outfit-Bold' }}
               >
-                {calorieBalance.percentageUsed}% TARGET
+                {calorieBalance.percentageUsed}% {t('home.target').toUpperCase()}
               </Typography>
             </View>
           </View>
@@ -484,20 +494,41 @@ export default function TodayScreen() {
                   : `${calorieBalance.remainingCalories}`}
               </Typography>
               <Typography variant="bodyMedium" color={colors.subtext} style={{ fontFamily: 'Outfit-Medium' }}>
-                {calorieBalance.isOverTarget ? 'kcal over target' : 'kcal remaining'}
+                {calorieBalance.isOverTarget ? t('home.kcalOver') : t('home.kcalRemaining')}
               </Typography>
 
               <View style={styles.macroMiniRow}>
                 <View style={styles.macroMiniItem}>
-                  <Typography variant="caption" color={colors.subtext}>Food</Typography>
+                  <Typography variant="caption" color={colors.subtext}>{t('home.food')}</Typography>
                   <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
                     {calorieBalance.consumedCalories} kcal
                   </Typography>
                 </View>
                 <View style={styles.macroMiniItem}>
-                  <Typography variant="caption" color={colors.subtext}>Activity</Typography>
+                  <Typography variant="caption" color={colors.subtext}>{t('home.activity')}</Typography>
                   <Typography variant="bodyMedium" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
                     ~{calorieBalance.activityCalories} kcal
+                  </Typography>
+                </View>
+              </View>
+
+              <View style={[styles.macroMiniRow, { marginTop: 8 }]}>
+                <View style={styles.macroMiniItem}>
+                  <Typography variant="caption" color={colors.subtext}>Protein</Typography>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                    {Math.round(calorieBalance.proteinConsumed)} / {macroTargets.proteinG}g
+                  </Typography>
+                </View>
+                <View style={styles.macroMiniItem}>
+                  <Typography variant="caption" color={colors.subtext}>Carbs</Typography>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                    {Math.round(calorieBalance.carbsConsumed)} / {macroTargets.carbsG}g
+                  </Typography>
+                </View>
+                <View style={styles.macroMiniItem}>
+                  <Typography variant="caption" color={colors.subtext}>Fat</Typography>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                    {Math.round(calorieBalance.fatConsumed)} / {macroTargets.fatG}g
                   </Typography>
                 </View>
               </View>
@@ -557,14 +588,14 @@ export default function TodayScreen() {
           <View style={styles.cardTitleRow}>
             <ActivityIcon color={colors.activity} size={20} />
             <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-              Activity & Movement
+              {t('home.activityMovement')}
             </Typography>
           </View>
 
           <View style={styles.activityBadgeRow}>
             <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
-                {readiness.recommendation.activityType.replace('_', ' ').toUpperCase()}
+                {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
               </Typography>
             </View>
             {readiness.recommendation.durationMinutes && (
@@ -577,10 +608,10 @@ export default function TodayScreen() {
           </View>
 
           <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', marginTop: 8 }}>
-            {readiness.recommendation.title}
+            {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
           </Typography>
           <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
-            {readiness.recommendation.explanation}
+            {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
           </Typography>
 
           {/* Quick Hydration Tracker */}
@@ -588,12 +619,12 @@ export default function TodayScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
               <Droplet color={colors.activity} size={18} />
               <Typography variant="bodyMedium" style={{ marginLeft: 8, fontFamily: 'Outfit-Medium' }}>
-                Hydration Target: {recommendedWaterL}L
+                {t('home.hydrationTarget', { litres: recommendedWaterL.toString() })}
               </Typography>
             </View>
             <Pressable onPress={openWaterModal} style={styles.quickAddWaterBtn}>
               <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
-                + Add Water
+                {t('home.addWater')}
               </Typography>
             </Pressable>
           </View>
@@ -605,13 +636,13 @@ export default function TodayScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Award color={colors.ovulation} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
-                Today's Targets
+                {t('home.todaysTargets')}
               </Typography>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? colors.successBg : colors.warningBg }]}>
                 <Typography variant="caption" color={completedTargetsCount >= 2 ? colors.success : colors.warning} style={{ fontFamily: 'Outfit-Bold' }}>
-                  {completedTargetsCount}/4 Done
+                  {completedTargetsCount}/4 {t('common.done')}
                 </Typography>
               </View>
               {isTargetsFolded ? <ChevronDown color={colors.subtext} size={18} /> : <ChevronUp color={colors.subtext} size={18} />}
@@ -622,19 +653,19 @@ export default function TodayScreen() {
             <View style={styles.targetsList}>
               <View style={styles.targetItem}>
                 {isCheckInMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>Check-in & Energy logged</Typography>
+                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.checkInLogged')}</Typography>
               </View>
               <View style={styles.targetItem}>
                 {isWaterMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>Hydration target ({recommendedWaterL}L)</Typography>
+                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.hydrationTargetLabel', { litres: recommendedWaterL.toString() })}</Typography>
               </View>
               <View style={styles.targetItem}>
                 {isExerciseMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>Movement ({readiness.recommendation.durationMinutes || 20}m)</Typography>
+                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.movementLabel', { mins: (readiness.recommendation.durationMinutes || 20).toString() })}</Typography>
               </View>
               <View style={styles.targetItem}>
                 {isNutritionMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>Nutrition logged</Typography>
+                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.nutritionLogged')}</Typography>
               </View>
             </View>
           )}
@@ -656,7 +687,7 @@ export default function TodayScreen() {
       >
         <SiniAvatar size={34} variant="plum" />
         <Typography variant="caption" color={colors.primaryText} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-          Ask Sini
+          {t('home.askSini')}
         </Typography>
       </Pressable>
 
@@ -895,10 +926,15 @@ const styles = StyleSheet.create({
   },
   macroMiniRow: {
     flexDirection: 'row',
-    gap: 16,
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'space-between',
     marginTop: 12,
   },
-  macroMiniItem: {},
+  macroMiniItem: {
+    flex: 1,
+    minWidth: 75,
+  },
   quickLogButtonsRow: {
     flexDirection: 'row',
     gap: SPACING.sm,

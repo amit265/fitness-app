@@ -1,13 +1,5 @@
-import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform,  } from 'react-native';
 import { Typography } from '../../components/Typography';
 import { SiniAvatar } from '../../components/SiniAvatar';
 import { useAppStore } from '../../store/useAppStore';
@@ -16,13 +8,18 @@ import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import { NativeAdComponent } from '../../services/AdManager';
+import { NativeAdComponent, showRewardedAdWithConsent } from '../../services/AdManager';
+import { useAdContext } from '../../context/AdContext';
+import { useIAP } from '../../context/IAPContext';
 import {
   Settings,
   Trash2,
   Ruler,
   Award,
   Calendar as CalendarIcon,
+  Crown,
+  Timer,
+  Star,
   ChevronRight,
   User,
   Sliders,
@@ -35,6 +32,16 @@ import {
 import { useRouter } from 'expo-router';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { t } from '../../i18n';
+import { CalculatorModal } from '../../components/CalculatorModal';
+import { Alert } from '../../utils/alertUtils';
+
+import {
+  calculateBMR,
+  calculateDailyCalorieTarget,
+  calculateHealthyWeightRange,
+  calculateMacroTargets,
+  estimateHydration
+} from '../../domain/calories/calorieEngine';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -47,11 +54,70 @@ export default function ProfileScreen() {
   const measurements = useAppStore((state) => state.measurements);
   const streak = useAppStore((state) => state.streak);
   const resetStore = useAppStore((state) => state.resetStore);
+  const { isAdFree, grantAdFreeMinutes, adFreeExpiresAt } = useAdContext();
+  const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
+  const [timeRemainingStr, setTimeRemainingStr] = useState('');
+
+  useEffect(() => {
+    if (typeof adFreeExpiresAt !== 'number') {
+      setTimeRemainingStr('');
+      return;
+    }
+    const updateTimer = () => {
+      const remaining = adFreeExpiresAt - Date.now();
+      if (remaining <= 0) {
+        setTimeRemainingStr('00:00:00');
+      } else {
+        const totalSeconds = Math.floor(remaining / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        setTimeRemainingStr(
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+        );
+      }
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [adFreeExpiresAt]);
+
+  const handleWatchAdReward = () => {
+    showRewardedAdWithConsent(() => {
+      grantAdFreeMinutes(15);
+      Alert.alert(t('settings.rewardUnlocked'), t('settings.earnedAdFree'));
+    });
+  };
+
+  const handleRestorePurchases = async () => {
+    const res = await restorePurchases();
+    Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
+  };
+
 
   const currentHeight = userProfile?.height ?? 165;
   const currentWeight = measurements[0]?.weight ?? 62;
+  const currentAge = userProfile?.age ?? 28;
+  const currentGoal = userProfile?.weightGoal ?? 'wellness';
   const bmiVal = calculateBMI(currentWeight, currentHeight);
   const bmiCategoryKey = getBMICategory(bmiVal);
+
+  const bmr = calculateBMR(currentWeight, currentHeight, currentAge);
+  const tdee = calculateDailyCalorieTarget(userProfile, currentWeight);
+  const healthyWeight = calculateHealthyWeightRange(currentHeight);
+  const macros = calculateMacroTargets(tdee, currentWeight, currentGoal);
+  const waterTarget = estimateHydration(currentWeight);
+
+  const [activeModal, setActiveModal] = useState<'bmr' | 'tdee' | 'healthyWeight' | 'macros' | 'water' | null>(null);
+  const setUserProfile = useAppStore((state) => state.setUserProfile);
+
+  const handleUseForSini = (goalOverride: 'lose' | 'gain' | 'maintain' | 'wellness') => {
+    if (userProfile) {
+      setUserProfile({ ...userProfile, weightGoal: goalOverride });
+      Alert.alert(t('common.done'), 'Sini calorie target updated based on your goal.');
+      setActiveModal(null);
+    }
+  };
 
   const handleResetData = () => {
     Alert.alert(
@@ -116,27 +182,103 @@ export default function ProfileScreen() {
               </View>
               <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
-                <Typography variant="caption" color={colors.subtext}>HEIGHT</Typography>
+                <Typography variant="caption" color={colors.subtext}>{t('profile.heightLabel')}</Typography>
                 <Typography variant="bodyMedium" style={styles.bioValue}>{currentHeight} cm</Typography>
               </View>
               <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
-                <Typography variant="caption" color={colors.subtext}>WEIGHT</Typography>
+                <Typography variant="caption" color={colors.subtext}>{t('profile.weightLabel')}</Typography>
                 <Typography variant="bodyMedium" style={styles.bioValue}>{currentWeight} kg</Typography>
               </View>
               <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
-                <Typography variant="caption" color={colors.subtext}>BMI</Typography>
+                <Typography variant="caption" color={colors.subtext}>{t('profile.bmiLabel')}</Typography>
                 <Typography variant="bodyMedium" color={colors.primary} style={styles.bioValue}>{bmiVal.toFixed(1)}</Typography>
               </View>
             </View>
           </View>
 
-          {/* GROUP 1: HEALTH & BODY COMPOSITION */}
+          
+          {/* MEMBERSHIP SECTION */}
+{/* MEMBERSHIP & AD-FREE UNLOCK */}
+        <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+          {t('settings.membershipHeader').toUpperCase()}
+        </Typography>
+        <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Pressable
+            style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+            onPress={requestPurchase}
+          >
+            <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+              <Crown size={18} color={PALETTE.gold.default} />
+            </View>
+            <View style={styles.rowTextCol}>
+              <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                {t('settings.removeAdsTitle')}
+              </Typography>
+              <Typography variant="caption" color={colors.subtext}>
+                {isIapPremium ? t('settings.lifetimeActive') : t('settings.lifetimeDesc')}
+              </Typography>
+            </View>
+            <View style={styles.priceTagBadge}>
+              <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
+                {premiumProduct?.displayPrice || '$2.99'}
+              </Typography>
+            </View>
+          </Pressable>
+
+          {!isIapPremium && (
+            <>
+              <View style={styles.rowSeparator} />
+              <Pressable
+                style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+                onPress={handleWatchAdReward}
+              >
+                <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                  <Timer size={18} color={colors.primary} />
+                </View>
+                <View style={styles.rowTextCol}>
+                  <Typography variant="bodyMedium" style={styles.rowTitle}>
+                    {t('settings.watchAdForPass')}
+                  </Typography>
+                  <Typography variant="caption" color={isAdFree ? colors.primary : colors.subtext}>
+                    {isAdFree && timeRemainingStr ? t('settings.adFreeRemaining', { time: timeRemainingStr }) : t('settings.watchAdDesc')}
+                  </Typography>
+                </View>
+                <ChevronRight size={18} color={colors.subtext} />
+              </Pressable>
+
+              <View style={styles.rowSeparator} />
+
+              <Pressable
+                style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+                onPress={handleRestorePurchases}
+              >
+                <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                  <Star size={18} color={colors.subtext} />
+                </View>
+                <View style={styles.rowTextCol}>
+                  <Typography variant="bodyMedium" style={styles.rowTitle}>
+                    {t('settings.restorePurchases')}
+                  </Typography>
+                  <Typography variant="caption" color={colors.subtext}>
+                    {t('settings.restoreDesc')}
+                  </Typography>
+                </View>
+                <ChevronRight size={18} color={colors.subtext} />
+              </Pressable>
+            </>
+          )}
+        </View>
+
+        
+          {/* GROUP 1: HEALTH & FITNESS TOOLS */}
+
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            HEALTH & BODY COMPOSITION
+            {t('profile.healthSection') || 'My Nutrition & Body Goals'}
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            {/* BMI */}
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/bmi')}
@@ -145,9 +287,9 @@ export default function ProfileScreen() {
                 <Ruler size={18} color={colors.activity} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>BMI & Body Composition</Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.bmiComposition')}</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  {t('bmi.title')} ({bmiVal.toFixed(1)}) · {currentWeight} kg
+                  {bmiVal.toFixed(1)} · {t(`bmi.category.${bmiCategoryKey}` as any)}
                 </Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
@@ -155,6 +297,102 @@ export default function ProfileScreen() {
 
             <View style={styles.rowSeparator} />
 
+            {/* BMR */}
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => setActiveModal('bmr')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Moon size={18} color={colors.primary} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.bmr')}</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  ≈ {bmr.toLocaleString()} kcal/day
+                </Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            {/* TDEE */}
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => setActiveModal('tdee')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Flame size={18} color={colors.activity} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.tdee')}</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  ≈ {tdee.toLocaleString()} kcal/day
+                </Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            {/* Healthy Weight Range */}
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => setActiveModal('healthyWeight')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <ShieldCheck size={18} color={colors.success} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.healthyWeight')}</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  ≈ {healthyWeight.minKg} – {healthyWeight.maxKg} kg
+                </Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            {/* Macro Targets */}
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => setActiveModal('macros')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Award size={18} color={colors.nutrition} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.macroTargets')}</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  {macros.proteinG}g P · {macros.carbsG}g C · {macros.fatG}g F
+                </Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+            
+            <View style={styles.rowSeparator} />
+
+            {/* Water Target */}
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => setActiveModal('water')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Zap size={18} color={'#4FC3F7'} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.waterTarget')}</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  ≈ {waterTarget} L/day
+                </Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            {/* Nutrition & Goals (Original) */}
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/edit-profile')}
@@ -163,7 +401,7 @@ export default function ProfileScreen() {
                 <User size={18} color={colors.nutrition} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Nutrition & Weight Goals</Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.nutritionWeightGoals')}</Typography>
                 <Typography variant="caption" color={colors.subtext}>
                   {(userProfile?.weightGoal || 'wellness').toUpperCase()} · {(userProfile?.regionalCuisine || 'indian').toUpperCase()} cuisine
                 </Typography>
@@ -174,7 +412,7 @@ export default function ProfileScreen() {
 
           {/* GROUP 2: MENSTRUAL CYCLE PARAMETERS */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            CYCLE PARAMETERS
+            {t('profile.cycleSection')}
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable
@@ -185,7 +423,7 @@ export default function ProfileScreen() {
                 <CalendarIcon size={18} color={colors.period} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Cycle Calendar & Predictions</Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.cycleCalendarPredictions')}</Typography>
                 <Typography variant="caption" color={colors.subtext}>
                   {cyclePreferences?.typicalCycleLength || 28}d typical cycle · {cyclePreferences?.typicalPeriodDuration || 5}d period
                 </Typography>
@@ -202,6 +440,50 @@ export default function ProfileScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Calculator Modals */}
+      <CalculatorModal
+        visible={activeModal === 'bmr'}
+        onClose={() => setActiveModal(null)}
+        title={t('profile.bmr')}
+        result={`≈ ${bmr.toLocaleString()} kcal/day`}
+        subtitle="Basal Metabolic Rate"
+        explanation={`Calculated using the Mifflin-St Jeor equation based on your height (${currentHeight}cm), weight (${currentWeight}kg), and age (${currentAge}). This is an estimate of the energy your body uses completely at rest.`}
+      />
+
+      <CalculatorModal
+        visible={activeModal === 'tdee'}
+        onClose={() => setActiveModal(null)}
+        title={t('profile.tdee')}
+        result={`≈ ${tdee.toLocaleString()} kcal/day`}
+        subtitle="Total Daily Energy Expenditure"
+        explanation="Calculated by multiplying your BMR by your estimated activity level. If your goal is weight loss, this number is automatically reduced by ~400 kcal to create a safe deficit."
+        onUseForSini={() => handleUseForSini(currentGoal)}
+      />
+
+      <CalculatorModal
+        visible={activeModal === 'healthyWeight'}
+        onClose={() => setActiveModal(null)}
+        title={t('profile.healthyWeight')}
+        result={`≈ ${healthyWeight.minKg} – ${healthyWeight.maxKg} kg`}
+        explanation={`Approximate weight range corresponding to the standard healthy adult BMI range (18.5 – 24.9) for your height of ${currentHeight} cm. There is no single "perfect" weight, and this is just a general scientific guideline.`}
+      />
+
+      <CalculatorModal
+        visible={activeModal === 'macros'}
+        onClose={() => setActiveModal(null)}
+        title={t('profile.macroTargets')}
+        result={`${macros.proteinG}g P · ${macros.carbsG}g C · ${macros.fatG}g F`}
+        explanation={`Suggested starting macro distribution based on your daily calorie target of ${tdee} kcal and goal (${currentGoal}). These are not medical requirements, just a helpful structure for nutrition.`}
+      />
+
+      <CalculatorModal
+        visible={activeModal === 'water'}
+        onClose={() => setActiveModal(null)}
+        title={t('profile.waterTarget')}
+        result={`≈ ${waterTarget} L/day`}
+        explanation={`Estimated daily hydration target based on approximately 35ml per kg of your body weight (${currentWeight}kg).`}
+      />
     </SafeAreaView>
   );
 }
@@ -316,9 +598,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: SPACING.sm,
   },
-  rowTitle: {
-    fontFamily: 'Outfit-Bold',
-  },
+  rowTitle: { fontFamily: 'Outfit-Bold' },
+  priceTagBadge: { backgroundColor: PALETTE.gold.default, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, overflow: 'hidden' },
   rowSeparator: {
     height: 1,
     backgroundColor: 'rgba(0,0,0,0.05)',

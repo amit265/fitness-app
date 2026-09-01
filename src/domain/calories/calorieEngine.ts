@@ -1,4 +1,4 @@
-import { UserProfile, BodyMeasurement, Meal, Activity, CycleState } from '../../types';
+import { UserProfile, BodyMeasurement, Meal, Activity, CycleState, DailyCheckIn } from '../../types';
 import { diffInDays } from '../../utils/date';
 
 export interface CalorieBalance {
@@ -121,7 +121,8 @@ export function getDailyCalorieBalance(
   meals: Meal[],
   activities: Activity[],
   userProfile: UserProfile | null,
-  measurements: BodyMeasurement[]
+  measurements: BodyMeasurement[],
+  dailyCheckIn?: DailyCheckIn
 ): CalorieBalance {
   const latestWeight = measurements[0]?.weight ?? 60;
   const targetCalories = calculateDailyCalorieTarget(userProfile, latestWeight);
@@ -143,12 +144,33 @@ export function getDailyCalorieBalance(
     return actDate === dateStr;
   });
 
-  const activityCalories = dayActivities.reduce((sum, a) => {
-    if (a.caloriesBurned && a.caloriesBurned > 0) {
-      return sum + a.caloriesBurned;
+  let nonWalkingActivityCalories = 0;
+  let manualWalkingCalories = 0;
+
+  dayActivities.forEach((a) => {
+    const cals = a.caloriesBurned && a.caloriesBurned > 0 
+      ? a.caloriesBurned 
+      : estimateActivityCalories(a.type, a.durationMinutes, a.intensity, latestWeight);
+      
+    if (a.type === 'walking') {
+      manualWalkingCalories += cals;
+    } else {
+      nonWalkingActivityCalories += cals;
     }
-    return sum + estimateActivityCalories(a.type, a.durationMinutes, a.intensity, latestWeight);
-  }, 0);
+  });
+
+  // Calculate steps calories (roughly 0.04 calories per step per kg)
+  let stepsCalories = 0;
+  if (dailyCheckIn && dailyCheckIn.steps) {
+    // A standard estimate: ~ 0.04 * weight * steps / 60
+    stepsCalories = Math.round((0.04 * latestWeight * dailyCheckIn.steps) / 60);
+  }
+
+  // Deduplicate: If they walked and have steps, we take the max of either the formal walking workouts or the background steps.
+  // We assume steps already encapsulate the walking workout if steps exist.
+  const deduplicatedWalkingCals = Math.max(manualWalkingCalories, stepsCalories);
+
+  const activityCalories = nonWalkingActivityCalories + deduplicatedWalkingCals;
 
   const remainingCalories = targetCalories - consumedCalories;
   const isOverTarget = consumedCalories > targetCalories;
@@ -192,4 +214,53 @@ export function calculateActivityEquivalents(
     cyclingMins: Math.round(calories / (cyclingCpm || 1)),
     workoutMins: Math.round(calories / (workoutCpm || 1)),
   };
+}
+
+/**
+ * Calculates healthy weight range based on BMI 18.5 - 24.9
+ */
+export function calculateHealthyWeightRange(heightCm: number): { minKg: number; maxKg: number } {
+  const heightM = heightCm / 100;
+  const minKg = 18.5 * (heightM * heightM);
+  const maxKg = 24.9 * (heightM * heightM);
+  return {
+    minKg: Math.round(minKg * 10) / 10,
+    maxKg: Math.round(maxKg * 10) / 10,
+  };
+}
+
+/**
+ * Calculates daily macro targets based on TDEE and Goal
+ */
+export function calculateMacroTargets(
+  targetCalories: number,
+  weightKg: number,
+  goal: UserProfile['weightGoal']
+): { proteinG: number; carbsG: number; fatG: number } {
+  // Protein: High for weight loss to preserve muscle, standard otherwise.
+  const proteinMultiplier = goal === 'lose' ? 2.2 : 1.8;
+  const proteinG = Math.round(weightKg * proteinMultiplier);
+  const proteinCals = proteinG * 4;
+
+  // Fat: Standard 25% of total calories, or min 1g/kg
+  let fatCals = targetCalories * 0.25;
+  if (fatCals / 9 < weightKg * 0.8) {
+    fatCals = weightKg * 0.8 * 9;
+  }
+  const fatG = Math.round(fatCals / 9);
+
+  // Carbs: The rest
+  const remainingCals = targetCalories - proteinCals - fatCals;
+  const carbsG = Math.round(Math.max(0, remainingCals) / 4);
+
+  return { proteinG, carbsG, fatG };
+}
+
+/**
+ * Estimates daily hydration target (liters) based on weight
+ */
+export function estimateHydration(weightKg: number): number {
+  // Approx 35ml per kg of body weight
+  const ml = weightKg * 35;
+  return Math.round((ml / 1000) * 10) / 10;
 }

@@ -1,0 +1,46 @@
+{
+  "parameters": {
+    "ad_master_switch": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Master toggle to instantly disable all ads across the app.",
+      "valueType": "BOOLEAN"
+    },
+    "ad_native_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Toggle native ads in content feeds.",
+      "valueType": "BOOLEAN"
+    },
+    "ad_banner_enabled": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Toggle persistent banner ads at the bottom of the screen.",
+      "valueType": "BOOLEAN"
+    },
+    "ad_interstitial_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Toggle full-screen interstitial ads between screen transitions.",
+      "valueType": "BOOLEAN"
+    },
+    "ad_rewarded_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Toggle rewarded video ads for unlocking premium features.",
+      "valueType": "BOOLEAN"
+    },
+    "ad_app_open_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Toggle app open ads when the user returns to the app from the background.",
+      "valueType": "BOOLEAN"
+    }
+  }
+}

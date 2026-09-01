@@ -94,7 +94,10 @@
           "version": "2.3.0"
         }
       ],
-      "./plugins/withAndroidResolutionStrategy"
+      "./plugins/withAndroidResolutionStrategy",
+      "@react-native-firebase/app",
+      "@react-native-firebase/analytics",
+      "@react-native-firebase/messaging"
     ],
     "updates": {
       "enabled": true,

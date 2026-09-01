@@ -1,17 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  Modal,
-  View,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  Pressable,
-  useColorScheme,
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from 'react-native';
+import { Modal, View, StyleSheet, ScrollView, TextInput, Pressable, useColorScheme, ActivityIndicator, KeyboardAvoidingView, Platform,  } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Typography } from './Typography';
 import { MarkdownText } from './MarkdownText';
@@ -29,6 +17,40 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Send, X, User as UserIcon, RotateCcw, Flag, Sparkles } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
+import { Alert } from '../utils/alertUtils';
+
+
+const TypewriterMarkdown = ({ text, isCoach, onContentChange, onComplete }: { text: string, isCoach: boolean, onContentChange?: () => void, onComplete?: () => void }) => {
+  const [displayedText, setDisplayedText] = useState('');
+
+  // Use refs for callbacks to avoid re-triggering effect
+  const onContentChangeRef = useRef(onContentChange);
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onContentChangeRef.current = onContentChange;
+    onCompleteRef.current = onComplete;
+  }, [onContentChange, onComplete]);
+
+  useEffect(() => {
+    const chars = Array.from(text);
+    let index = 0;
+    setDisplayedText('');
+    const timer = setInterval(() => {
+      if (index < chars.length) {
+        index++;
+        setDisplayedText(chars.slice(0, index).join(''));
+        onContentChangeRef.current?.();
+      } else {
+        clearInterval(timer);
+        onCompleteRef.current?.();
+      }
+    }, 15);
+    return () => clearInterval(timer);
+  }, [text]);
+
+  return <MarkdownText text={displayedText} isCoach={isCoach} />;
+};
 
 interface CoachChatProps {
   visible: boolean;
@@ -68,6 +90,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
   ]);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
+  const [animatingMsgId, setAnimatingMsgId] = useState<string | null>(null);
 
   const quickActions = [
     t('coach.quickActions.logFood'),
@@ -85,9 +108,13 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
   }, [visible, initialQuery]);
 
   // Auto scroll to bottom
+  const scrollToBottom = () => {
+    scrollViewRef.current?.scrollToEnd({ animated: true });
+  };
+
   useEffect(() => {
     if (visible) {
-      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+      setTimeout(scrollToBottom, 100);
     }
   }, [visible, messages]);
 
@@ -194,6 +221,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
         timestamp: new Date().toISOString(),
       };
 
+      setAnimatingMsgId(assistantMsg.id);
       setMessages((prev) => [...prev, assistantMsg].slice(-30));
     } catch (e: any) {
       const errorMessage: ChatMessage = {
@@ -234,7 +262,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
         </View>
 
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
           style={{ flex: 1 }}
         >
           {/* Quick Action Chips Horizontal Bar */}
@@ -267,6 +296,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
           >
             {messages.map((m) => {
               const isCoach = m.role === 'assistant';
+              const shouldAnimate = isCoach && (m.id === animatingMsgId);
+              
               return (
                 <View
                   key={m.id}
@@ -296,7 +327,16 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                       isCoach ? styles.coachBubble : styles.userBubble,
                     ]}
                   >
-                    <MarkdownText text={m.content} isCoach={isCoach} />
+                    {shouldAnimate ? (
+                      <TypewriterMarkdown 
+                        text={m.content} 
+                        isCoach={isCoach} 
+                        onContentChange={scrollToBottom}
+                        onComplete={() => setAnimatingMsgId(null)}
+                      />
+                    ) : (
+                      <MarkdownText text={m.content} isCoach={isCoach} />
+                    )}
                   </View>
                 </View>
               );

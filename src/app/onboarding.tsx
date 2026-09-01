@@ -53,10 +53,10 @@ export default function OnboardingScreen() {
 
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
-    if (!name.trim()) newErrors.name = 'Name is required';
-    if (!age || isNaN(Number(age)) || Number(age) <= 0) newErrors.age = 'Provide a valid age';
-    if (!height || isNaN(Number(height)) || Number(height) <= 0) newErrors.height = 'Provide a valid height';
-    if (!weight || isNaN(Number(weight)) || Number(weight) <= 0) newErrors.weight = 'Provide a valid weight';
+    if (!name.trim()) newErrors.name = t('onboarding.errName');
+    if (!age || isNaN(Number(age)) || Number(age) <= 0) newErrors.age = t('onboarding.errAge');
+    if (!height || isNaN(Number(height)) || Number(height) <= 0) newErrors.height = t('onboarding.errHeight');
+    if (!weight || isNaN(Number(weight)) || Number(weight) <= 0) newErrors.weight = t('onboarding.errWeight');
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -64,13 +64,13 @@ export default function OnboardingScreen() {
   const validateStep3 = () => {
     const newErrors: Record<string, string> = {};
     if (!cycleLength || isNaN(Number(cycleLength)) || Number(cycleLength) < 15 || Number(cycleLength) > 50) {
-      newErrors.cycleLength = 'Length must be between 15 and 50 days';
+      newErrors.cycleLength = t('onboarding.errCycleLength');
     }
     if (!periodDuration || isNaN(Number(periodDuration)) || Number(periodDuration) < 2 || Number(periodDuration) > 15) {
-      newErrors.periodDuration = 'Duration must be between 2 and 15 days';
+      newErrors.periodDuration = t('onboarding.errPeriodDuration');
     }
     if (!lastPeriodStart || !/^\d{4}-\d{2}-\d{2}$/.test(lastPeriodStart)) {
-      newErrors.lastPeriodStart = 'Use YYYY-MM-DD format';
+      newErrors.lastPeriodStart = t('onboarding.errDateFormat');
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -137,7 +137,7 @@ export default function OnboardingScreen() {
           {/* Header Step Counter */}
           <View style={styles.stepHeader}>
             <Typography variant="bodySmall" color={PALETTE.sage.default} style={styles.stepText}>
-              STEP {step} OF 5
+              {t('onboarding.stepLabel')} {step} {t('onboarding.stepOf')}
             </Typography>
             <View style={styles.progressContainer}>
               {[1, 2, 3, 4, 5].map((i) => (
@@ -160,21 +160,21 @@ export default function OnboardingScreen() {
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <User color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>Tell Us About You</Typography>
+                <Typography variant="h2" style={styles.stepTitle}>{t('onboarding.step1Title')}</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                We use this to customize calorie targets, water requirements, and basic readiness parameters.
+                {t('onboarding.step1Desc')}
               </Typography>
 
               <InputField
-                label="What should we call you?"
+                label={t('onboarding.namePrompt')}
                 value={name}
                 onChangeText={setName}
-                placeholder="Name"
+                placeholder={t('onboarding.namePlaceholder')}
                 error={errors.name}
               />
               <InputField
-                label="Age (Years)"
+                label={t('onboarding.ageLabel')}
                 value={age}
                 onChangeText={setAge}
                 keyboardType="number-pad"
@@ -184,7 +184,7 @@ export default function OnboardingScreen() {
               <View style={styles.row}>
                 <View style={styles.flexHalf}>
                   <InputField
-                    label="Height (cm)"
+                    label={t('onboarding.heightLabel')}
                     value={height}
                     onChangeText={setHeight}
                     keyboardType="number-pad"
@@ -194,7 +194,7 @@ export default function OnboardingScreen() {
                 </View>
                 <View style={styles.flexHalf}>
                   <InputField
-                    label="Weight (kg)"
+                    label={t('onboarding.weightLabel')}
                     value={weight}
                     onChangeText={setWeight}
                     keyboardType="decimal-pad"
@@ -211,18 +211,18 @@ export default function OnboardingScreen() {
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Target color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>What is your goal?</Typography>
+                <Typography variant="h2" style={styles.stepTitle}>{t('onboarding.step2Title')}</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                Choose a general focus. Sini AI supports healthy recomposition without scale anxiety.
+                {t('onboarding.step2Desc')}
               </Typography>
 
               {(
                 [
-                  { id: 'lose', title: 'Lean & Tone', desc: 'Promote fat loss while maintaining muscular fitness.' },
-                  { id: 'gain', title: 'Build Strength', desc: 'Focus on gaining muscle density and energy levels.' },
-                  { id: 'wellness', title: 'General Wellness', desc: 'Improve hydration, sleep, energy, and overall health.' },
-                  { id: 'maintain', title: 'Maintain Weight', desc: 'Maintain body composition and build consistency.' },
+                  { id: 'lose', title: t('onboarding.goalLoseTitle'), desc: t('onboarding.goalLoseDesc') },
+                  { id: 'gain', title: t('onboarding.goalGainTitle'), desc: t('onboarding.goalGainDesc') },
+                  { id: 'wellness', title: t('onboarding.goalWellnessTitle'), desc: t('onboarding.goalWellnessDesc') },
+                  { id: 'maintain', title: t('onboarding.goalMaintainTitle'), desc: t('onboarding.goalMaintainDesc') },
                 ] as const
               ).map((goal) => {
                 const selected = weightGoal === goal.id;
@@ -255,14 +255,14 @@ export default function OnboardingScreen() {
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Calendar color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>Menstrual Rhythm</Typography>
+                <Typography variant="h2" style={styles.stepTitle}>{t('onboarding.step3Title')}</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                We use cycle day calculations to adjust training suggestions and explain fluctuations.
+                {t('onboarding.step3Desc')}
               </Typography>
 
               <InputField
-                label="Typical Cycle Length (Days)"
+                label={t('onboarding.cycleLengthLabel')}
                 value={cycleLength}
                 onChangeText={setCycleLength}
                 keyboardType="number-pad"
@@ -270,7 +270,7 @@ export default function OnboardingScreen() {
                 error={errors.cycleLength}
               />
               <InputField
-                label="Typical Period Duration (Days)"
+                label={t('onboarding.periodDurationLabel')}
                 value={periodDuration}
                 onChangeText={setPeriodDuration}
                 keyboardType="number-pad"
@@ -279,7 +279,7 @@ export default function OnboardingScreen() {
               />
               
               <InputField
-                label="Last Period Start Date (YYYY-MM-DD)"
+                label={t('onboarding.lastPeriodStartLabel')}
                 value={lastPeriodStart}
                 onChangeText={setLastPeriodStart}
                 placeholder="2026-08-15"
@@ -287,7 +287,7 @@ export default function OnboardingScreen() {
               />
 
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.toggleLabel}>
-                Is your cycle generally regular?
+                {t('onboarding.isRegularLabel')}
               </Typography>
               <View style={styles.toggleRow}>
                 <Pressable
@@ -297,7 +297,7 @@ export default function OnboardingScreen() {
                     isRegular && styles.toggleBtnActive,
                   ]}
                 >
-                  <Typography variant="bodyMedium" color={isRegular ? PALETTE.white : undefined}>Regular</Typography>
+                  <Typography variant="bodyMedium" color={isRegular ? PALETTE.white : undefined}>{t('onboarding.regularOption')}</Typography>
                 </Pressable>
                 <Pressable
                   onPress={() => setIsRegular(false)}
@@ -306,7 +306,7 @@ export default function OnboardingScreen() {
                     !isRegular && styles.toggleBtnActive,
                   ]}
                 >
-                  <Typography variant="bodyMedium" color={!isRegular ? PALETTE.white : undefined}>Irregular</Typography>
+                  <Typography variant="bodyMedium" color={!isRegular ? PALETTE.white : undefined}>{t('onboarding.irregularOption')}</Typography>
                 </Pressable>
               </View>
             </Card>
@@ -317,17 +317,17 @@ export default function OnboardingScreen() {
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <ShieldCheck color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>Privacy & AI Setup</Typography>
+                <Typography variant="h2" style={styles.stepTitle}>{t('onboarding.step4Title')}</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                Sini AI uses direct client-side AI integration to ensure your data stays 100% private. 
+                {t('onboarding.step4Desc1')}
               </Typography>
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.infoText}>
-                Input your free Groq API key to unlock natural-language meal/workout extraction and personalized advice. No subscription needed!
+                {t('onboarding.step4Desc2')}
               </Typography>
 
               <InputField
-                label="Groq API Key (Optional, starts with gsk_)"
+                label={t('onboarding.groqLabel')}
                 value={groqKey}
                 onChangeText={setGroqKey}
                 secureTextEntry
@@ -335,7 +335,7 @@ export default function OnboardingScreen() {
               />
 
               <Typography variant="caption" color={PALETTE.charcoal.light} style={styles.helperText}>
-                You can create a key at console.groq.com. If you leave this blank, the app will work locally using regex logging.
+                {t('onboarding.groqHint')}
               </Typography>
             </Card>
           )}
@@ -345,26 +345,26 @@ export default function OnboardingScreen() {
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Sparkles color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>Welcome to Sini AI</Typography>
+                <Typography variant="h2" style={styles.stepTitle}>{t('onboarding.welcomeTitle')}</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                All set, {name}!
+                {t('onboarding.allSet', { name: name || 'there' })}
               </Typography>
 
               <View style={styles.summaryBox}>
                 <Typography variant="bodyMedium" style={styles.summaryItem}>
-                  ✨ Goal: <Typography variant="bodyLarge" style={styles.boldText}>{weightGoal.toUpperCase()}</Typography>
+                  {t('onboarding.summaryGoal')}<Typography variant="bodyLarge" style={styles.boldText}>{weightGoal.toUpperCase()}</Typography>
                 </Typography>
                 <Typography variant="bodyMedium" style={styles.summaryItem}>
-                  🩸 Cycle Length: <Typography variant="bodyLarge" style={styles.boldText}>{cycleLength} Days</Typography>
+                  {t('onboarding.summaryCycleLength')}<Typography variant="bodyLarge" style={styles.boldText}>{cycleLength}{t('onboarding.summaryDays')}</Typography>
                 </Typography>
                 <Typography variant="bodyMedium" style={styles.summaryItem}>
-                  🧬 AI Integration: <Typography variant="bodyLarge" style={styles.boldText}>{groqKey ? 'Active (Groq Cloud)' : 'Offline/Local Mode'}</Typography>
+                  {t('onboarding.summaryAi')}<Typography variant="bodyLarge" style={styles.boldText}>{groqKey ? t('onboarding.aiActive') : t('onboarding.aiOffline')}</Typography>
                 </Typography>
               </View>
 
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.disclaimer}>
-                We will now synchronize daily recommendations based on your sleep, energy, stress, and cycle logs.
+                {t('onboarding.syncDesc')}
               </Typography>
             </Card>
           )}
@@ -373,7 +373,7 @@ export default function OnboardingScreen() {
           <View style={styles.buttonRow}>
             {step > 1 && (
               <Button
-                title="Back"
+                title={t('common.back')}
                 variant="outline"
                 onPress={handleBack}
                 style={styles.backButton}
@@ -381,13 +381,13 @@ export default function OnboardingScreen() {
             )}
             {step < 5 ? (
               <Button
-                title="Continue"
+                title={t('common.next')}
                 onPress={handleNext}
                 style={styles.nextButton}
               />
             ) : (
               <Button
-                title="Get Started"
+                title={t('onboarding.startBtn')}
                 onPress={handleComplete}
                 style={styles.nextButton}
               />

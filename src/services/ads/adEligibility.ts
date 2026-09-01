@@ -16,6 +16,10 @@ export interface AdEligibilityParams {
  * Normal ad policy & frequency rules apply.
  */
 export const canShowAd = ({ format, screen, isPremium }: AdEligibilityParams): boolean => {
+  if (!AD_CONFIG.masterSwitch) {
+    return false;
+  }
+
   // 1. Premium users get ZERO ads under any format or screen
   if (isPremium) {
     return false;

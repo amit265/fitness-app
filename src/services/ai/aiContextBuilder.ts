@@ -98,7 +98,7 @@ export function generateContextHash(context: Partial<CoachingContext>): string {
     context.energy,
     context.stress,
     context.remainingCalories,
-    (context.symptoms || []).sort().join(','),
+    [...(context.symptoms || [])].sort().join(','),
   ];
   return keys.join('|');
 }

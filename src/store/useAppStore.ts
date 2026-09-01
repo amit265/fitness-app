@@ -11,7 +11,21 @@ import {
   BodyMeasurement,
   CachedDailyInsight,
   AIMonitoringLog,
+  CustomFood,
 } from '../types';
+
+export interface AlertButton {
+  text: string;
+  style?: 'default' | 'cancel' | 'destructive';
+  onPress?: () => void;
+}
+
+export interface AlertState {
+  visible: boolean;
+  title: string;
+  message?: string;
+  buttons?: AlertButton[];
+}
 
 interface AppState {
   // State
@@ -21,6 +35,7 @@ interface AppState {
   dailyCheckIns: Record<string, DailyCheckIn>; // Indexed by YYYY-MM-DD
   meals: Meal[];
   activities: Activity[];
+  customFoods: CustomFood[];
   measurements: BodyMeasurement[];
   streak: { currentStreak: number; longestStreak: number; lastActiveDate: string | null };
   uiLanguage: string;
@@ -28,6 +43,9 @@ interface AppState {
   // AI Governance & Monitoring State
   dailyInsightCache: Record<string, CachedDailyInsight>; // Indexed by YYYY-MM-DD
   aiLogs: AIMonitoringLog[];
+
+  // Global UI State
+  alertState: AlertState;
 
   // Setters/Actions
   setUiLanguage: (lang: string) => void;
@@ -44,6 +62,10 @@ interface AppState {
   addMeal: (meal: Omit<Meal, 'id' | 'timestamp'>) => void;
   deleteMeal: (id: string) => void;
 
+  addCustomFood: (food: Omit<CustomFood, 'id'>) => void;
+  updateCustomFood: (id: string, food: Partial<CustomFood>) => void;
+  deleteCustomFood: (id: string) => void;
+
   addActivity: (activity: Omit<Activity, 'id' | 'timestamp'>) => void;
   deleteActivity: (id: string) => void;
 
@@ -57,6 +79,10 @@ interface AppState {
 
   seedMockData: () => void;
   resetStore: () => void;
+
+  // Global UI Actions
+  showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
+  hideAlert: () => void;
 }
 
 import { calculateUpdatedStreak } from '../utils/streakUtils';
@@ -74,11 +100,13 @@ export const useAppStore = create<AppState>()(
       dailyCheckIns: initialMockData.dailyCheckIns,
       meals: initialMockData.meals,
       activities: initialMockData.activities,
+      customFoods: [],
       measurements: initialMockData.measurements,
       streak: initialMockData.streak,
       uiLanguage: 'en',
       dailyInsightCache: {},
       aiLogs: [],
+      alertState: { visible: false, title: '' },
 
       seedMockData: () => set(getMockSeedData()),
 
@@ -87,6 +115,9 @@ export const useAppStore = create<AppState>()(
       setUserProfile: (profile) => set({ userProfile: profile }),
       
       setCyclePreferences: (prefs) => set({ cyclePreferences: prefs }),
+
+      showAlert: (title, message, buttons) => set({ alertState: { visible: true, title, message, buttons } }),
+      hideAlert: () => set({ alertState: { visible: false, title: '' } }),
 
       recordActivityStreak: (todayStr) =>
         set((state) => ({
@@ -136,6 +167,29 @@ export const useAppStore = create<AppState>()(
       deleteMeal: (id) =>
         set((state) => ({
           meals: state.meals.filter((m) => m.id !== id),
+        })),
+
+      addCustomFood: (food) =>
+        set((state) => ({
+          customFoods: [
+            ...state.customFoods,
+            {
+              ...food,
+              id: Math.random().toString(36).substring(7),
+            },
+          ],
+        })),
+
+      updateCustomFood: (id, updatedFields) =>
+        set((state) => ({
+          customFoods: state.customFoods.map((f) =>
+            f.id === id ? { ...f, ...updatedFields } : f
+          ),
+        })),
+
+      deleteCustomFood: (id) =>
+        set((state) => ({
+          customFoods: state.customFoods.filter((f) => f.id !== id),
         })),
 
       addActivity: (activity) =>
@@ -211,6 +265,7 @@ export const useAppStore = create<AppState>()(
           dailyCheckIns: {},
           meals: [],
           activities: [],
+          customFoods: [],
           measurements: [],
           streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: null },
           dailyInsightCache: {},

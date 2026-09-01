@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { getAnalytics, logEvent } from '@react-native-firebase/analytics';
 
 export type AnalyticsEventName =
   | 'checkin_completed'
@@ -25,6 +26,9 @@ export const logAnalyticsEvent = (
 
     if (__DEV__) {
       console.log(`[Analytics Event: ${eventName}]`, eventPayload);
+    } else {
+      // Log natively to Firebase Analytics
+      logEvent(getAnalytics(), eventName, params);
     }
 
     // Web fallback or native telemetry analytics hook

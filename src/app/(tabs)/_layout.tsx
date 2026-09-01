@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Tabs } from 'expo-router';
-import { useColorScheme, Platform, Linking, Modal, Pressable, View, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { Tabs, useFocusEffect } from 'expo-router';
+import { useColorScheme, Platform, Linking, Modal, Pressable, View, StyleSheet, BackHandler } from 'react-native';
 import { Sparkles, PlusCircle, TrendingUp, Calendar, User } from 'lucide-react-native';
 import { PALETTE } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,6 +35,29 @@ export default function TabsLayout() {
     );
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        useAppStore.getState().showAlert(
+          t('common.exitApp') === 'common.exitApp' ? 'Exit App' : t('common.exitApp'),
+          t('common.exitConfirm') === 'common.exitConfirm' ? 'Are you sure you want to exit?' : t('common.exitConfirm'),
+          [
+            { text: t('common.cancel'), style: 'cancel' },
+            { 
+              text: t('common.exit') === 'common.exit' ? 'Exit' : t('common.exit'), 
+              style: 'destructive', 
+              onPress: () => BackHandler.exitApp() 
+            }
+          ]
+        );
+        return true; // prevent default behavior (app close)
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [])
+  );
+
   return (
     <>
       <Tabs
@@ -68,7 +91,7 @@ export default function TabsLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: t('common.today'),
+            title: t('tabs.today'),
             tabBarIcon: ({ color, size }) => <Sparkles color={color} size={size} />,
           }}
         />
@@ -76,7 +99,7 @@ export default function TabsLayout() {
           name="log"
           listeners={webTabListener}
           options={{
-            title: t('log.logMealHeader'),
+            title: t('tabs.log'),
             tabBarIcon: ({ color, size }) => <PlusCircle color={color} size={size} />,
           }}
         />
@@ -84,7 +107,7 @@ export default function TabsLayout() {
           name="progress"
           listeners={webTabListener}
           options={{
-            title: t('progress.title'),
+            title: t('tabs.progress'),
             tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
           }}
         />
@@ -92,7 +115,7 @@ export default function TabsLayout() {
           name="profile"
           listeners={webTabListener}
           options={{
-            title: t('profile.title'),
+            title: t('tabs.profile'),
             tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
           }}
         />

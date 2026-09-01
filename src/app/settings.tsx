@@ -1,19 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Modal,
-  Alert,
-  Switch,
-  Platform,
-  KeyboardAvoidingView,
-  Text,
-  Share,
-  Linking,
-  ActivityIndicator,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Modal, Switch, Platform, KeyboardAvoidingView, Text, Share, Linking, ActivityIndicator,  } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Typography } from '../components/Typography';
 import { Button } from '../components/Button';
@@ -43,13 +29,15 @@ import {
 import { useRouter } from 'expo-router';
 import { useAdContext } from '../context/AdContext';
 import { useIAP } from '../context/IAPContext';
-import { showRewardedAdWithConsent } from '../services/AdManager';
+import { showRewardedAdWithConsent, BannerAdComponent } from '../services/AdManager';
 import { getCurrentLanguage, setAppLanguage, t, LANGUAGE_NAMES } from '../i18n';
 import { useAppTheme } from '../context/ThemeContext';
 import { DestyaStudioFooter } from '../components/DestyaStudioFooter';
 import { DestyaStudioAppsHub } from '../components/DestyaStudioAppsHub';
 import { APP_CONFIG } from '../constants/appConfig';
 import { APP_LINKS } from '../constants/links';
+import { Alert } from '../utils/alertUtils';
+
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -127,25 +115,26 @@ export default function SettingsScreen() {
 
     setTimeout(() => {
       setIsChangingLanguage(false);
+      router.replace('/');
     }, 750);
   };
 
   const handleRestorePurchases = async () => {
     const res = await restorePurchases();
-    Alert.alert(res.success ? 'Purchases Restored! ✨' : 'Restore Notice', res.message);
+    Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
   };
 
   const handleWatchAdReward = () => {
     showRewardedAdWithConsent(() => {
       grantAdFreeMinutes(15);
-      Alert.alert('Reward Unlocked! 🎉', 'You have earned 15 minutes of Ad-Free experience.');
+      Alert.alert(t('settings.rewardUnlocked'), t('settings.earnedAdFree'));
     });
   };
 
   const handleShareApp = async () => {
     try {
-      const shareUrl = APP_LINKS.githubRepo;
-      const shareMsg = `Check out Sini AI: Cycle & Fitness — ${t('common.tagline')} ${shareUrl}`;
+      const shareUrl = Platform.OS === 'ios' ? APP_LINKS.appStore : APP_LINKS.googlePlay;
+      const shareMsg = `${t('settings.shareMessage')} — ${t('common.tagline')} ${shareUrl}`;
       await Share.share({ message: shareMsg });
     } catch (e) {
       console.warn('Share app failed:', e);
@@ -162,7 +151,7 @@ export default function SettingsScreen() {
 
   const handleContactUs = () => {
     Linking.openURL(APP_LINKS.supportEmail).catch(() => {
-      Alert.alert('Support Email', APP_CONFIG.supportEmail);
+      Alert.alert(t('settings.supportEmailTitle'), APP_CONFIG.supportEmail);
     });
   };
 
@@ -203,78 +192,7 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        {/* SECTION 2: MEMBERSHIP & AD-FREE UNLOCK */}
-        <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          {t('settings.membershipHeader').toUpperCase()}
-        </Typography>
-        <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Pressable
-            style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-            onPress={requestPurchase}
-          >
-            <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-              <Crown size={18} color={PALETTE.gold.default} />
-            </View>
-            <View style={styles.rowTextCol}>
-              <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                {t('settings.removeAdsTitle')}
-              </Typography>
-              <Typography variant="caption" color={colors.subtext}>
-                {isIapPremium ? t('settings.lifetimeActive') : t('settings.lifetimeDesc')}
-              </Typography>
-            </View>
-            <View style={styles.priceTagBadge}>
-              <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
-                {premiumProduct?.displayPrice || t('common.loading')}
-              </Typography>
-            </View>
-          </Pressable>
-
-          {!isIapPremium && (
-            <>
-              <View style={styles.rowSeparator} />
-              <Pressable
-                style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-                onPress={handleWatchAdReward}
-              >
-                <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-                  <Timer size={18} color={colors.primary} />
-                </View>
-                <View style={styles.rowTextCol}>
-                  <Typography variant="bodyMedium" style={styles.rowTitle}>
-                    {t('settings.watchAdForPass')}
-                  </Typography>
-                  <Typography variant="caption" color={isAdFree ? colors.primary : colors.subtext}>
-                    {isAdFree && timeRemainingStr ? t('settings.adFreeRemaining', { time: timeRemainingStr }) : t('settings.watchAdDesc')}
-                  </Typography>
-                </View>
-                <ChevronRight size={18} color={colors.subtext} />
-              </Pressable>
-
-              <View style={styles.rowSeparator} />
-
-              <Pressable
-                style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-                onPress={handleRestorePurchases}
-              >
-                <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-                  <Star size={18} color={colors.subtext} />
-                </View>
-                <View style={styles.rowTextCol}>
-                  <Typography variant="bodyMedium" style={styles.rowTitle}>
-                    {t('settings.restorePurchases')}
-                  </Typography>
-                  <Typography variant="caption" color={colors.subtext}>
-                    {t('settings.restoreDesc')}
-                  </Typography>
-                </View>
-                <ChevronRight size={18} color={colors.subtext} />
-              </Pressable>
-            </>
-          )}
-        </View>
-
-        {/* SECTION 3: APPEARANCE & THEMES */}
+        {/* SECTION 2: APPEARANCE & THEMES */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.theme').toUpperCase()}
         </Typography>
@@ -296,9 +214,9 @@ export default function SettingsScreen() {
 
             <View style={styles.themeGrid}>
               {[
-                { mode: 'automatic', name: t('settings.themeMode.auto'), icon: '✨', desc: 'Adapts to your current cycle phase' },
-                { mode: 'classic', name: t('settings.themeMode.classic'), icon: '🌾', desc: 'Original Warm Oat & Deep Plum' },
-                { mode: 'dark', name: t('settings.themeMode.dark'), icon: '🌙', desc: 'Deep Plum Night theme' },
+                { mode: 'automatic', name: t('settings.themeMode.auto'), icon: '✨', desc: t('settings.themeDescAuto') },
+                { mode: 'classic', name: t('settings.themeMode.classic'), icon: '🌾', desc: t('settings.themeDescClassic') },
+                { mode: 'dark', name: t('settings.themeMode.dark'), icon: '🌙', desc: t('settings.themeDescDark') },
               ].map((item) => {
                 const isSelected = themeMode === item.mode;
                 return (
@@ -337,7 +255,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* SECTION 4: NOTIFICATIONS & ALERTS */}
+        {/* SECTION 3: NOTIFICATIONS & ALERTS */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.notificationsHeader').toUpperCase()}
         </Typography>
@@ -381,7 +299,7 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* SECTION 5: AI ENGINE INTEGRATION */}
+        {/* SECTION 4: AI ENGINE INTEGRATION */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.aiHeader').toUpperCase()}
         </Typography>
@@ -403,7 +321,7 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        {/* SECTION 6: SUPPORT & LEGAL */}
+        {/* SECTION 5: SUPPORT & LEGAL */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.supportHeader').toUpperCase()}
         </Typography>
@@ -472,7 +390,7 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        {/* SECTION 7: SYSTEM & DATA RESET */}
+        {/* SECTION 6: SYSTEM & DATA RESET */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.systemHeader').toUpperCase()}
         </Typography>
@@ -605,6 +523,7 @@ export default function SettingsScreen() {
           </View>
         </View>
       </Modal>
+      <BannerAdComponent screen="settings" />
     </SafeAreaView>
   );
 }

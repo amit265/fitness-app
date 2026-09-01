@@ -1,3 +1,4 @@
+import '@react-native-firebase/app';
 import React, { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font';
 import {
@@ -15,7 +16,7 @@ import {
 import { Stack, useSegments, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform, Animated } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform, Animated, LogBox } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { PALETTE } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
@@ -23,12 +24,20 @@ import { setupDailyEngagementNotifications } from '../services/notificationServi
 import { EasUpdateModal } from '../components/EasUpdateModal';
 import { useDeepLinkHandler } from '../hooks/useDeepLinkHandler';
 import { AdProvider } from '../context/AdContext';
+import { fetchRemoteConfig } from '../services/ads/adConfig';
+import { requestUserPermission, initializeMessaging } from '../services/firebase/messagingService';
 import { ThemeCustomProvider, useAppTheme } from '../context/ThemeContext';
 import { IAPProvider } from '../context/IAPContext';
 import { SplashScreenComponent } from '../components/SplashScreenComponent';
+import { ThemedAlert } from '../components/ThemedAlert';
 
 // Keep native splash screen visible while app resources initialize
 void SplashScreen.preventAutoHideAsync();
+
+// Ignore harmless React Navigation back button warnings on Android
+LogBox.ignoreLogs([
+  "The screen '(tabs)' was removed natively",
+]);
 
 import { initAppLanguage } from '../i18n';
 
@@ -119,18 +128,25 @@ export default function RootLayout() {
 
   const isAppReady = (fontsLoaded || Boolean(fontError)) && hydrated;
 
-  // 1. Hide native splash screen once fonts and store hydration finish
+  // 1. Hide native splash screen once fonts and store hydration finish, and init Firebase
   useEffect(() => {
     if (isAppReady && !hasHiddenNativeSplash) {
-      const hideSplash = async () => {
+      const initApp = async () => {
         setHasHiddenNativeSplash(true);
         try {
           await SplashScreen.hideAsync();
+          
+          // Initialize Firebase Services
+          await fetchRemoteConfig();
+          await requestUserPermission();
         } catch (e) {
-          console.warn('Failed to hide native splash screen:', e);
+          console.warn('Failed to init app during splash hide:', e);
         }
       };
-      hideSplash();
+      initApp();
+      
+      const unsubMessaging = initializeMessaging();
+      return () => unsubMessaging();
     }
   }, [isAppReady, hasHiddenNativeSplash]);
 
@@ -170,6 +186,9 @@ export default function RootLayout() {
                 <SplashScreenComponent showBranding={true} startAnimation={hasHiddenNativeSplash} />
               </Animated.View>
             )}
+            
+            {/* Global Themed Alert */}
+            <ThemedAlert />
           </NavigationGuard>
         </AdProvider>
       </IAPProvider>

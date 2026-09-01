@@ -1,9 +1,11 @@
 import { Platform } from 'react-native';
+import { getRemoteConfig, fetchAndActivate, getValue } from '@react-native-firebase/remote-config';
 
 /**
  * Centralized Ad Configuration & Policy Rules
  */
-export const AD_CONFIG = {
+export let AD_CONFIG = {
+  masterSwitch: true, // Master toggle to instantly disable all ads in the app
   native: {
     enabled: true,
   },
@@ -28,6 +30,41 @@ export const AD_CONFIG = {
     appOpenCooldownMinutes: 30,
     minGlobalFullscreenCooldownMinutes: 5,
   },
+};
+
+export const fetchRemoteConfig = async () => {
+  try {
+    const rc = getRemoteConfig();
+    
+    // Set minimum fetch interval (e.g. 1 hour)
+    rc.settings.minimumFetchIntervalMillis = 3600000;
+    
+    // Set default values matching local AD_CONFIG
+    rc.defaultConfig = {
+      ad_master_switch: true,
+      ad_native_enabled: true,
+      ad_banner_enabled: false,
+      ad_interstitial_enabled: true,
+      ad_rewarded_enabled: true,
+      ad_app_open_enabled: true,
+    };
+
+    await fetchAndActivate(rc);
+
+    const masterSwitch = getValue(rc, 'ad_master_switch').asBoolean();
+    
+    // Update local configuration with remote values
+    AD_CONFIG.masterSwitch = masterSwitch;
+    AD_CONFIG.native.enabled = getValue(rc, 'ad_native_enabled').asBoolean();
+    AD_CONFIG.banner.enabled = getValue(rc, 'ad_banner_enabled').asBoolean();
+    AD_CONFIG.interstitial.enabled = getValue(rc, 'ad_interstitial_enabled').asBoolean();
+    AD_CONFIG.rewarded.enabled = getValue(rc, 'ad_rewarded_enabled').asBoolean();
+    AD_CONFIG.appOpen.enabled = getValue(rc, 'ad_app_open_enabled').asBoolean();
+
+    console.log('[Remote Config] Fetched and Activated. Master Switch:', masterSwitch);
+  } catch (err) {
+    console.error('[Remote Config] Failed to fetch remote config', err);
+  }
 };
 
 /**

@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeAdService, adFrequency } from '../services/ads/adService';
+import { tryShowAppOpenAd } from '../services/ads/appOpenAdService';
 
 interface AdContextType {
   isAdFree: boolean; // True if Premium OR Rewarded Silence active
@@ -133,6 +134,18 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
         console.warn('[AdContext] Google Mobile Ads module not loaded (Expo Go / Web):', e);
       }
     }
+
+    const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        checkAdFreeStatus().then((isAdFreeNow) => {
+          tryShowAppOpenAd(isAdFreeNow);
+        });
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
 
   return (

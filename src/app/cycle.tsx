@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  useColorScheme,
-  ScrollView,
-  Pressable,
-  Modal,
-  Switch,
-  Alert,
-} from 'react-native';
+import { View, StyleSheet, useColorScheme, ScrollView, Pressable, Modal, Switch,  } from 'react-native';
 import { Typography } from '../components/Typography';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -27,6 +18,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
+import { BannerAdComponent } from '../services/AdManager';
+import { Alert } from '../utils/alertUtils';
+
 import {
   ArrowLeft,
   ChevronLeft,
@@ -310,52 +304,52 @@ export default function DedicatedCyclePage() {
   // Phase Guide Descriptions Data
   const phaseGuideDetails = {
     menstrual: {
-      name: 'Menstrual Phase',
-      days: 'Days 1 – 5',
+      name: t('cycle.phase_menstrual_name', { defaultValue: 'Menstrual Phase' }),
+      days: t('cycle.phase_menstrual_days', { defaultValue: 'Days 1 – 5' }),
       icon: Droplet,
       color: JEWEL_COLORS.period,
       bgColor: JEWEL_COLORS.periodBg,
-      hormones: 'Estrogen and Progesterone drop to baseline levels as the uterine lining sheds.',
-      experience: 'Restorative phase. Energy is naturally lower, with potential mild cramping or lower back tightness. Introspective, calm mental focus.',
-      workouts: 'Gentle mobility, restorative yoga, light walking, active stretching, or complete rest.',
-      nutrition: 'Iron-rich foods (spinach, lentils), Magnesium, warm broths & herbal teas.',
-      mindEnergy: 'Introspective & calm. Low physical stamina, restorative mental focus.',
+      hormones: t('cycle.phase_menstrual_hormones', { defaultValue: 'Estrogen and Progesterone drop to baseline levels as the uterine lining sheds.' }),
+      experience: t('cycle.phase_menstrual_experience', { defaultValue: 'Restorative phase. Energy is naturally lower, with potential mild cramping or lower back tightness. Introspective, calm mental focus.' }),
+      workouts: t('cycle.phase_menstrual_workouts', { defaultValue: 'Gentle mobility, restorative yoga, light walking, active stretching, or complete rest.' }),
+      nutrition: t('cycle.phase_menstrual_nutrition', { defaultValue: 'Iron-rich foods (spinach, lentils), Magnesium, warm broths & herbal teas.' }),
+      mindEnergy: t('cycle.phase_menstrual_mindEnergy', { defaultValue: 'Introspective & calm. Low physical stamina, restorative mental focus.' }),
     },
     follicular: {
-      name: 'Follicular Phase',
-      days: 'Days 6 – 13',
+      name: t('cycle.phase_follicular_name', { defaultValue: 'Follicular Phase' }),
+      days: t('cycle.phase_follicular_days', { defaultValue: 'Days 6 – 13' }),
       icon: Zap,
       color: JEWEL_COLORS.fertile,
       bgColor: JEWEL_COLORS.fertileBg,
-      hormones: 'FSH stimulates egg follicles; Estrogen climbs steadily to build uterine lining.',
-      experience: 'Energy surge! High mental stamina, sharp cognitive focus, vibrant mood, and high social motivation.',
-      workouts: 'Progressive strength training, heavy resistance, high-intensity intervals (HIIT), running, or trying new workout skills.',
-      nutrition: 'Lean proteins, fermented foods (kimchi, yogurt), fresh greens & complex carbs.',
-      mindEnergy: 'SURGE! Vibrant mood, high mental stamina & sharp cognitive focus.',
+      hormones: t('cycle.phase_follicular_hormones', { defaultValue: 'FSH stimulates egg follicles; Estrogen climbs steadily to build uterine lining.' }),
+      experience: t('cycle.phase_follicular_experience', { defaultValue: 'Energy surge! High mental stamina, sharp cognitive focus, vibrant mood, and high social motivation.' }),
+      workouts: t('cycle.phase_follicular_workouts', { defaultValue: 'Progressive strength training, heavy resistance, high-intensity intervals (HIIT), running, or trying new workout skills.' }),
+      nutrition: t('cycle.phase_follicular_nutrition', { defaultValue: 'Lean proteins, fermented foods (kimchi, yogurt), fresh greens & complex carbs.' }),
+      mindEnergy: t('cycle.phase_follicular_mindEnergy', { defaultValue: 'SURGE! Vibrant mood, high mental stamina & sharp cognitive focus.' }),
     },
     ovulatory: {
-      name: 'Ovulatory Phase',
-      days: 'Days 14 – 17',
+      name: t('cycle.phase_ovulatory_name', { defaultValue: 'Ovulatory Phase' }),
+      days: t('cycle.phase_ovulatory_days', { defaultValue: 'Days 14 – 17' }),
       icon: Sparkles,
       color: JEWEL_COLORS.ovulation,
       bgColor: JEWEL_COLORS.ovulationBg,
-      hormones: 'Peak Estrogen triggers an LH surge, releasing a mature egg. Peak fertility window.',
-      experience: 'Peak power and confidence! Heightened strength output, radiant energy, maximum libido, and high social presence.',
-      workouts: 'Personal record (PR) strength lifts, intense cardio sessions, energetic group fitness, and high-output workouts.',
-      nutrition: 'Fiber-rich foods, antioxidant berries & anti-inflammatory cruciferous vegetables.',
-      mindEnergy: 'PEAK POWER! High confidence, radiant energy & social presence.',
+      hormones: t('cycle.phase_ovulatory_hormones', { defaultValue: 'Peak Estrogen triggers an LH surge, releasing a mature egg. Peak fertility window.' }),
+      experience: t('cycle.phase_ovulatory_experience', { defaultValue: 'Peak power and confidence! Heightened strength output, radiant energy, maximum libido, and high social presence.' }),
+      workouts: t('cycle.phase_ovulatory_workouts', { defaultValue: 'Personal record (PR) strength lifts, intense cardio sessions, energetic group fitness, and high-output workouts.' }),
+      nutrition: t('cycle.phase_ovulatory_nutrition', { defaultValue: 'Fiber-rich foods, antioxidant berries & anti-inflammatory cruciferous vegetables.' }),
+      mindEnergy: t('cycle.phase_ovulatory_mindEnergy', { defaultValue: 'PEAK POWER! High confidence, radiant energy & social presence.' }),
     },
     luteal: {
-      name: 'Luteal Phase',
-      days: 'Days 18 – 28',
+      name: t('cycle.phase_luteal_name', { defaultValue: 'Luteal Phase' }),
+      days: t('cycle.phase_luteal_days', { defaultValue: 'Days 18 – 28' }),
       icon: Moon,
       color: JEWEL_COLORS.luteal,
       bgColor: JEWEL_COLORS.lutealBg,
-      hormones: 'Progesterone rises to maintain uterine lining; resting body temp and heart rate naturally increase.',
-      experience: 'Energy shifts inward. High stamina early luteal, transitioning to grounding near end. Possible PMS, bloating, or appetite changes.',
-      workouts: 'Moderate resistance training, Pilates, steady-state cardio, Barre, and fluid yoga flows.',
-      nutrition: 'Complex carbohydrates (sweet potatoes, oats), B-vitamins & dark chocolate.',
-      mindEnergy: 'Grounding phase. High stamina early luteal, turning inward near end.',
+      hormones: t('cycle.phase_luteal_hormones', { defaultValue: 'Progesterone rises to maintain uterine lining; resting body temp and heart rate naturally increase.' }),
+      experience: t('cycle.phase_luteal_experience', { defaultValue: 'Energy shifts inward. High stamina early luteal, transitioning to grounding near end. Possible PMS, bloating, or appetite changes.' }),
+      workouts: t('cycle.phase_luteal_workouts', { defaultValue: 'Moderate resistance training, Pilates, steady-state cardio, Barre, and fluid yoga flows.' }),
+      nutrition: t('cycle.phase_luteal_nutrition', { defaultValue: 'Complex carbohydrates (sweet potatoes, oats), B-vitamins & dark chocolate.' }),
+      mindEnergy: t('cycle.phase_luteal_mindEnergy', { defaultValue: 'Grounding phase. High stamina early luteal, turning inward near end.' }),
     },
   };
 
@@ -597,23 +591,23 @@ export default function DedicatedCyclePage() {
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.period }]} />
-              <Typography variant="caption" color={colors.subtext}>Period</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('cycle.legendPeriod')}</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.fertile }]} />
-              <Typography variant="caption" color={colors.subtext}>Fertile</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('cycle.legendFertile')}</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.ovulation }]} />
-              <Typography variant="caption" color={colors.subtext}>Ovulation</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('cycle.legendOvulation')}</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.luteal }]} />
-              <Typography variant="caption" color={colors.subtext}>Luteal</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('cycle.legendLuteal')}</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: colors.primary }]} />
-              <Typography variant="caption" color={colors.subtext}>Logged</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('cycle.legendLogged')}</Typography>
             </View>
           </View>
         </Card>
@@ -767,11 +761,11 @@ export default function DedicatedCyclePage() {
           <View style={styles.guideHeaderRow}>
             <BookOpen color={PALETTE.sage.default} size={20} />
             <Typography variant="h3" style={{ fontFamily: 'PlayfairDisplay-Bold', marginLeft: 6 }}>
-              Hormonal Phases Guide
+              {t('cycle.hormonalGuideTitle', { defaultValue: 'Hormonal Phases Guide' })}
             </Typography>
           </View>
           <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>
-            Understand your body's natural 4-phase hormonal rhythm for optimal energy & training.
+            {t('cycle.hormonalGuideDesc')}
           </Typography>
 
           {/* Single-Line Responsive 4 Phase Segment Selector */}
@@ -822,7 +816,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.detailBlockTitleRow}>
                 <ActivityIcon color={selectedGuide.color} size={16} />
                 <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
-                  Hormonal Landscape
+                  {t('cycle.hormonalLandscape', { defaultValue: 'Hormonal Landscape' })}
                 </Typography>
               </View>
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.detailText}>
@@ -834,7 +828,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.detailBlockTitleRow}>
                 <Smile color={selectedGuide.color} size={16} />
                 <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
-                  Mind & Energy Experience
+                  {t('cycle.mindEnergyExperience', { defaultValue: 'Mind & Energy Experience' })}
                 </Typography>
               </View>
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.detailText}>
@@ -846,7 +840,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.detailBlockTitleRow}>
                 <Dumbbell color={selectedGuide.color} size={16} />
                 <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
-                  Recommended Workouts
+                  {t('cycle.recommendedWorkouts', { defaultValue: 'Recommended Workouts' })}
                 </Typography>
               </View>
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.detailText}>
@@ -880,27 +874,27 @@ export default function DedicatedCyclePage() {
             </Typography>
 
             <InputField
-              label="Period Start Date (YYYY-MM-DD)"
+              label={t('cycle.periodStartLabel')}
               value={periodStartDate}
               onChangeText={setPeriodStartDate}
-              placeholder="e.g. 2026-09-01"
+              placeholder={t('cycle.periodStartPlaceholder')}
             />
 
             <View style={styles.toggleRow}>
-              <Typography variant="bodyMedium">Ongoing Period?</Typography>
+              <Typography variant="bodyMedium">{t('cycle.ongoingPeriod')}</Typography>
               <Switch value={isOngoing} onValueChange={setIsOngoing} trackColor={{ false: colors.borderLight, true: colors.primary }} />
             </View>
 
             {!isOngoing && (
               <InputField
-                label="Period End Date (YYYY-MM-DD)"
+                label={t('cycle.periodEndLabel')}
                 value={periodEndDate}
                 onChangeText={setPeriodEndDate}
-                placeholder="e.g. 2026-09-05"
+                placeholder={t('cycle.periodEndPlaceholder')}
               />
             )}
 
-            <Typography variant="bodySmall" style={{ marginTop: SPACING.sm, marginBottom: 4 }}>Flow Intensity</Typography>
+            <Typography variant="bodySmall" style={{ marginTop: SPACING.sm, marginBottom: 4 }}>{t('cycle.flowIntensity')}</Typography>
             <View style={styles.flowIntensityRow}>
               {(['spotting', 'light', 'medium', 'heavy'] as const).map((flow) => (
                 <Pressable
@@ -916,8 +910,8 @@ export default function DedicatedCyclePage() {
             </View>
 
             <View style={{ marginTop: SPACING.lg, gap: SPACING.xs }}>
-              <Button title="Save Record" onPress={handleSavePeriod} />
-              <Button title="Cancel" variant="outline" onPress={() => setPeriodModalVisible(false)} />
+              <Button title={t('cycle.saveRecord')} onPress={handleSavePeriod} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setPeriodModalVisible(false)} />
             </View>
           </Pressable>
         </Pressable>
@@ -927,9 +921,9 @@ export default function DedicatedCyclePage() {
       <Modal visible={symptomModalVisible} transparent animationType="slide" onRequestClose={() => setSymptomModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setSymptomModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <Typography variant="h2" style={{ marginBottom: 4 }}>Log Daily Symptoms</Typography>
+            <Typography variant="h2" style={{ marginBottom: 4 }}>{t('cycle.logSymptomsTitle')}</Typography>
             <Typography variant="caption" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
-              Select symptoms experienced on {selectedDateStr}
+              {t('cycle.logSymptomsDesc', { date: selectedDateStr })}
             </Typography>
 
             <View style={styles.symptomsChipWrap}>
@@ -954,8 +948,8 @@ export default function DedicatedCyclePage() {
             </View>
 
             <View style={{ marginTop: SPACING.lg, gap: SPACING.xs }}>
-              <Button title="Save Symptoms" onPress={handleSaveSymptoms} />
-              <Button title="Cancel" variant="outline" onPress={() => setSymptomModalVisible(false)} />
+              <Button title={t('cycle.saveSymptoms')} onPress={handleSaveSymptoms} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setSymptomModalVisible(false)} />
             </View>
           </Pressable>
         </Pressable>
@@ -967,24 +961,18 @@ export default function DedicatedCyclePage() {
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setTutorialModalVisible(false)} />
           <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1, maxHeight: '85%', paddingBottom: 16 }]}>
             
-            {/* Sticky Header with Top-Right Close Button */}
+            {/* Sticky Header */}
             <View style={styles.stickyModalHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
                 <BookOpen color={colors.primary} size={22} />
                 <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
-                  How Cycle Tracking Works
+                  {t('cycle.howCycleTrackingWorks')}
                 </Typography>
               </View>
-              <Pressable
-                style={[styles.modalCloseBtn, { backgroundColor: colors.surface }]}
-                onPress={() => setTutorialModalVisible(false)}
-              >
-                <X color={colors.subtext} size={20} />
-              </Pressable>
             </View>
 
             <Typography variant="caption" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
-              A quick guide on logging, predictions, and calendar features.
+              {t('cycle.howCycleTrackingDesc')}
             </Typography>
 
             <ScrollView showsVerticalScrollIndicator={true} contentContainerStyle={{ paddingBottom: 16 }}>
@@ -993,11 +981,11 @@ export default function DedicatedCyclePage() {
                 <View style={styles.tutorialItemHeader}>
                   <Droplet color={JEWEL_COLORS.period} size={18} />
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                    1. Logging & Editing Period Records
+                    {t('cycle.tut1Title')}
                   </Typography>
                 </View>
                 <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, lineHeight: 16 }}>
-                  Tap any date (past or today) and press <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>Log Period Start</Typography>. You can select flow intensity and set end dates anytime. Use <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>Delete 🗑</Typography> to remove accidental entries.
+                  {t('cycle.tutorialText')}
                 </Typography>
               </View>
 
@@ -1006,11 +994,11 @@ export default function DedicatedCyclePage() {
                 <View style={styles.tutorialItemHeader}>
                   <Sparkles color="#D97706" size={18} />
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                    2. 2-Year Bidirectional Predictions
+                    {t('cycle.tut2Title')}
                   </Typography>
                 </View>
                 <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, lineHeight: 16 }}>
-                  Our algorithm projects your 4 hormonal phases (Menstrual, Follicular, Ovulatory, Luteal) 12 months in advance and 12 months in the past automatically, so you never see blank or "unknown" dates.
+                  {t('cycle.tut2Desc')}
                 </Typography>
               </View>
 
@@ -1019,11 +1007,11 @@ export default function DedicatedCyclePage() {
                 <View style={styles.tutorialItemHeader}>
                   <Zap color={PALETTE.sage.default} size={18} />
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                    3. Dynamic Future Date Previews
+                    {t('cycle.tut3Title')}
                   </Typography>
                 </View>
                 <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, lineHeight: 16 }}>
-                  Tap any future calendar date to preview its specific predicted phase, energy levels, and recommended workout types. Logging actions unlock when that day arrives!
+                  {t('cycle.tut3Desc')}
                 </Typography>
               </View>
 
@@ -1032,11 +1020,11 @@ export default function DedicatedCyclePage() {
                 <View style={styles.tutorialItemHeader}>
                   <Heart color={JEWEL_COLORS.period} size={18} />
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                    4. Irregularity & Multi-Day Bleeding Gaps
+                    {t('cycle.tut4Title')}
                   </Typography>
                 </View>
                 <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, lineHeight: 16 }}>
-                  Cycle counting <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>always begins on Day 1 of bleeding (Start Date)</Typography>, not the end date. Spotting or gaps within 14 days stay in the same cycle. New cycles trigger when bleeding starts 15+ days later.
+                  {t('cycle.tut4Desc1')}<Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>{t('cycle.tut4Desc2')}</Typography>{t('cycle.tut4Desc3')}
                 </Typography>
               </View>
 
@@ -1045,21 +1033,22 @@ export default function DedicatedCyclePage() {
                 <View style={styles.tutorialItemHeader}>
                   <ActivityIcon color={PALETTE.sage.default} size={18} />
                   <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                    5. Privacy & Recalibration
+                    {t('cycle.tut5Title')}
                   </Typography>
                 </View>
                 <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, lineHeight: 16 }}>
-                  Deleting a period log auto-recalibrates future predictions using your previous history. Your check-ins, sleep, and workout logs remain 100% safe on your device.
+                  {t('cycle.tut5Desc')}
                 </Typography>
               </View>
 
               <View style={{ marginTop: SPACING.md }}>
-                <Button title="Got It!" onPress={() => setTutorialModalVisible(false)} />
+                <Button title={t('cycle.gotIt')} onPress={() => setTutorialModalVisible(false)} />
               </View>
             </ScrollView>
           </View>
         </View>
       </Modal>
+      <BannerAdComponent screen="cycle" />
     </SafeAreaView>
   );
 }

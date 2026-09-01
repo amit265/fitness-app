@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-  Linking,
-  Alert,
-  Platform,
-  KeyboardAvoidingView,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Linking, Platform, KeyboardAvoidingView,  } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Typography } from '../components/Typography';
 import { Button } from '../components/Button';
@@ -20,6 +11,9 @@ import { ArrowLeft, Key, Sparkles, ExternalLink, ShieldCheck } from 'lucide-reac
 import { useRouter } from 'expo-router';
 import { APP_LINKS } from '../constants/links';
 import { t } from '../i18n';
+import { BannerAdComponent } from '../services/AdManager';
+import { Alert } from '../utils/alertUtils';
+
 
 export default function GroqApiScreen() {
   const router = useRouter();
@@ -215,6 +209,7 @@ export default function GroqApiScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
+      <BannerAdComponent screen="groq-api" />
     </SafeAreaView>
   );
 }

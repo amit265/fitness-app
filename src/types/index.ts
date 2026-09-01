@@ -37,7 +37,18 @@ export interface DailyCheckIn {
   mood: 'great' | 'good' | 'okay' | 'low' | 'irritable' | 'anxious' | 'tired';
   stress: number; // 1-5
   hydration: number; // Litres
+  steps?: number; // Daily step count
   symptoms: string[]; // ['cramps', 'bloating', etc.]
+}
+
+export interface MealIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
 
 export interface Meal {
@@ -48,16 +59,38 @@ export interface Meal {
   protein: number;
   carbs: number;
   fat: number;
+  source?: 'database' | 'ai_estimate' | 'custom';
+  ingredients?: MealIngredient[];
+}
+
+export interface CustomFood {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  servingUnit: string;
+  ingredients?: MealIngredient[];
+}
+
+export interface WorkoutSet {
+  exercise: string;
+  weight?: number; // kg
+  reps?: number;
+  durationSeconds?: number;
 }
 
 export interface Activity {
   id: string;
   timestamp: string;
-  type: 'strength' | 'cardio' | 'walking' | 'running' | 'swimming' | 'cycling' | 'mobility' | 'yoga' | 'restorative' | 'other';
+  type: 'strength' | 'cardio' | 'walking' | 'running' | 'swimming' | 'cycling' | 'mobility' | 'yoga' | 'restorative' | 'sports' | 'other';
   durationMinutes: number;
   intensity: 'easy' | 'moderate' | 'challenging';
   caloriesBurned?: number;
   notes?: string;
+  source?: 'database' | 'ai_estimate' | 'custom';
+  sets?: WorkoutSet[];
 }
 
 export interface BodyMeasurement {
@@ -100,6 +133,7 @@ export interface DailyRecommendation {
   intensity: 'easy' | 'moderate' | 'challenging';
   title: string;
   explanation: string;
+  recKey?: string;
   recoveryNote?: string;
 }
 
@@ -122,6 +156,7 @@ export interface CachedDailyInsight {
   generatedAt: string; // ISO timestamp
   contextHash: string;
   content: string;
+  language?: string; // App UI language used to generate the insight
 }
 
 export interface AIMonitoringLog {

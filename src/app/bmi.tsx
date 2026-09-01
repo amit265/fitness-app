@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  useColorScheme,
-  ScrollView,
-  Pressable,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { View, StyleSheet, useColorScheme, ScrollView, Pressable, KeyboardAvoidingView, Platform,  } from 'react-native';
 import { Typography } from '../components/Typography';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -22,6 +13,9 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft, Info, HelpCircle } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
+import { BannerAdComponent } from '../services/AdManager';
+import { Alert } from '../utils/alertUtils';
+
 
 export default function BMICalculatorScreen() {
   const router = useRouter();
@@ -198,7 +192,7 @@ export default function BMICalculatorScreen() {
               {isUnderage && (
                 <View style={styles.warningBox}>
                   <Typography variant="bodySmall" color="#D4A373" style={{ lineHeight: 16 }}>
-                    ⚠️ Note: You are under 18 years of age. Standard adult BMI categories may not accurately reflect healthy growth ranges for children and teens.
+                    ⚠️ {t('bmi.underageWarning')}
                   </Typography>
                 </View>
               )}
@@ -212,19 +206,19 @@ export default function BMICalculatorScreen() {
             </Typography>
             
             <View style={styles.tableRow}>
-              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>Below 18.5</Typography>
+              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>{t('bmi.rangeUnderweight')}</Typography>
               <Typography variant="bodyMedium" style={styles.boldText}>{t('bmi.category.underweight')}</Typography>
             </View>
             <View style={styles.tableRow}>
-              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>18.5 – 24.9</Typography>
+              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>{t('bmi.rangeNormal')}</Typography>
               <Typography variant="bodyMedium" style={[styles.boldText, { color: PALETTE.success }]}>{t('bmi.category.normal')}</Typography>
             </View>
             <View style={styles.tableRow}>
-              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>25.0 – 29.9</Typography>
+              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>{t('bmi.rangeOverweight')}</Typography>
               <Typography variant="bodyMedium" style={styles.boldText}>{t('bmi.category.overweight')}</Typography>
             </View>
             <View style={styles.tableRow}>
-              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>30.0+</Typography>
+              <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>{t('bmi.rangeObese')}</Typography>
               <Typography variant="bodyMedium" style={styles.boldText}>{t('bmi.category.obese')}</Typography>
             </View>
 
@@ -241,6 +235,7 @@ export default function BMICalculatorScreen() {
         </ScrollView>
 
       </KeyboardAvoidingView>
+      <BannerAdComponent screen="bmi" />
     </SafeAreaView>
   );
 }

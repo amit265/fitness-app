@@ -31,6 +31,7 @@ import {
   Zap,
   Calendar as CalendarIcon,
   Plus,
+  ChevronRight,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { t, formatDate, formatNumber } from '../../i18n';
@@ -159,7 +160,7 @@ export default function ProgressScreen() {
               </Typography>
             </View>
             <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>BMI</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('profile.bmiLabel')}</Typography>
               <Typography variant="h3" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
                 {bmiCategoryTranslated}
               </Typography>
@@ -222,7 +223,7 @@ export default function ProgressScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Flame color={colors.nutrition} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                {t('nutrition.title')} & {t('activity.title')}
+                {t('nutrition.title')} • {t('activity.title')}
               </Typography>
             </View>
           </View>
@@ -234,16 +235,14 @@ export default function ProgressScreen() {
         {/* 4. Sleep, Readiness & Cycle History */}
         <Card style={styles.card}>
           <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
               <CalendarIcon color={colors.activity} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
                 {t('cycle.cycleHistory')}
               </Typography>
             </View>
-            <Pressable onPress={() => router.push('/cycle')}>
-              <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
-                {t('home.viewDetails')} →
-              </Typography>
+            <Pressable onPress={() => router.push('/cycle')} style={{ padding: 6, backgroundColor: colors.surface, borderRadius: 8 }}>
+              <ChevronRight color={colors.activity} size={20} />
             </Pressable>
           </View>
           <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
@@ -260,15 +259,15 @@ export default function ProgressScreen() {
       <Modal visible={measureModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setMeasureModalVisible(false)}>
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>Log Weight & Body Measurements</Typography>
-            <InputField label="Weight (kg)" value={weightInput} onChangeText={setWeightInput} keyboardType="decimal-pad" placeholder="e.g. 63.0" />
-            <InputField label="Waist (cm)" value={waistInput} onChangeText={setWaistInput} keyboardType="decimal-pad" placeholder="e.g. 70" />
-            <InputField label="Hips (cm)" value={hipsInput} onChangeText={setHipsInput} keyboardType="decimal-pad" placeholder="e.g. 95" />
-            <InputField label="Chest (cm)" value={chestInput} onChangeText={setChestInput} keyboardType="decimal-pad" placeholder="e.g. 88" />
-            <InputField label="Thigh (cm)" value={thighInput} onChangeText={setThighInput} keyboardType="decimal-pad" placeholder="e.g. 54" />
+            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('progress.logMeasurement')}</Typography>
+            <InputField label={t('progress.weightKg')} value={weightInput} onChangeText={setWeightInput} keyboardType="decimal-pad" placeholder={t('progress.egWeight')} />
+            <InputField label={t('progress.waistCm')} value={waistInput} onChangeText={setWaistInput} keyboardType="decimal-pad" placeholder={t('progress.egWaist')} />
+            <InputField label={t('progress.hipsCm')} value={hipsInput} onChangeText={setHipsInput} keyboardType="decimal-pad" placeholder={t('progress.egHips')} />
+            <InputField label={t('progress.chestCm')} value={chestInput} onChangeText={setChestInput} keyboardType="decimal-pad" placeholder={t('progress.egChest')} />
+            <InputField label={t('progress.thighCm')} value={thighInput} onChangeText={setThighInput} keyboardType="decimal-pad" placeholder={t('progress.egThigh')} />
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title="Cancel" variant="outline" onPress={() => setMeasureModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Save Measurements" variant="primary" onPress={handleSaveMeasurements} style={{ flex: 1 }} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setMeasureModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('progress.saveMeasurements')} variant="primary" onPress={handleSaveMeasurements} style={{ flex: 1 }} />
             </View>
           </ScrollView>
         </SafeAreaView>

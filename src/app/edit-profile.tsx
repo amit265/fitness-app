@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  useColorScheme,
-  ScrollView,
-  Switch,
-  Alert,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  Modal,
-} from 'react-native';
+import { View, StyleSheet, useColorScheme, ScrollView, Switch, Pressable, KeyboardAvoidingView, Platform, Modal,  } from 'react-native';
 import { Typography } from '../components/Typography';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
@@ -21,6 +10,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, User, Heart, Utensils, Target, Check } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
+import { BannerAdComponent, showInterstitialAd } from '../services/AdManager';
+import { Alert } from '../utils/alertUtils';
+
 
 export default function EditProfileScreen() {
   const { colors, isDark } = useAppTheme();
@@ -75,10 +68,16 @@ export default function EditProfileScreen() {
 
     setTimeout(() => {
       setSaving(false);
-      Alert.alert('Saved', 'Profile and cycle parameters updated successfully.', [
-        { text: 'OK', onPress: () => router.back() },
+      Alert.alert(t('editProfile.savedTitle'), t('editProfile.savedDesc'), [
+        {
+          text: t('common.ok'),
+          onPress: () => {
+            showInterstitialAd({ screen: 'settings', isPremium: userProfile?.isPremium || false });
+            router.back();
+          },
+        },
       ]);
-    }, 300);
+    }, 800);
   };
 
   return (
@@ -98,7 +97,7 @@ export default function EditProfileScreen() {
               <ArrowLeft color={colors.primary} size={24} />
             </Pressable>
             <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
-              Edit Profile
+              {t('editProfile.title')}
             </Typography>
             <View style={{ width: 40 }} />
           </View>
@@ -107,20 +106,20 @@ export default function EditProfileScreen() {
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <User color={colors.primary} size={20} />
-              <Typography variant="h3">Personal Information</Typography>
+              <Typography variant="h3">{t('profile.personalInfo')}</Typography>
             </View>
 
             <InputField
-              label="Preferred Name"
+              label={t('profile.preferredName')}
               value={name}
               onChangeText={setName}
-              placeholder="e.g. Sarah"
+              placeholder={t('profile.namePlaceholder')}
             />
 
             <View style={styles.row}>
               <View style={styles.flexHalf}>
                 <InputField
-                  label="Age (Years)"
+                  label={t('onboarding.ageLabel')}
                   value={age}
                   onChangeText={setAge}
                   keyboardType="number-pad"
@@ -129,7 +128,7 @@ export default function EditProfileScreen() {
               </View>
               <View style={styles.flexHalf}>
                 <InputField
-                  label="Height (cm)"
+                  label={t('onboarding.heightLabel')}
                   value={height}
                   onChangeText={setHeight}
                   keyboardType="number-pad"
@@ -143,11 +142,11 @@ export default function EditProfileScreen() {
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Utensils color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3">Goal & Cuisine Preferences</Typography>
+              <Typography variant="h3">{t('profile.goalPreferences')}</Typography>
             </View>
 
             {/* Goal Selector */}
-            <Typography variant="bodySmall" style={styles.inputLabel}>Weight & Fitness Goal</Typography>
+            <Typography variant="bodySmall" style={styles.inputLabel}>{t('profile.fitnessGoal')}</Typography>
             <Pressable
               style={[styles.dropdownBtn, { backgroundColor: isDark ? '#1C1A18' : '#FAF8F5' }]}
               onPress={() => setGoalModalVisible(true)}
@@ -159,7 +158,7 @@ export default function EditProfileScreen() {
             </Pressable>
 
             {/* Regional Cuisine Selector */}
-            <Typography variant="bodySmall" style={styles.inputLabel}>Regional Cuisine</Typography>
+            <Typography variant="bodySmall" style={styles.inputLabel}>{t('nutrition.regionalCuisine')}</Typography>
             <Pressable
               style={[styles.dropdownBtn, { backgroundColor: isDark ? '#1C1A18' : '#FAF8F5' }]}
               onPress={() => setCuisineModalVisible(true)}
@@ -171,7 +170,7 @@ export default function EditProfileScreen() {
             </Pressable>
 
             {/* Dietary Preference Selector */}
-            <Typography variant="bodySmall" style={styles.inputLabel}>Dietary Preference</Typography>
+            <Typography variant="bodySmall" style={styles.inputLabel}>{t('nutrition.dietaryPreference')}</Typography>
             <Pressable
               style={[styles.dropdownBtn, { backgroundColor: isDark ? '#1C1A18' : '#FAF8F5' }]}
               onPress={() => setDietModalVisible(true)}
@@ -187,13 +186,13 @@ export default function EditProfileScreen() {
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Heart color={PALETTE.rose.default} size={20} />
-              <Typography variant="h3">Cycle Parameters</Typography>
+              <Typography variant="h3">{t('profile.cyclePreferencesHeader')}</Typography>
             </View>
 
             <View style={styles.row}>
               <View style={styles.flexHalf}>
                 <InputField
-                  label="Cycle Length (Days)"
+                  label={t('profile.cycleLengthLabel')}
                   value={cycleLength}
                   onChangeText={setCycleLength}
                   keyboardType="number-pad"
@@ -202,7 +201,7 @@ export default function EditProfileScreen() {
               </View>
               <View style={styles.flexHalf}>
                 <InputField
-                  label="Period Duration (Days)"
+                  label={t('profile.periodDurationLabel')}
                   value={periodDuration}
                   onChangeText={setPeriodDuration}
                   keyboardType="number-pad"
@@ -215,10 +214,10 @@ export default function EditProfileScreen() {
             <View style={styles.toggleRow}>
               <View style={styles.toggleLeft}>
                 <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                  Pause Cycle Predictions
+                  {t('profile.pauseCycle')}
                 </Typography>
                 <Typography variant="caption" color={PALETTE.charcoal.light}>
-                  Turn off predictions if pregnant or taking hormonal overrides.
+                  {t('profile.pauseCycleDesc')}
                 </Typography>
               </View>
               <Switch
@@ -232,12 +231,12 @@ export default function EditProfileScreen() {
           {/* Action Buttons */}
           <View style={{ marginTop: SPACING.md, gap: SPACING.xs }}>
             <Button
-              title={saving ? "Saving Changes..." : "Save Profile & Cycle Settings"}
+              title={saving ? t('editProfile.saving') : t('editProfile.saveBtn')}
               onPress={handleSaveProfile}
               disabled={saving}
             />
             <Button
-              title="Cancel"
+              title={t('common.cancel')}
               variant="outline"
               onPress={() => router.back()}
             />
@@ -251,7 +250,7 @@ export default function EditProfileScreen() {
       <Modal visible={goalModalVisible} transparent animationType="fade">
         <Pressable style={styles.modalOverlay} onPress={() => setGoalModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>Select Weight Goal</Typography>
+            <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>{t('profile.selectGoal')}</Typography>
             {['lose', 'maintain', 'gain', 'wellness'].map((g) => {
               const selected = weightGoal === g;
               return (
@@ -282,7 +281,7 @@ export default function EditProfileScreen() {
       <Modal visible={cuisineModalVisible} transparent animationType="fade">
         <Pressable style={styles.modalOverlay} onPress={() => setCuisineModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>Select Regional Cuisine</Typography>
+            <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>{t('profile.selectCuisine')}</Typography>
             {['indian', 'western', 'mediterranean', 'east_asian', 'latin_american', 'middle_eastern'].map((c) => {
               const selected = regionalCuisine === c;
               return (
@@ -313,7 +312,7 @@ export default function EditProfileScreen() {
       <Modal visible={dietModalVisible} transparent animationType="fade">
         <Pressable style={styles.modalOverlay} onPress={() => setDietModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>Select Dietary Preference</Typography>
+            <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>{t('profile.selectDiet')}</Typography>
             {['anything', 'vegetarian', 'vegan', 'eggetarian', 'keto', 'high_protein'].map((d) => {
               const selected = dietaryPreference === d;
               return (
@@ -339,6 +338,7 @@ export default function EditProfileScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+      <BannerAdComponent screen="settings" />
     </SafeAreaView>
   );
 }

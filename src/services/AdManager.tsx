@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Alert, Platform, Text, Pressable } from 'react-native';
+import { View, StyleSheet, Platform, Text, Pressable } from 'react-native';
 import { useAdContext } from '../context/AdContext';
 import { useAppTheme } from '../context/ThemeContext';
 import { ExternalLink } from 'lucide-react-native';
 import { t } from '../i18n';
+import { Alert } from '../utils/alertUtils';
+
 import {
   canShowAd,
   getAdUnitId,
@@ -129,7 +131,7 @@ export const showRewardedAdWithConsent = async (
   Alert.alert(title, message, [
     { text: 'Not now', style: 'cancel' },
     {
-      text: 'Watch & Silence Ads',
+      text: 'Watch Ads',
       onPress: () => {
         showRewardedAd({
           onSuccess: (silenceUntil) => {

@@ -204,6 +204,7 @@ function selectRecommendation(
       durationMinutes: 20,
       intensity: 'easy',
       title: 'Cramp Relief Flow',
+      recKey: 'crampRelief',
       explanation: 'Active cramps can make standard workouts uncomfortable. A gentle mobility session focusing on stretching the lower back and pelvis is recommended to help alleviate flow symptoms.',
       recoveryNote: 'Try gentle deep belly breathing in child\'s pose.',
     };
@@ -219,6 +220,7 @@ function selectRecommendation(
       activityType: 'REST',
       intensity: 'easy',
       title: 'Rest & Restore',
+      recKey: 'restRestore',
       explanation: 'Your readiness is low today. Taking a full rest day supports hormonal balance and rebuilds muscle stores. Give yourself some grace.',
       recoveryNote: 'Try 5 minutes of mindful box breathing or a warm bath tonight.',
     };
@@ -232,6 +234,7 @@ function selectRecommendation(
         durationMinutes: 20,
         intensity: 'easy',
         title: 'Gentle Mobility',
+      recKey: 'gentleMobility',
         explanation: 'Gentle stretching and mobility work help alleviate menstrual cramps and bloating by improving blood circulation to the pelvic area.',
         recoveryNote: 'Focus on child pose and deep diaphragmatic breathing.',
       };
@@ -242,6 +245,7 @@ function selectRecommendation(
       durationMinutes: 30,
       intensity: 'easy',
       title: 'Active Recovery Walk',
+      recKey: 'activeWalk',
       explanation: 'A moderate active recovery day. An easy walk keeps consistency high without draining your battery or causing muscle fatigue.',
     };
   }
@@ -257,6 +261,7 @@ function selectRecommendation(
         durationMinutes: duration,
         intensity: isHigh ? 'challenging' : 'moderate',
         title: isHigh ? 'Progressive Strength Session' : 'Steady Strength Session',
+      recKey: 'progStrength',
         explanation: 'You are in your Estrogen peak phase and your readiness is strong. Estrogen levels support muscle building and higher recovery, making this a prime day for strength load.',
         recoveryNote: 'Ensure you hydrate and consume adequate protein post-workout.',
       };
@@ -267,6 +272,7 @@ function selectRecommendation(
       durationMinutes: 40,
       intensity: 'moderate',
       title: 'Balanced Strength Workout',
+      recKey: 'balancedStrength',
       explanation: 'Your hormone profiles are well-aligned for metabolic load and muscle output. Push with moderate weights and enjoy the flow.',
     };
   }
@@ -277,6 +283,7 @@ function selectRecommendation(
       durationMinutes: 35,
       intensity: 'moderate',
       title: 'Focus Strength Session',
+      recKey: 'focusStrength',
       explanation: 'Hormones are shifting, and progesterone levels mean baseline heart rates are slightly higher. A moderate strength session with longer rests is highly effective today.',
       recoveryNote: 'Progesterone makes body heat regulation harder, so work out in a cool space.',
     };
@@ -288,6 +295,7 @@ function selectRecommendation(
       durationMinutes: 25,
       intensity: 'easy',
       title: 'Light Strength / Flow',
+      recKey: 'lightStrength',
       explanation: 'Your readiness is good, but keep in mind your body is actively menstruating. A light strength session or a gentle flow increases pelvic blood flow, which naturally reduces cramp severity.',
     };
   }
@@ -298,6 +306,7 @@ function selectRecommendation(
     durationMinutes: 30,
     intensity: 'moderate',
     title: 'Easy Walk',
+      recKey: 'easyWalk',
     explanation: 'A simple walk to get your body moving, keep joint mobility, and get fresh air.',
   };
 }

@@ -1,23 +1,12 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  Pressable,
-  Keyboard,
-  Modal,
-  Platform,
-  KeyboardAvoidingView,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, TextInput, Pressable, Keyboard, Modal, Platform, KeyboardAvoidingView, ActivityIndicator,  } from 'react-native';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { InputField } from '../../components/InputField';
 import { useAppStore } from '../../store/useAppStore';
 import { parseUserInput } from '../../services/ai/aiService';
+import { lookupFood } from '../../services/nutrition/nutritionService';
 import { ParsedLogResult } from '../../services/ai/regexParser';
 import { getTodayStr } from '../../utils/date';
 import { PALETTE, SPACING } from '../../constants/theme';
@@ -35,9 +24,12 @@ import {
   Activity as ActivityIcon,
 } from 'lucide-react-native';
 import { t, formatNumber } from '../../i18n';
+import { Alert } from '../../utils/alertUtils';
+
 
 export default function LogScreen() {
   const { colors, isDark } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -95,12 +87,12 @@ export default function LogScreen() {
       const results = await parseUserInput(inputText, userProfile?.groqApiKey);
       const validResults = results.filter((item) => item.type !== 'unknown');
       if (validResults.length === 0) {
-        setDraftError("Sini couldn't parse that sentence. Try entering details manually below!");
+        setDraftError(t('log.parseError'));
       } else {
         setDraftLogs(validResults);
       }
     } catch (e) {
-      setDraftError('Parsing error. Try manual input.');
+      setDraftError(t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -142,6 +134,19 @@ export default function LogScreen() {
     setDraftLogs((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleMealNameChange = (text: string) => {
+    setManualMealName(text);
+    if (text.length > 2) {
+      const match = lookupFood(text);
+      if (match) {
+        setManualMealCal(match.calories.toString());
+        setManualMealProt(match.protein.toString());
+        setManualMealCarb(match.carbs.toString());
+        setManualMealFat(match.fat.toString());
+      }
+    }
+  };
+
   const handleManualMealSubmit = () => {
     if (!manualMealName.trim()) {
       Alert.alert(t('common.error'), t('log.missingName'));
@@ -153,6 +158,7 @@ export default function LogScreen() {
       protein: parseFloat(manualMealProt) || 0,
       carbs: parseFloat(manualMealCarb) || 0,
       fat: parseFloat(manualMealFat) || 0,
+      source: 'database',
     });
     Alert.alert(t('log.mealLogged'), t('log.mealSaved', { name: manualMealName.trim() }));
     setManualMealName('');
@@ -204,9 +210,9 @@ export default function LogScreen() {
 
           {/* Header */}
           <View style={styles.header}>
-            <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>Log & Track</Typography>
+            <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>{t('log.title')}</Typography>
             <Typography variant="bodyMedium" color={colors.subtext}>
-              Natural language food, workout & body logging
+              {t('log.subtitle')}
             </Typography>
           </View>
 
@@ -215,7 +221,7 @@ export default function LogScreen() {
             <View style={styles.aiHeaderRow}>
               <Sparkles color={colors.primary} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Tell Sini what you ate or did
+                {t('log.tellSini')}
               </Typography>
             </View>
 
@@ -223,7 +229,7 @@ export default function LogScreen() {
               <TextInput
                 value={inputText}
                 onChangeText={setInputText}
-                placeholder="e.g. Ate 2 eggs and walked 30 minutes"
+                placeholder={t('log.aiPlaceholder')}
                 placeholderTextColor={colors.subtext}
                 style={[
                   styles.nlpInput,
@@ -245,14 +251,14 @@ export default function LogScreen() {
             </View>
 
             <Typography variant="caption" color={colors.subtext} style={{ marginTop: 8 }}>
-              💡 Mention food and workouts together (e.g. "quinoa salad and 45 min yoga").
+              {t('log.hint')}
             </Typography>
           </Card>
 
           {/* Draft Results Preview */}
           {draftLogs.length > 0 && (
             <Card style={[styles.draftsCard, { borderColor: colors.primary }]}>
-              <Typography variant="h3" style={{ marginBottom: 12 }}>Parsed Drafts ({draftLogs.length})</Typography>
+              <Typography variant="h3" style={{ marginBottom: 12 }}>{t('log.parsedDrafts', { count: draftLogs.length })}</Typography>
               {draftLogs.map((item, idx) => (
                 <View key={idx} style={styles.draftItemRow}>
                   <View style={{ flex: 1 }}>
@@ -263,8 +269,8 @@ export default function LogScreen() {
                       {item.type === 'meal'
                         ? `${item.payload.calories} kcal • P:${item.payload.protein}g C:${item.payload.carbs}g F:${item.payload.fat}g`
                         : item.type === 'activity'
-                        ? `${item.payload.durationMinutes}m • ~${item.payload.caloriesBurned} kcal burned`
-                        : 'Weight measurement'}
+                        ? `${item.payload.durationMinutes}m • ~${item.payload.caloriesBurned} kcal`
+                        : t('log.weightMeasurement')}
                     </Typography>
                   </View>
                   <Pressable onPress={() => handleRemoveDraftIndex(idx)} style={{ padding: 4 }}>
@@ -272,7 +278,7 @@ export default function LogScreen() {
                   </Pressable>
                 </View>
               ))}
-              <Button title="Confirm All & Save" variant="primary" onPress={handleConfirmAllDrafts} style={{ marginTop: 12 }} />
+              <Button title={t('log.confirmAllSave')} variant="primary" onPress={handleConfirmAllDrafts} style={{ marginTop: 12 }} />
             </Card>
           )}
 
@@ -283,15 +289,15 @@ export default function LogScreen() {
           )}
 
           {/* Manual Input Shortcut Buttons */}
-          <Typography variant="h3" style={{ marginTop: SPACING.md }}>Manual Quick Logging</Typography>
+          <Typography variant="h3" style={{ marginTop: SPACING.md }}>{t('log.manualQuickLogging')}</Typography>
           <View style={styles.quickButtonsGrid}>
             <Pressable
               style={[styles.quickBtnCard, { backgroundColor: colors.surface, borderColor: colors.nutrition }]}
               onPress={() => setMealModalVisible(true)}
             >
               <Utensils color={colors.nutrition} size={22} />
-              <Typography variant="dataLabel" color={colors.nutrition} style={{ marginTop: 6 }}>
-                + Food & Meal
+              <Typography variant="caption" color={colors.nutrition} style={{ marginTop: 6, textAlign: 'center' }}>
+                {t('log.addFood')}
               </Typography>
             </Pressable>
 
@@ -300,8 +306,8 @@ export default function LogScreen() {
               onPress={() => setWorkoutModalVisible(true)}
             >
               <Flame color={colors.activity} size={22} />
-              <Typography variant="dataLabel" color={colors.activity} style={{ marginTop: 6 }}>
-                + Workout
+              <Typography variant="caption" color={colors.activity} style={{ marginTop: 6, textAlign: 'center' }}>
+                {t('log.addWorkout')}
               </Typography>
             </Pressable>
 
@@ -310,14 +316,14 @@ export default function LogScreen() {
               onPress={() => setWeightModalVisible(true)}
             >
               <Scale color={colors.period} size={22} />
-              <Typography variant="dataLabel" color={colors.period} style={{ marginTop: 6 }}>
-                + Weight Log
+              <Typography variant="caption" color={colors.period} style={{ marginTop: 6, textAlign: 'center' }}>
+                {t('log.addWeight')}
               </Typography>
             </Pressable>
           </View>
 
           {/* Today's Logged Items */}
-          <Typography variant="h3" style={{ marginTop: SPACING.lg }}>Today's Entries ({todayMeals.length + todayActivities.length})</Typography>
+          <Typography variant="h3" style={{ marginTop: SPACING.lg }}>{t('log.todaysEntries', { count: todayMeals.length + todayActivities.length })}</Typography>
 
           {todayMeals.map((meal) => (
             <Card key={meal.id} style={styles.entryCard}>
@@ -328,7 +334,7 @@ export default function LogScreen() {
                     {meal.calories} kcal • P: {meal.protein}g | C: {meal.carbs}g | F: {meal.fat}g
                   </Typography>
                 </View>
-                <Pressable onPress={() => deleteMeal(meal.id)} style={{ padding: 4 }}>
+                <Pressable onPress={() => Alert.alert('Delete', 'Are you sure you want to delete this log?', [{ text: t('common.cancel'), style: 'cancel' }, { text: t('common.delete'), style: 'destructive', onPress: () => deleteMeal(meal.id) }])} style={{ padding: 4 }}>
                   <Trash2 color={colors.subtext} size={18} />
                 </Pressable>
               </View>
@@ -346,7 +352,7 @@ export default function LogScreen() {
                     ~{act.caloriesBurned} kcal burned • {act.intensity} intensity
                   </Typography>
                 </View>
-                <Pressable onPress={() => deleteActivity(act.id)} style={{ padding: 4 }}>
+                <Pressable onPress={() => Alert.alert('Delete', 'Are you sure you want to delete this log?', [{ text: t('common.cancel'), style: 'cancel' }, { text: t('common.delete'), style: 'destructive', onPress: () => deleteActivity(act.id) }])} style={{ padding: 4 }}>
                   <Trash2 color={colors.subtext} size={18} />
                 </Pressable>
               </View>
@@ -359,11 +365,12 @@ export default function LogScreen() {
       </KeyboardAvoidingView>
 
       {/* Meal Manual Modal */}
-      <Modal visible={mealModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setMealModalVisible(false)}>
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
+      <Modal visible={mealModalVisible} animationType="slide" transparent={true} onRequestClose={() => setMealModalVisible(false)}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '80%', backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
             <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logMealHeader')}</Typography>
-            <InputField label={t('nutrition.mealName')} value={manualMealName} onChangeText={setManualMealName} placeholder={t('log.mealPlaceholder')} />
+            <InputField label={t('nutrition.mealName')} value={manualMealName} onChangeText={handleMealNameChange} placeholder={t('log.mealPlaceholder')} />
             <InputField label={t('nutrition.calories')} value={manualMealCal} onChangeText={setManualMealCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
             <InputField label={t('nutrition.protein')} value={manualMealProt} onChangeText={setManualMealProt} keyboardType="numeric" placeholder="18" />
             <InputField label={t('nutrition.carbs')} value={manualMealCarb} onChangeText={setManualMealCarb} keyboardType="numeric" placeholder="30" />
@@ -373,12 +380,14 @@ export default function LogScreen() {
               <Button title={t('common.save')} variant="nutrition" onPress={handleManualMealSubmit} style={{ flex: 1 }} />
             </View>
           </ScrollView>
-        </SafeAreaView>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
 
       {/* Workout Manual Modal */}
-      <Modal visible={workoutModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setWorkoutModalVisible(false)}>
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
+      <Modal visible={workoutModalVisible} animationType="slide" transparent={true} onRequestClose={() => setWorkoutModalVisible(false)}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '80%', backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
             <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logActivityHeader')}</Typography>
             <InputField label={t('activity.duration')} value={manualWorkDur} onChangeText={setManualWorkDur} keyboardType="numeric" placeholder={t('log.durationPlaceholder')} />
@@ -388,12 +397,14 @@ export default function LogScreen() {
               <Button title={t('common.save')} variant="positive" onPress={handleManualWorkoutSubmit} style={{ flex: 1 }} />
             </View>
           </ScrollView>
-        </SafeAreaView>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
 
       {/* Weight Manual Modal */}
-      <Modal visible={weightModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setWeightModalVisible(false)}>
-        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
+      <Modal visible={weightModalVisible} animationType="slide" transparent={true} onRequestClose={() => setWeightModalVisible(false)}>
+        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '80%', backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
             <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logWeightHeader')}</Typography>
             <InputField label={t('progress.currentWeight')} value={manualWeight} onChangeText={setManualWeight} keyboardType="decimal-pad" placeholder={t('log.weightPlaceholder')} />
@@ -402,7 +413,8 @@ export default function LogScreen() {
               <Button title={t('common.save')} variant="primary" onPress={handleManualWeightSubmit} style={{ flex: 1 }} />
             </View>
           </ScrollView>
-        </SafeAreaView>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
 
     </SafeAreaView>
@@ -420,7 +432,7 @@ const styles = StyleSheet.create({
   aiInputCard: { padding: SPACING.md },
   aiHeaderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm },
   inputBoxRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  nlpInput: { flex: 1, height: 46, borderWidth: 1, borderRadius: 23, paddingHorizontal: SPACING.md, fontSize: 14, fontFamily: 'Outfit-Regular' },
+  nlpInput: { flex: 1, height: 46, borderWidth: 1, borderRadius: 23, paddingHorizontal: SPACING.md, fontSize: 13, fontFamily: 'Outfit-Regular' },
   sendBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   draftsCard: { padding: SPACING.md, borderWidth: 1 },
   draftItemRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)' },
