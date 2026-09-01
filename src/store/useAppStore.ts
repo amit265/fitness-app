@@ -42,23 +42,29 @@ interface AppState {
   addMeasurement: (measurement: Omit<BodyMeasurement, 'id' | 'date'> & { date?: string }) => void;
   deleteMeasurement: (id: string) => void;
 
+  seedMockData: () => void;
   resetStore: () => void;
 }
 
 import { calculateUpdatedStreak } from '../utils/streakUtils';
+import { getMockSeedData } from '../utils/mockSeedData';
+
+const initialMockData = getMockSeedData();
 
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      // Initial State
-      userProfile: null,
-      cyclePreferences: null,
-      periods: [],
-      dailyCheckIns: {},
-      meals: [],
-      activities: [],
-      measurements: [],
-      streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: null },
+      // Initial State populated with past 45 days testing data
+      userProfile: initialMockData.userProfile,
+      cyclePreferences: initialMockData.cyclePreferences,
+      periods: initialMockData.periods,
+      dailyCheckIns: initialMockData.dailyCheckIns,
+      meals: initialMockData.meals,
+      activities: initialMockData.activities,
+      measurements: initialMockData.measurements,
+      streak: initialMockData.streak,
+
+      seedMockData: () => set(getMockSeedData()),
 
       // Actions
       setUserProfile: (profile) => set({ userProfile: profile }),

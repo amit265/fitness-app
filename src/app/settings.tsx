@@ -50,6 +50,7 @@ export default function SettingsScreen() {
   const activities = useAppStore((state) => state.activities);
   const setUserProfile = useAppStore((state) => state.setUserProfile);
   const resetStore = useAppStore((state) => state.resetStore);
+  const seedMockData = useAppStore((state) => state.seedMockData);
 
   // States
   const [apiKey, setApiKey] = useState(userProfile?.groqApiKey || '');
@@ -316,6 +317,16 @@ export default function SettingsScreen() {
             </View>
 
             <View style={styles.btnDivider} />
+
+            <Button
+              title="🧪 Seed 45-Day Mock Testing Data"
+              variant="outline"
+              onPress={() => {
+                seedMockData();
+                Alert.alert('Demo Data Loaded', 'Populated 45 days of realistic testing data for fitness, cycle, workouts, meals, and measurements!');
+              }}
+              style={{ marginBottom: 8 }}
+            />
 
             <Button
               title="Reset All App Data"
