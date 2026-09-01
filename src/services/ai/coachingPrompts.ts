@@ -1,101 +1,146 @@
 import { CoachingContext } from '../../types';
 
 export const INSIGHT_SYSTEM_PROMPT = `
-You are a warm, highly empathetic personal health coach for AuraFit, a cycle-aware wellness application.
-Your goal is to write a daily coaching insight (strictly max 2 sentences) for the user.
+You are Sini, the AI wellness companion for Sini AI: Cycle & Fitness.
+Your persona: A knowledgeable sister + experienced personal trainer + thoughtful wellness coach.
+You are warm, intelligent, perceptive, encouraging, calm, honest, practical, non-judgmental, and science-aware.
 
-Analyze the user's CoachingContext and write a personalized daily tip.
+CRITICAL COMMUNICATION PRINCIPLE:
+Every suggestion or insight MUST strictly separate into three clean sections:
+
+FACT:
+[State the exact objective data fact clearly and calmly, e.g. "You have 430 kcal remaining today." or "You've logged 3,200 steps so far today."]
+
+CONTEXT:
+[Explain what the user's cycle phase, energy, sleep, or recovery score suggest, e.g. "Your energy is 2/5 and you're in the late luteal phase, where basal metabolic rate rises slightly while stamina dips."]
+
+CHOICE:
+[Offer 1-2 thoughtful, practical, low-pressure choices, e.g. "A satisfying protein-rich dinner will fit comfortably into your target. If you want movement, a gentle 20-minute walk is more than enough."]
+
 Guidelines:
-1. Always maintain an encouraging, non-judgmental tone.
-2. Address the user directly (use "you", "your").
-3. Reference their cycle phase or readiness level to explain the rationale behind today's focus.
-4. Keep it brief, supportive, and action-oriented.
+1. Never shame the user or suggest exercising to "burn off" food.
+2. Keep the overall output under 80 words for fast reading.
+3. Address the user directly ("you", "your").
+4. If energy is low or in period, recommend active recovery, mobility, or rest without guilt.
 `;
 
 export const CHAT_SYSTEM_PROMPT = `
-You are Aura, the empathetic in-app wellness coach for AuraFit. You help women align their fitness, nutrition, and recovery with their hormonal cycles.
+You are Sini, the cycle-aware fitness and nutrition coach for Sini AI.
+Your persona: A knowledgeable sister + experienced personal trainer + thoughtful wellness coach.
+You are warm, intelligent, perceptive, encouraging, calm, honest, practical, non-judgmental, and science-aware.
 
-Persona & Core Principles:
-1. MOBILE SCREEN FIT & HYPER-CONCISE: Respect the mobile chat window. Keep responses SHORT (2 to 3 concise sentences maximum). NEVER output huge food charts, ASCII tables, 1,000-word walls of text, or dump giant lists that take up the whole screen.
-2. INTERACTIVE DIALOGUE & USER FEEDBACK LOOP:
-   - When recommending food, offer 1 or 2 quick ideas matching their regionalCuisine and dietaryPreference.
-   - End with a friendly, low-friction question asking for user feedback (e.g. "Would you like a 5-minute recipe for one of these, or should we try another option?").
-   - Let the user guide the pace of conversation step-by-step!
-3. NO HTML TAGS: NEVER output raw HTML tags like <br>, <br/>, <table>, or <div>. Use clean markdown formatting only.
-4. TRUTH + EMPATHY PRINCIPLE (Fact -> Context -> Choice):
-   - Be accurate about calorie & health metrics without being preachy.
-   - Pair objective facts with brief cycle/recovery context.
-5. CALORIE & ACTIVITY EQUIVALENTS:
-   - Treat activity calories as estimates (~approximate). Never frame exercise as a punishment to "burn off" food.
-6. REGIONAL CUISINE & EATING PATTERNS:
-   - Tailor food suggestions to the user's regionalCuisine (e.g. Indian: dal, paneer, oats, roti; Mediterranean: olive oil, fish, legumes; Western: chicken, quinoa, eggs) and dietaryPreference.
-   - Utilize their eatingPatternSummary to suggest foods similar to their logged habits.
-7. Cycle Science Guidelines:
-   - Menstrual Phase: Low energy. Recommend mobility, hydration, light strength.
-   - Follicular/Ovulatory Phase: High energy. Push fitness goals!
-   - Luteal Phase: Progesterone rise. Encourage moderate intensity, longer rests, cool spaces.
-8. If asked for medical advice, gently state you are a wellness companion, not a doctor.
+CORE PRINCIPLES:
+1. FACT → CONTEXT → CHOICE STRUCTURE:
+   When answering fitness, calorie, cycle, or wellness questions, organize your response into:
+   • **FACT**: Objective truth about the data, nutrition, or biology.
+   • **CONTEXT**: Hormonal context (Menstrual, Follicular, Ovulation, Luteal phase), energy, or sleep.
+   • **CHOICE**: Practical, realistic options the user can choose from.
+
+2. MOBILE SCREEN FIT & CONCISE:
+   Keep responses concise (under 120 words). Never dump gigantic walls of text, huge charts, or overwhelming lists.
+
+3. TRUTH ABOUT DATA + KINDNESS ABOUT THE PERSON:
+   - Example: Instead of "You exceeded your calorie limit", say "You're about 180 kcal above today's target. That's okay — one day doesn't define your progress."
+   - Example: Instead of "You need to burn this food", say "That meal was about 500 kcal. For perspective, that's roughly equivalent to 45–60 minutes of brisk walking."
+
+4. CYCLE SCIENCE:
+   • Menstrual Phase: Hormones low, energy dips. Support with warm foods, hydration, mobility, light strength.
+   • Follicular Phase: Estrogen rises, energy peaks. Great time for challenging strength & cardio!
+   • Ovulation Phase: Peak energy & power output. High motivation.
+   • Luteal Phase: Progesterone rises, resting heart rate increases, potential fluid retention (1-3 kg water weight, not fat). Focus on protein, fiber, and moderate movement with longer rest periods.
+
+5. REGIONAL CUISINE & PRACTICAL OPTIONS:
+   Respect regional cuisine preferences (e.g. Indian, Mediterranean, Western) and dietary choices.
 `;
 
 /**
- * Generate a dynamic local insight when offline or no API key is present.
+ * Generate a dynamic local insight when offline or no API key is present,
+ * strictly formatted with FACT -> CONTEXT -> CHOICE.
  */
 export function generateLocalFallbackInsight(context: CoachingContext): string {
-  const { cycleState, readinessScore, symptoms } = context;
-  const isCramping = symptoms.some((s) => s.toLowerCase() === 'cramps');
-  const isTired = symptoms.some((s) => s.toLowerCase() === 'fatigue') || readinessScore < 45;
+  const { cycleState, readinessScore, symptoms, energy, remainingCalories } = context as any;
+  const phase = cycleState?.phase || 'luteal';
+  const day = cycleState?.dayInCycle || 24;
+  const remCal = typeof remainingCalories === 'number' ? Math.round(remainingCalories) : 430;
+
+  const isCramping = Array.isArray(symptoms) && symptoms.some((s: string) => s.toLowerCase().includes('cramp'));
+  const currentEnergy = energy || 3;
 
   if (isCramping) {
-    return "With active cramps today, prioritize pelvic blood flow. A light, 20-minute mobility stretch or active recovery walk will help relieve tension naturally.";
+    return `FACT: You have logged mild menstrual cramps today.
+CONTEXT: During day ${day} of your cycle, prostaglandins trigger uterine contractions that reduce pelvic blood flow.
+CHOICE: Apply gentle warmth to your abdomen and opt for a 15-minute restorative pelvic stretch or child's pose rather than pushing intensity.`;
   }
 
-  if (isTired) {
-    return `Your readiness score is a little lower today (${readinessScore}). Focus on restorative sleep and gentle hydration; it is a perfect day to rest and rebuild.`;
+  if (currentEnergy <= 2 || readinessScore < 50) {
+    return `FACT: Your readiness score is ${readinessScore || 42}/100 and your energy is ${currentEnergy}/5 today.
+CONTEXT: You are in your ${phase} phase (Day ${day}). Progesterone elevation can increase resting heart rate and make effort feel harder.
+CHOICE: Prioritize restorative hydration and a nourishing dinner. A gentle 20-minute walk or restful evening is perfect for today.`;
   }
 
-  if (cycleState.phase === 'menstrual') {
-    return "You are in your menstrual phase. Hormones are low, making active recovery like light strength or steady walks ideal to support your body's circulation.";
+  if (phase === 'follicular' || phase === 'ovulatory') {
+    return `FACT: You have ${remCal > 0 ? `${remCal} kcal remaining today` : 'hit your energy baseline'}.
+CONTEXT: You're in your ${phase} phase with rising estrogen, which enhances muscle recovery and peak energy output.
+CHOICE: Today is a great window for a progressive strength workout or higher-intensity cardio session if you feel ready.`;
   }
 
-  if (cycleState.phase === 'follicular' || cycleState.phase === 'ovulatory') {
-    return "Estrogen is peaking, boosting your muscle recovery and power output. If you feel up for it, today is a fantastic day to challenge yourself with a strength session!";
-  }
-
-  if (cycleState.phase === 'luteal') {
-    return "Progesterone is rising, which naturally increases resting heart rate. Try a moderate strength session with slightly longer rest intervals to manage cardiorespiratory load.";
-  }
-
-  return "Hydrate well and check in with your energy. Focus on small, consistent choices that support your wellness goals today.";
+  return `FACT: You have ${remCal} kcal remaining today.
+CONTEXT: Your energy level is ${currentEnergy}/5 and you are in the ${phase} phase (Day ${day}).
+CHOICE: A protein-rich dinner can still fit your target comfortably. If you want movement afterward, a light walk is plenty.`;
 }
 
 /**
- * Fallback chat answers for common queries when offline.
+ * Fallback chat answers formatted into FACT -> CONTEXT -> CHOICE.
  */
 export function generateLocalChatFallback(question: string, context: CoachingContext): string {
   const q = question.toLowerCase();
-  const name = 'Aura';
+  const phase = context?.cycleState?.phase || 'luteal';
 
-  if (q.includes('cramps') || q.includes('pain') || q.includes('hurt')) {
-    return `Hi! Active cramps can be really tough. During your period, compounds called prostaglandins cause uterine contractions, which can feel painful. I recommend:
-1. Warmth: Apply a heating pad to relax pelvic muscles.
-2. Magnesium: Supports muscle relaxation.
-3. Light Movement: A gentle walk or child's pose increases blood flow, which helps wash out inflammatory markers. 
-I'm running in local offline mode right now, but I hope this gentle advice helps!`;
+  if (q.includes('cramp') || q.includes('pain') || q.includes('period')) {
+    return `**FACT**
+Prostaglandin release during menstruation causes uterine muscle contractions and temporary discomfort.
+
+**CONTEXT**
+Your body is spending extra energy on tissue breakdown and shedding during your period phase.
+
+**CHOICE**
+1. Apply local warmth with a heating pad.
+2. Prioritize magnesium-rich food or warm teas.
+3. Try gentle pelvic mobility stretches instead of intense exercise.`;
   }
 
-  if (q.includes('luteal') || q.includes('heart rate') || q.includes('tired')) {
-    return `During the luteal phase (post-ovulation), progesterone rises. Progesterone increases your resting heart rate and basal body temperature. If you feel tired or find cardio harder today, it's completely normal! Give yourself longer rest periods during workouts.`;
+  if (q.includes('weight') || q.includes('bloat') || q.includes('scale')) {
+    return `**FACT**
+Scale weight fluctuates 1–3 kg daily due to hydration, glycogen storage, and hormonal fluid shifts—not instant fat gain.
+
+**CONTEXT**
+In the late luteal and early menstrual phases, progesterone changes cause temporary fluid retention.
+
+**CHOICE**
+1. Look at your 7-day moving average weight rather than daily single spikes.
+2. Maintain steady hydration to assist fluid balance.
+3. Focus on how your energy and clothing feel today.`;
   }
 
-  if (q.includes('weight') || q.includes('bloated') || q.includes('scale')) {
-    return `Scale weight is not just fat! In the luteal and menstrual phases, progesterone-induced aldosterone shifts cause your body to hold onto 1-3 kg of water. This is temporary hydration, not tissue gain. Track your 7-day moving average rather than single-day scale weights to protect your peace of mind.`;
+  if (q.includes('food') || q.includes('eat') || q.includes('dinner') || q.includes('calorie')) {
+    return `**FACT**
+Calorie targets represent flexible daily energy guides, not rigid boundaries.
+
+**CONTEXT**
+During the ${phase} phase, metabolic rate slightly increases while cravings for complex carbs or protein may rise.
+
+**CHOICE**
+1. Pair a solid lean protein (tofu, chicken, paneer, fish, or lentils) with colorful vegetables.
+2. Include complex carbs (quinoa, sweet potatoes, oats) to sustain serotonin levels.
+3. Log your food naturally with Sini AI whenever you're ready!`;
   }
 
-  if (q.includes('diet') || q.includes('eat') || q.includes('crave') || q.includes('food')) {
-    return `Cravings often spike during the luteal phase as your body's metabolic demand slightly increases. Focus on consuming protein-dense meals and staying hydrated. If you want a treat, enjoy it mindfully rather than feeling guilty—AuraFit is never about restriction!`;
-  }
+  return `**FACT**
+Sini AI provides objective calorie, nutrition, and physical activity tracking.
 
-  return `Hello! I'm Aura, your wellness coach. I'm currently running in offline fallback mode because your Groq API key is not configured or you are offline. 
-  
-To unlock dynamic, full conversations, you can go to Profile/Settings and enter a free Groq API key! In the meantime, you can ask me about cramps, bloating, weight fluctuations, or luteal phase energy, and I will share structured cycle science tips.`;
+**CONTEXT**
+Your body's daily performance is constantly shaped by your sleep, stress, and menstrual cycle phase (${phase}).
+
+**CHOICE**
+You can ask me to plan a dinner, explain your remaining calories, or suggest a workout tailored to your energy today!`;
 }

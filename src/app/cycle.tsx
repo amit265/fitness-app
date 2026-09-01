@@ -59,21 +59,21 @@ const SYMPTOM_OPTIONS = [
   'mood changes',
 ] as const;
 
-// Jewel Tones Color Tokens
+// Sini AI Cycle Color Tokens
 const JEWEL_COLORS = {
-  period: '#FF5A5F', // Electric Coral
-  periodBg: '#FFEBEB',
-  periodText: '#991B1B',
-  fertile: '#10B981', // Radiant Emerald
-  fertileBg: '#D1FAE5',
-  fertileText: '#047857',
-  ovulation: '#F59E0B', // Golden Amber
-  ovulationBg: '#FEF3C7',
-  ovulationText: '#D97706',
-  luteal: '#8B5CF6', // Rich Amethyst
-  lutealBg: '#EDE9FE',
-  lutealText: '#6D28D9',
-  expected: '#FCA5A5',
+  period: PALETTE.rose.default, // Soft Rose (#D9939E)
+  periodBg: PALETTE.rose.bg,
+  periodText: PALETTE.plum.default,
+  fertile: PALETTE.sage.default, // Sage (#8FA89A)
+  fertileBg: PALETTE.sage.bg,
+  fertileText: PALETTE.charcoal.default,
+  ovulation: PALETTE.gold.default, // Warm Gold (#C6A15B)
+  ovulationBg: PALETTE.gold.bg,
+  ovulationText: PALETTE.plum.default,
+  luteal: PALETTE.lavender, // Muted Lavender (#A79AAA)
+  lutealBg: PALETTE.plum.bg,
+  lutealText: PALETTE.plum.default,
+  expected: PALETTE.rose.light,
 };
 
 interface CalendarCellState {

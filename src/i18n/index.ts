@@ -11,7 +11,7 @@ export interface Translations {
   logCycle: string;
   settings: string;
   todayTargets: string;
-  askAuraCoach: string;
+  askSiniCoach: string;
   calorieTarget: string;
   remainingCalories: string;
   consumedCalories: string;
@@ -26,7 +26,7 @@ export interface Translations {
 }
 
 const en: Translations = {
-  appName: 'AuraFit',
+  appName: 'Sini AI',
   todayRhythm: "Today's Rhythm",
   readinessScore: 'Readiness Score',
   logMeal: 'Log Meal',
@@ -34,7 +34,7 @@ const en: Translations = {
   logCycle: 'Log Period',
   settings: 'Settings',
   todayTargets: "Today's Targets",
-  askAuraCoach: 'Ask Aura Coach...',
+  askSiniCoach: 'Ask Sini AI...',
   calorieTarget: 'Calorie Target',
   remainingCalories: 'Remaining',
   consumedCalories: 'Consumed',
@@ -45,11 +45,11 @@ const en: Translations = {
   lutealPhase: 'Luteal Phase',
   howItWorks: 'How it works',
   reportOutput: 'Report Output',
-  aiDisclaimer: '⚠️ AI responses are generated dynamically and may contain errors. Please verify critical facts.',
+  aiDisclaimer: '⚠️ Sini AI provides empathetic coaching & guidance. Always verify critical health facts.',
 };
 
 const es: Translations = {
-  appName: 'AuraFit',
+  appName: 'Sini AI',
   todayRhythm: 'Ritmo de Hoy',
   readinessScore: 'Puntuación de Preparación',
   logMeal: 'Registrar Comida',
@@ -57,7 +57,7 @@ const es: Translations = {
   logCycle: 'Registrar Período',
   settings: 'Configuración',
   todayTargets: 'Objetivos de Hoy',
-  askAuraCoach: 'Preguntar a Coach Aura...',
+  askSiniCoach: 'Preguntar a Sini AI...',
   calorieTarget: 'Objetivo Calórico',
   remainingCalories: 'Restantes',
   consumedCalories: 'Consumidas',
@@ -68,11 +68,11 @@ const es: Translations = {
   lutealPhase: 'Fase Lútea',
   howItWorks: 'Cómo funciona',
   reportOutput: 'Reportar Respuesta',
-  aiDisclaimer: '⚠️ Las respuestas de la IA se generan dinámicamente y pueden contener errores. Verifique datos importantes.',
+  aiDisclaimer: '⚠️ Sini AI ofrece orientación empática. Verifique datos importantes.',
 };
 
 const id: Translations = {
-  appName: 'AuraFit',
+  appName: 'Sini AI',
   todayRhythm: 'Ritme Hari Ini',
   readinessScore: 'Skor Kesiapan',
   logMeal: 'Catat Makanan',
@@ -80,7 +80,7 @@ const id: Translations = {
   logCycle: 'Catat Haid',
   settings: 'Pengaturan',
   todayTargets: 'Target Hari Ini',
-  askAuraCoach: 'Tanya Coach Aura...',
+  askSiniCoach: 'Tanya Sini AI...',
   calorieTarget: 'Target Kalori',
   remainingCalories: 'Sisa Kalori',
   consumedCalories: 'Dikonsumsi',
@@ -91,7 +91,7 @@ const id: Translations = {
   lutealPhase: 'Fase Luteal',
   howItWorks: 'Cara kerja',
   reportOutput: 'Laporkan Respon',
-  aiDisclaimer: '⚠️ Respon AI dihasilkan secara dinamis dan mungkin mengandung kesalahan. Harap verifikasi fakta penting.',
+  aiDisclaimer: '⚠️ Sini AI memberikan panduan empati. Harap verifikasi fakta penting.',
 };
 
 export const LOCALES: Record<string, Translations> = { en, es, id };

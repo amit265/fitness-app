@@ -9,7 +9,7 @@ import {
 import { Typography } from './Typography';
 import { PALETTE, SPACING } from '../constants/theme';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'positive' | 'nutrition';
 
 interface ButtonProps {
   title: string;
@@ -17,6 +17,7 @@ interface ButtonProps {
   variant?: ButtonVariant;
   disabled?: boolean;
   loading?: boolean;
+  icon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -26,6 +27,7 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   disabled = false,
   loading = false,
+  icon,
   style,
 }) => {
   const getButtonStyles = (): StyleProp<ViewStyle> => {
@@ -34,19 +36,31 @@ export const Button: React.FC<ButtonProps> = ({
     switch (variant) {
       case 'primary':
         baseStyles.push({
-          backgroundColor: PALETTE.sage.default,
+          backgroundColor: PALETTE.plum.default,
         });
         break;
       case 'secondary':
         baseStyles.push({
-          backgroundColor: PALETTE.rose.default,
+          backgroundColor: PALETTE.oat.default,
+          borderWidth: 1.5,
+          borderColor: PALETTE.plum.default,
         });
         break;
       case 'outline':
         baseStyles.push({
           backgroundColor: 'transparent',
           borderWidth: 1.5,
-          borderColor: PALETTE.sage.default,
+          borderColor: PALETTE.plum.default,
+        });
+        break;
+      case 'positive':
+        baseStyles.push({
+          backgroundColor: PALETTE.sage.default,
+        });
+        break;
+      case 'nutrition':
+        baseStyles.push({
+          backgroundColor: PALETTE.terracotta.default,
         });
         break;
     }
@@ -62,11 +76,13 @@ export const Button: React.FC<ButtonProps> = ({
     if (disabled) return PALETTE.charcoal.light;
     switch (variant) {
       case 'primary':
-        return PALETTE.white;
+        return PALETTE.oat.default;
       case 'secondary':
-        return PALETTE.charcoal.default;
       case 'outline':
-        return PALETTE.sage.default;
+        return PALETTE.plum.default;
+      case 'positive':
+      case 'nutrition':
+        return PALETTE.white;
     }
   };
 
@@ -83,13 +99,16 @@ export const Button: React.FC<ButtonProps> = ({
       {loading ? (
         <ActivityIndicator color={getTextColor()} size="small" />
       ) : (
-        <Typography
-          variant="dataLabel"
-          color={getTextColor()}
-          style={styles.text}
-        >
-          {title}
-        </Typography>
+        <>
+          {icon}
+          <Typography
+            variant="dataLabel"
+            color={getTextColor()}
+            style={[styles.text, icon ? { marginLeft: 8 } : null]}
+          >
+            {title}
+          </Typography>
+        </>
       )}
     </Pressable>
   );
@@ -97,7 +116,8 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    paddingVertical: SPACING.md,
+    minHeight: 48,
+    paddingVertical: SPACING.md - 2,
     paddingHorizontal: SPACING.lg,
     borderRadius: 100,
     alignItems: 'center',
@@ -105,7 +125,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   pressed: {
-    opacity: 0.85,
+    opacity: 0.88,
     transform: [{ scale: 0.98 }],
   },
   text: {

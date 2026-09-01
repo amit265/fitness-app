@@ -1,21 +1,21 @@
 {
   "expo": {
-    "name": "AuraFit",
+    "name": "Sini AI",
     "slug": "destya-fitness-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "aurafit",
+    "scheme": "siniai",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.destyastudio.aurafit"
+      "bundleIdentifier": "com.destyastudio.siniai"
     },
     "android": {
-      "package": "com.destyastudio.aurafit",
+      "package": "com.destyastudio.siniai",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "backgroundColor": "#FAF8F5",
+        "backgroundColor": "#3B2938",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -25,7 +25,7 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "destyastudio.com", "pathPrefix": "/aurafit" }
+            { "scheme": "https", "host": "destyastudio.com", "pathPrefix": "/sini-ai" }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
         }

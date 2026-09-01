@@ -6,10 +6,10 @@ import { PALETTE } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
+import { useAppTheme } from '../../context/ThemeContext';
 
 export default function TabsLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
   const bottomMargin = Math.max(insets.bottom, 16);
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
@@ -25,7 +25,7 @@ export default function TabsLayout() {
 
   const handleOpenStore = () => {
     Linking.openURL('https://destyastudio.com').catch((err) =>
-      console.warn('Failed to open Desty Studio link:', err)
+      console.warn('Failed to open Destya Studio link:', err)
     );
   };
 
@@ -35,23 +35,23 @@ export default function TabsLayout() {
         backBehavior="history"
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: PALETTE.sage.default,
-          tabBarInactiveTintColor: isDark ? '#8D8070' : PALETTE.charcoal.light,
+          tabBarActiveTintColor: PALETTE.plum.default,
+          tabBarInactiveTintColor: isDark ? PALETTE.darkSubtext : PALETTE.charcoal.light,
           tabBarStyle: {
             position: 'absolute',
             bottom: bottomMargin,
             marginHorizontal: 16,
-            backgroundColor: isDark ? '#1C1A18' : PALETTE.white,
+            backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white,
             borderTopWidth: 0,
             borderRadius: 24,
             height: 64,
             paddingBottom: 0,
             paddingTop: 0,
             elevation: 12,
-            shadowOpacity: 0.15,
-            shadowRadius: 20,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.1,
+            shadowRadius: 16,
+            shadowColor: PALETTE.charcoal.default,
+            shadowOffset: { width: 0, height: 6 },
           },
           tabBarLabelStyle: {
             fontSize: 11,
@@ -95,18 +95,18 @@ export default function TabsLayout() {
       {/* Web Preview Gatekeeping Download Modal */}
       <Modal visible={downloadModalVisible} transparent animationType="fade" onRequestClose={() => setDownloadModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setDownloadModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
-            <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold', marginBottom: 4 }}>
-              Get Destya Mobile App
+          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white }]}>
+            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginBottom: 4 }}>
+              Sini AI: Cycle & Fitness
             </Typography>
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginBottom: 16, lineHeight: 18 }}>
-              Experience complete offline cycle tracking, Groq AI coaching, progress charts, and personalized daily fitness plans on mobile.
+            <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 16, lineHeight: 18 }}>
+              Experience full Sini AI calorie tracking, natural food logging, cycle calendar syncing, and personalized coaching on mobile.
             </Typography>
 
             <View style={{ gap: 8, marginTop: 8 }}>
               <Button title="📱 Download on Play Store" onPress={handleOpenStore} />
               <Button title=" Download on App Store" variant="outline" onPress={handleOpenStore} />
-              <Button title="Continue Web Preview" variant="outline" onPress={() => setDownloadModalVisible(false)} />
+              <Button title="Continue Web Preview" variant="secondary" onPress={() => setDownloadModalVisible(false)} />
             </View>
           </Pressable>
         </Pressable>

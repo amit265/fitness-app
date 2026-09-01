@@ -1,8 +1,10 @@
 import React from 'react';
-import { Text, TextProps, StyleSheet, useColorScheme } from 'react-native';
+import { Text, TextProps, StyleSheet } from 'react-native';
 import { TYPOGRAPHY, PALETTE } from '../constants/theme';
+import { useAppTheme } from '../context/ThemeContext';
 
 export type TypographyVariant =
+  | 'display'
   | 'h1'
   | 'h2'
   | 'h3'
@@ -27,10 +29,9 @@ export const Typography: React.FC<TypographyProps> = ({
   children,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors } = useAppTheme();
 
-  const defaultColor = isDark ? PALETTE.cream : PALETTE.charcoal.default;
+  const defaultColor = colors.text;
   const textColor = color || defaultColor;
 
   return (
@@ -48,6 +49,7 @@ export const Typography: React.FC<TypographyProps> = ({
 };
 
 const styles = StyleSheet.create({
+  display: TYPOGRAPHY.display,
   h1: TYPOGRAPHY.h1,
   h2: TYPOGRAPHY.h2,
   h3: TYPOGRAPHY.h3,

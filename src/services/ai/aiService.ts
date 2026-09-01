@@ -10,7 +10,7 @@ import {
 } from './coachingPrompts';
 
 const SYSTEM_PROMPT = `
-You are a precise, empathetic health and fitness parser for the AuraFit mobile application.
+You are a precise, empathetic health and fitness parser for the Sini AI: Cycle & Fitness mobile application.
 Your goal is to parse raw user statements into structured JSON array of items representing Meals, Activities (Workouts), or Weight measurements.
 If the statement mentions BOTH food and a workout (e.g. "ate 2 eggs and walked 30 min"), parse BOTH into separate items in the array!
 
@@ -98,10 +98,10 @@ export async function generateDailyInsight(
   try {
     const activeLang = await getCurrentLanguage();
     const langName = LANGUAGE_NAMES[activeLang] || 'English';
-    const langInstruction = `CRITICAL LANGUAGE INSTRUCTION: You MUST write the daily insight 100% in ${langName}.`;
+    const langInstruction = `CRITICAL LANGUAGE INSTRUCTION: You MUST write the daily insight 100% in ${langName}. Follow FACT -> CONTEXT -> CHOICE formatting.`;
     const fullSystemPrompt = `${INSIGHT_SYSTEM_PROMPT}\n\n${langInstruction}`;
 
-    const userPrompt = `Today's Context: ${JSON.stringify(context)}. Give me today's insight. Return a JSON object with this key: "insight": "your text".`;
+    const userPrompt = `Today's Context: ${JSON.stringify(context)}. Give me today's insight using FACT, CONTEXT, CHOICE format. Return a JSON object with key "insight".`;
     const jsonReply = await callGroqAPI(userPrompt, fullSystemPrompt, resolvedApiKey);
     const parsed = JSON.parse(jsonReply.trim());
     return parsed.insight || generateLocalFallbackInsight(context);
@@ -112,7 +112,7 @@ export async function generateDailyInsight(
 }
 
 /**
- * Conversational completions for the Coach tab/overlay.
+ * Conversational completions for Sini AI coach screen & overlay.
  */
 export async function answerCoachQuestion(
   question: string,

@@ -15,6 +15,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Typography } from './Typography';
 import { MarkdownText } from './MarkdownText';
+import { SiniAvatar } from './SiniAvatar';
 import { useAppStore } from '../store/useAppStore';
 import { getCycleState } from '../domain/cycle/cycleEngine';
 import { calculateReadinessScore } from '../domain/readiness/readinessEngine';
@@ -25,16 +26,25 @@ import { answerCoachQuestion } from '../services/ai/aiService';
 import { ChatMessage, CoachingContext } from '../types';
 import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, X, Bot, User as UserIcon, RotateCcw, Flag } from 'lucide-react-native';
+import { Send, X, User as UserIcon, RotateCcw, Flag, Sparkles } from 'lucide-react-native';
+import { useAppTheme } from '../context/ThemeContext';
 
 interface CoachChatProps {
   visible: boolean;
   onClose: () => void;
+  initialQuery?: string;
 }
 
-export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+const QUICK_ACTIONS = [
+  'Log food',
+  'Plan dinner',
+  'Plan workout',
+  'Explain my calories',
+  'How am I doing?',
+];
+
+export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQuery }) => {
+  const { colors, isDark } = useAppTheme();
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Store data
@@ -51,12 +61,19 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
     {
       id: 'welcome',
       role: 'assistant',
-      content: `Hello! I'm Aura, your wellness coach. How can I help you sync your fitness, nutrition, or cycle today?`,
+      content: `Hello! I'm Sini, your cycle-aware fitness companion. How can I support your nutrition, movement, or cycle today?`,
       timestamp: new Date().toISOString(),
     },
   ]);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
+
+  // Handle initial query if provided when modal opens
+  useEffect(() => {
+    if (visible && initialQuery && initialQuery.trim()) {
+      handleSendText(initialQuery);
+    }
+  }, [visible, initialQuery]);
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -115,19 +132,19 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
 
   const handleClearChat = () => {
     Alert.alert(
-      'Clear Chat History?',
-      'Are you sure you want to clear your chat messages with Aura?',
+      'Clear Conversation?',
+      'Would you like to reset your chat history with Sini?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Clear Chat',
+          text: 'Clear',
           style: 'destructive',
           onPress: () => {
             setMessages([
               {
                 id: 'welcome-' + Date.now(),
                 role: 'assistant',
-                content: `Hello! I'm Aura, your wellness coach. How can I help you sync your fitness, nutrition, or cycle today?`,
+                content: `Hello! I'm Sini, your cycle-aware fitness companion. How can I support your nutrition, movement, or cycle today?`,
                 timestamp: new Date().toISOString(),
               },
             ]);
@@ -137,13 +154,13 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
     );
   };
 
-  const handleSend = async () => {
-    if (!inputText.trim() || sending) return;
+  const handleSendText = async (textToSend: string) => {
+    if (!textToSend.trim() || sending) return;
 
     const userMessage: ChatMessage = {
       id: Math.random().toString(36).substring(7),
       role: 'user',
-      content: inputText.trim(),
+      content: textToSend.trim(),
       timestamp: new Date().toISOString(),
     };
 
@@ -154,7 +171,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
     try {
       const context = getContext();
       const currentHistory = [...messages, userMessage];
-      
+
       const response = await answerCoachQuestion(
         userMessage.content,
         currentHistory,
@@ -174,7 +191,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
       const errorMessage: ChatMessage = {
         id: Math.random().toString(36).substring(7),
         role: 'assistant',
-        content: `Sorry, I encountered an error: ${e.message}. Try checking your internet connection.`,
+        content: `I'm having trouble connecting right now. Let's try again in a moment.`,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage].slice(-30));
@@ -186,30 +203,54 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
-        
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+
         {/* Header */}
-        <View style={[styles.header, { borderBottomColor: isDark ? '#2E2B28' : '#ECE9E4' }]}>
+        <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
           <View style={styles.headerTitleRow}>
-            <Bot color={PALETTE.sage.default} size={24} />
-            <Typography variant="h2" style={styles.headerTitle}>Aura Coach</Typography>
+            <SiniAvatar size={38} variant="plum" />
+            <View>
+              <Typography variant="h2" style={styles.headerTitle}>Sini</Typography>
+              <Typography variant="caption" color={colors.subtext}>Your cycle-aware fitness companion</Typography>
+            </View>
           </View>
-          
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Pressable onPress={handleClearChat} style={styles.closeBtn}>
-              <RotateCcw color={PALETTE.charcoal.light} size={20} />
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Pressable onPress={handleClearChat} style={styles.iconBtn}>
+              <RotateCcw color={colors.subtext} size={20} />
             </Pressable>
-            <Pressable onPress={onClose} style={styles.closeBtn}>
-              <X color={isDark ? PALETTE.cream : PALETTE.charcoal.default} size={22} />
+            <Pressable onPress={onClose} style={styles.iconBtn}>
+              <X color={colors.text} size={22} />
             </Pressable>
           </View>
         </View>
 
         <KeyboardAvoidingView
-          behavior="padding"
-          keyboardVerticalOffset={0}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1 }}
         >
+          {/* Quick Action Chips Horizontal Bar */}
+          <View style={[styles.quickActionsContainer, { borderBottomColor: colors.border }]}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsScroll}>
+              {QUICK_ACTIONS.map((action, idx) => (
+                <Pressable
+                  key={idx}
+                  style={({ pressed }) => [
+                    styles.actionChip,
+                    { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default, borderColor: colors.border },
+                    pressed && styles.pressedChip,
+                  ]}
+                  onPress={() => handleSendText(action)}
+                >
+                  <Sparkles size={13} color={PALETTE.plum.default} style={{ marginRight: 5 }} />
+                  <Typography variant="caption" color={PALETTE.plum.default} style={{ fontWeight: '600' }}>
+                    {action}
+                  </Typography>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+
           {/* Message Thread */}
           <ScrollView
             ref={scrollViewRef}
@@ -226,11 +267,13 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
                     isCoach ? styles.coachRow : styles.userRow,
                   ]}
                 >
-                  <View style={styles.avatar}>
+                  <View style={styles.avatarWrap}>
                     {isCoach ? (
-                      <Bot color={PALETTE.sage.default} size={20} />
+                      <SiniAvatar size={28} variant="plum" />
                     ) : (
-                      <UserIcon color={PALETTE.charcoal.light} size={20} />
+                      <View style={[styles.userAvatar, { backgroundColor: PALETTE.oat.default }]}>
+                        <UserIcon color={PALETTE.plum.default} size={16} />
+                      </View>
                     )}
                   </View>
                   <View
@@ -238,9 +281,9 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
                       styles.bubble,
                       {
                         backgroundColor: isCoach
-                          ? isDark ? '#1C1A18' : PALETTE.white
-                          : PALETTE.sage.default,
-                        borderColor: isDark ? '#2E2B28' : '#ECE9E4',
+                          ? colors.card
+                          : PALETTE.plum.default,
+                        borderColor: isCoach ? colors.border : PALETTE.plum.default,
                       },
                       isCoach ? styles.coachBubble : styles.userBubble,
                     ]}
@@ -250,11 +293,11 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
                       <Pressable
                         style={styles.flagBtn}
                         onPress={() =>
-                          Alert.alert('Response Reported', 'Thank you. This AI output has been flagged for safety review.')
+                          Alert.alert('Response Reported', 'Thank you. Sini AI output feedback has been submitted.')
                         }
                       >
-                        <Flag color={PALETTE.charcoal.light} size={11} />
-                        <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10, marginLeft: 4 }}>
+                        <Flag color={colors.subtext} size={11} />
+                        <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10, marginLeft: 4 }}>
                           Report Output
                         </Typography>
                       </Pressable>
@@ -265,49 +308,49 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
             })}
             {sending && (
               <View style={[styles.messageRow, styles.coachRow]}>
-                <View style={styles.avatar}>
-                  <Bot color={PALETTE.sage.default} size={20} />
-                </View>
-                <View style={[styles.bubble, styles.coachBubble, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
-                  <ActivityIndicator size="small" color={PALETTE.sage.default} />
+                <SiniAvatar size={28} variant="plum" />
+                <View style={[styles.bubble, styles.coachBubble, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <ActivityIndicator size="small" color={PALETTE.plum.default} />
                 </View>
               </View>
             )}
           </ScrollView>
 
           {/* AI Compliance Disclaimer Banner */}
-          <View style={[styles.disclaimerRow, { backgroundColor: isDark ? '#1F1B18' : '#FAF8F5' }]}>
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10, textAlign: 'center', lineHeight: 14 }}>
-              ⚠️ AI responses are generated dynamically and may contain errors. Please verify critical facts.
+          <View style={[styles.disclaimerRow, { backgroundColor: isDark ? '#1A161A' : PALETTE.oat.default }]}>
+            <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10, textAlign: 'center', lineHeight: 14 }}>
+              Sini AI provides empathetic coaching & guidance. Not medical diagnosis.
             </Typography>
           </View>
 
           {/* Footer Input */}
-          <View style={[styles.inputRow, { borderTopColor: isDark ? '#2E2B28' : '#ECE9E4', backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <View style={[styles.inputRow, { borderTopColor: colors.border, backgroundColor: colors.card }]}>
             <TextInput
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Ask Aura anything..."
-              placeholderTextColor={isDark ? '#6B6256' : '#A89E90'}
+              placeholder="Ask Sini about your nutrition, cycle, or workout..."
+              placeholderTextColor={colors.subtext}
               style={[
                 styles.textInput,
                 {
-                  borderColor: isDark ? '#2E2B28' : '#ECE9E4',
-                  color: isDark ? PALETTE.cream : PALETTE.charcoal.default,
+                  borderColor: colors.border,
+                  color: colors.text,
+                  backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg,
                 },
               ]}
-              onSubmitEditing={handleSend}
+              onSubmitEditing={() => handleSendText(inputText)}
               returnKeyType="send"
             />
             <Pressable
-              onPress={handleSend}
+              onPress={() => handleSendText(inputText)}
               disabled={sending || !inputText.trim()}
-              style={[
+              style={({ pressed }) => [
                 styles.sendBtn,
-                { backgroundColor: inputText.trim() ? PALETTE.sage.default : isDark ? '#2E2B28' : '#E8E5DF' },
+                { backgroundColor: inputText.trim() ? PALETTE.plum.default : colors.border },
+                pressed && { opacity: 0.8 },
               ]}
             >
-              <Send color={PALETTE.white} size={18} />
+              <Send color={inputText.trim() ? PALETTE.oat.default : colors.subtext} size={18} />
             </Pressable>
           </View>
         </KeyboardAvoidingView>
@@ -324,19 +367,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: SPACING.md,
-    borderBottomWidth: 1.5,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
+    borderBottomWidth: 1,
   },
   headerTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   headerTitle: {
-    fontFamily: 'PlayfairDisplay-Bold',
+    fontFamily: 'Outfit-Bold',
+    fontSize: 20,
+    lineHeight: 24,
   },
-  closeBtn: {
-    padding: 4,
+  iconBtn: {
+    padding: 6,
+  },
+  quickActionsContainer: {
+    borderBottomWidth: 1,
+    paddingVertical: SPACING.xs + 2,
+  },
+  quickActionsScroll: {
+    paddingHorizontal: SPACING.md,
+    gap: 8,
+    alignItems: 'center',
+  },
+  actionChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 100,
+    borderWidth: 1,
+  },
+  pressedChip: {
+    opacity: 0.75,
   },
   chatScroll: {
     padding: SPACING.md,
@@ -355,19 +421,19 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     flexDirection: 'row-reverse',
   },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#FAF8F5',
-    borderWidth: 1,
-    borderColor: '#ECE9E4',
+  avatarWrap: {
+    marginTop: 2,
+  },
+  userAvatar: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bubble: {
     padding: 12,
-    borderRadius: 16,
+    borderRadius: 18,
     borderWidth: 1,
   },
   coachBubble: {
@@ -375,9 +441,6 @@ const styles = StyleSheet.create({
   },
   userBubble: {
     borderTopRightRadius: 4,
-  },
-  bubbleText: {
-    lineHeight: 18,
   },
   flagBtn: {
     flexDirection: 'row',
@@ -389,29 +452,27 @@ const styles = StyleSheet.create({
   disclaimerRow: {
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.05)',
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: SPACING.md,
-    borderTopWidth: 1.5,
+    borderTopWidth: 1,
     gap: SPACING.sm,
   },
   textInput: {
     flex: 1,
-    height: 44,
-    borderWidth: 1.5,
-    borderRadius: 22,
+    height: 46,
+    borderWidth: 1,
+    borderRadius: 23,
     paddingHorizontal: SPACING.md,
     fontSize: 14,
     fontFamily: 'Outfit-Regular',
   },
   sendBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },

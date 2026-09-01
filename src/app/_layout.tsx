@@ -42,7 +42,6 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
       setHydrated(true);
     };
 
-    // Check if already hydrated
     if (useAppStore.persist.hasHydrated()) {
       ensureSeededData();
     }
@@ -51,7 +50,6 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
       ensureSeededData();
     });
     
-    // Setup daily notifications once safely
     setupDailyEngagementNotifications();
 
     return () => unsubFinish();
@@ -64,10 +62,8 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
     const inOnboardingSegment = segments[0] === 'onboarding';
 
     if (!isOnboarded && !inOnboardingSegment) {
-      // Redirect to onboarding
       router.replace('/onboarding');
     } else if (isOnboarded && inOnboardingSegment) {
-      // Redirect to tabs
       router.replace('/(tabs)');
     }
   }, [hydrated, userProfile?.hasCompletedOnboarding, segments]);
@@ -77,10 +73,10 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
       <View
         style={[
           styles.loadingContainer,
-          { backgroundColor: isDark ? '#121110' : PALETTE.cream },
+          { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg },
         ]}
       >
-        <ActivityIndicator size="large" color={PALETTE.sage.default} />
+        <ActivityIndicator size="large" color={PALETTE.plum.default} />
       </View>
     );
   }
@@ -108,10 +104,10 @@ export default function RootLayout() {
       <View
         style={[
           styles.loadingContainer,
-          { backgroundColor: isDark ? '#121110' : PALETTE.cream },
+          { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg },
         ]}
       >
-        <ActivityIndicator size="large" color={PALETTE.sage.default} />
+        <ActivityIndicator size="large" color={PALETTE.plum.default} />
       </View>
     );
   }
@@ -139,7 +135,7 @@ export default function RootLayout() {
       <EasUpdateModal />
       {Platform.OS === 'web' ? (
         <View style={styles.webOuterContainer}>
-          <View style={[styles.webPhoneFrame, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
+          <View style={[styles.webPhoneFrame, { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg }]}>
             {content}
           </View>
         </View>
@@ -158,7 +154,7 @@ const styles = StyleSheet.create({
   },
   webOuterContainer: {
     flex: 1,
-    backgroundColor: '#0C1D59',
+    backgroundColor: '#261924',
     justifyContent: 'center',
     alignItems: 'center',
   },

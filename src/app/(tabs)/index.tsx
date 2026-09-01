@@ -11,18 +11,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { InputField } from '../../components/InputField';
 import { CoachChat } from '../../components/CoachChat';
+import { SiniAvatar } from '../../components/SiniAvatar';
 import { useAppStore } from '../../store/useAppStore';
 import { getCycleState } from '../../domain/cycle/cycleEngine';
 import { calculateReadinessScore } from '../../domain/readiness/readinessEngine';
 import { generateDailyInsight } from '../../services/ai/aiService';
 import { getTodayStr, diffInDays } from '../../utils/date';
-import { PALETTE, SPACING } from '../../constants/theme';
+import { PALETTE, SPACING, SEMANTICS } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
@@ -36,7 +38,6 @@ import {
   Flame,
   Smile,
   Activity as ActivityIcon,
-  Bot,
   Apple,
   CheckCircle2,
   Circle as CircleIcon,
@@ -46,11 +47,15 @@ import {
   Utensils,
   ShieldCheck,
   Calendar as CalendarIcon,
+  Plus,
+  Heart,
+  Moon,
+  Zap,
 } from 'lucide-react-native';
+import { useAppTheme } from '../../context/ThemeContext';
 
 export default function TodayScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useAppTheme();
   const router = useRouter();
 
   // Store bindings
@@ -68,6 +73,7 @@ export default function TodayScreen() {
   // Modals state
   const [checkInModalVisible, setCheckInModalVisible] = useState(false);
   const [coachChatVisible, setCoachChatVisible] = useState(false);
+  const [coachInitialQuery, setCoachInitialQuery] = useState<string | undefined>(undefined);
   const [isTargetsFolded, setIsTargetsFolded] = useState(false);
 
   // AI Daily Insight state
@@ -82,7 +88,7 @@ export default function TodayScreen() {
   // Filter recent activities in past 24 hours
   const recentWorkouts = activities.filter((act) => {
     const hours = diffInDays(todayStr, act.timestamp.split('T')[0]);
-    return hours === 0; // Same day activities
+    return hours === 0;
   });
 
   const todayCheckIn = dailyCheckIns[todayStr] || null;
@@ -106,8 +112,7 @@ export default function TodayScreen() {
   const isNutritionMet = todayMeals.length > 0;
 
   const completedTargetsCount = [isCheckInMet, isWaterMet, isExerciseMet, isNutritionMet].filter(Boolean).length;
-
-  const currentStreak = streak?.currentStreak || 0;
+  const currentStreak = streak?.currentStreak || 1;
 
   useEffect(() => {
     if (completedTargetsCount >= 2) {
@@ -131,20 +136,22 @@ export default function TodayScreen() {
       stress: todayCheckIn?.stress ?? 2,
       hydration: todayCheckIn?.hydration ?? 1.5,
       symptoms: todayCheckIn?.symptoms ?? [],
-      recentWorkoutMinutes: recentWorkouts.reduce((sum, act) => sum + act.durationMinutes, 0),
+      recentWorkoutMinutes,
+      remainingCalories: calorieBalance.remainingCalories,
     };
 
     try {
       const text = await generateDailyInsight(context, userProfile?.groqApiKey);
       setDailyInsight(text);
     } catch (e) {
-      setDailyInsight('Focus on simple hydration and listen to your body today.');
+      setDailyInsight(
+        `FACT: You have ${calorieBalance.remainingCalories} kcal remaining today.\nCONTEXT: You're in your ${cycleState.phase} phase (Day ${cycleState.cycleDay}) with energy ${todayCheckIn?.energy || 3}/5.\nCHOICE: A protein-dense dinner will fit comfortably. If you want movement, a gentle 20-minute walk is ideal.`
+      );
     } finally {
       setInsightLoading(false);
     }
   };
 
-  // Load Daily Insight on mount & check-in changes
   useEffect(() => {
     fetchDailyInsight();
   }, [todayCheckIn]);
@@ -162,13 +169,11 @@ export default function TodayScreen() {
   const [waterModalVisible, setWaterModalVisible] = useState(false);
   const [waterInputVal, setWaterInputVal] = useState(todayCheckIn ? String(todayCheckIn.hydration) : '1.5');
 
-  // Open Water Modal
   const openWaterModal = () => {
     setWaterInputVal(todayCheckIn ? String(todayCheckIn.hydration) : '1.5');
     setWaterModalVisible(true);
   };
 
-  // Explicit Water Modal Save Handler
   const handleSaveWaterModal = () => {
     const val = parseFloat(waterInputVal) || 1.5;
     setDailyCheckIn(todayStr, {
@@ -183,14 +188,6 @@ export default function TodayScreen() {
     setWaterModalVisible(false);
   };
 
-  // Add preset volume
-  const addWaterPreset = (amountL: number) => {
-    const current = parseFloat(waterInputVal) || 0;
-    const next = (current + amountL).toFixed(2);
-    setWaterInputVal(String(next));
-  };
-
-  // Symptoms toggle
   const toggleSymptom = (symptom: string) => {
     if (selectedSymptoms.includes(symptom)) {
       setSelectedSymptoms(selectedSymptoms.filter((s) => s !== symptom));
@@ -199,7 +196,6 @@ export default function TodayScreen() {
     }
   };
 
-  // Submit check-in
   const handleCheckInSubmit = () => {
     setDailyCheckIn(todayStr, {
       sleepDuration: parseFloat(sleepDur) || 8,
@@ -213,21 +209,14 @@ export default function TodayScreen() {
     setCheckInModalVisible(false);
   };
 
-  // Circular progress math
-  const strokeWidth = 14;
-  const radius = 64;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (readiness.score / 100) * circumference;
-
-  // Calorie ring math
-  const calStrokeWidth = 10;
-  const calRadius = 48;
+  // Calorie Circular Arc Math
+  const calStrokeWidth = 14;
+  const calRadius = 56;
   const calCircumference = 2 * Math.PI * calRadius;
   const calProgress = Math.min(1, calorieBalance.consumedCalories / (calorieBalance.targetCalories || 1850));
   const calStrokeDashoffset = calCircumference - calProgress * calCircumference;
 
   const [refreshing, setRefreshing] = useState(false);
-
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -236,8 +225,75 @@ export default function TodayScreen() {
     setRefreshing(false);
   };
 
+  const openSiniWithQuery = (query?: string) => {
+    setCoachInitialQuery(query);
+    setCoachChatVisible(true);
+  };
+
+  // Split insight text into FACT, CONTEXT, CHOICE if structured
+  const renderFormattedInsight = (text: string) => {
+    if (!text) return null;
+    const hasFact = text.includes('FACT:') || text.includes('**FACT**');
+    if (!hasFact) {
+      return (
+        <Typography variant="bodyMedium" style={{ lineHeight: 22 }}>
+          {text}
+        </Typography>
+      );
+    }
+
+    const sections = text.split(/(FACT:|CONTEXT:|CHOICE:|\*\*FACT\*\*|\*\*CONTEXT\*\*|\*\*CHOICE\*\*)/gi);
+    let currentKey = '';
+    const parsed: Record<string, string> = {};
+
+    sections.forEach((part) => {
+      const p = part.trim().toUpperCase();
+      if (p.includes('FACT')) currentKey = 'FACT';
+      else if (p.includes('CONTEXT')) currentKey = 'CONTEXT';
+      else if (p.includes('CHOICE')) currentKey = 'CHOICE';
+      else if (currentKey && part.trim()) {
+        parsed[currentKey] = part.trim();
+      }
+    });
+
+    return (
+      <View style={{ gap: 10 }}>
+        {parsed.FACT && (
+          <View style={styles.insightBlock}>
+            <Typography variant="caption" color={PALETTE.plum.default} style={styles.insightBlockTag}>
+              FACT
+            </Typography>
+            <Typography variant="bodyMedium" style={styles.insightBlockText}>
+              {parsed.FACT}
+            </Typography>
+          </View>
+        )}
+        {parsed.CONTEXT && (
+          <View style={styles.insightBlock}>
+            <Typography variant="caption" color={PALETTE.rose.default} style={styles.insightBlockTag}>
+              CONTEXT
+            </Typography>
+            <Typography variant="bodyMedium" style={styles.insightBlockText}>
+              {parsed.CONTEXT}
+            </Typography>
+          </View>
+        )}
+        {parsed.CHOICE && (
+          <View style={styles.insightBlock}>
+            <Typography variant="caption" color={PALETTE.sage.default} style={styles.insightBlockTag}>
+              CHOICE
+            </Typography>
+            <Typography variant="bodyMedium" style={styles.insightBlockText}>
+              {parsed.CHOICE}
+            </Typography>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -245,94 +301,147 @@ export default function TodayScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={[PALETTE.sage.default]}
-            tintColor={PALETTE.sage.default}
+            colors={[PALETTE.plum.default]}
+            tintColor={PALETTE.plum.default}
           />
         }
       >
-        
-        {/* Header Greeting */}
+
+        {/* Top Branding Header */}
         <View style={styles.header}>
-          <View>
-            <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>
-              Today's Rhythm • 🔥 {streak?.currentStreak || 1}d Streak
+          <View style={{ flex: 1 }}>
+            <Typography variant="caption" color={colors.subtext} style={{ letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              Sini AI: Cycle & Fitness • 🔥 {streak?.currentStreak || 1}d Streak
             </Typography>
             <Typography variant="h1" style={styles.userName}>
-              Hello, {userProfile?.name || 'Sarah'}
+              Good morning, {userProfile?.name || 'Sarah'}
             </Typography>
           </View>
-          
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            {/* Cycle Phase Badge */}
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            {/* Cycle Calendar Link */}
             <Pressable
+              style={styles.calendarIconBtn}
               onPress={() => router.push('/cycle')}
-              style={[
-                styles.phaseBadge,
-                {
-                  backgroundColor: userProfile?.pauseCycleTracking
-                    ? (isDark ? '#2E2B28' : '#E8E5DF')
-                    : cycleState.phase === 'menstrual'
-                    ? PALETTE.rose.bg
-                    : PALETTE.sage.bg,
-                },
-              ]}
             >
-              <Typography
-                variant="bodySmall"
-                color={
-                  userProfile?.pauseCycleTracking
-                    ? PALETTE.charcoal.light
-                    : cycleState.phase === 'menstrual'
-                    ? PALETTE.rose.dark
-                    : PALETTE.sage.dark
-                }
-                style={styles.phaseText}
-              >
-                {userProfile?.pauseCycleTracking
-                  ? 'CYCLE PAUSED'
-                  : `Day ${cycleState.cycleDay} • ${cycleState.phase.toUpperCase()}`}
-              </Typography>
+              <CalendarIcon color={PALETTE.plum.default} size={22} />
             </Pressable>
 
-            {/* Calendar Icon Button in Top Right */}
-            <Pressable
-              style={styles.headerCalendarBtn}
-              onPress={() => router.push('/cycle')}
-            >
-              <CalendarIcon color={PALETTE.rose.default} size={22} />
+            {/* Sini AI Avatar Chat Trigger */}
+            <Pressable onPress={() => openSiniWithQuery()}>
+              <SiniAvatar size={42} variant="plum" />
             </Pressable>
           </View>
         </View>
 
-        {/* 1. Today's Calories Accountability Card (HERO TOP FOCUS) */}
-        <Card style={styles.calorieCard}>
-          <View style={styles.calorieHeaderRow}>
-            <View style={styles.calorieHeaderLeft}>
-              <Flame color={PALETTE.rose.default} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: SPACING.xs }}>
-                Today's Calories
+        {/* 1. CURRENT CYCLE & HOW I FEEL (PRIORITY 1) */}
+        <Card style={styles.cycleStatusCard}>
+          <View style={styles.cycleHeaderRow}>
+            <View style={styles.cycleBadgeRow}>
+              <Pressable
+                onPress={() => router.push('/cycle')}
+                style={[
+                  styles.phasePill,
+                  {
+                    backgroundColor:
+                      cycleState.phase === 'menstrual'
+                        ? PALETTE.rose.bg
+                        : cycleState.phase === 'ovulatory'
+                        ? PALETTE.gold.bg
+                        : cycleState.phase === 'follicular'
+                        ? PALETTE.sage.bg
+                        : PALETTE.plum.bg,
+                  },
+                ]}
+              >
+                <Typography
+                  variant="caption"
+                  color={
+                    cycleState.phase === 'menstrual'
+                      ? PALETTE.rose.default
+                      : cycleState.phase === 'ovulatory'
+                      ? PALETTE.gold.default
+                      : cycleState.phase === 'follicular'
+                      ? PALETTE.sage.default
+                      : PALETTE.plum.default
+                  }
+                  style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
+                >
+                  {cycleState.phase.toUpperCase()} · DAY {cycleState.cycleDay}
+                </Typography>
+              </Pressable>
+
+              <View style={[styles.energyPill, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default }]}>
+                <Zap size={14} color={PALETTE.gold.default} />
+                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                  Energy {todayCheckIn ? todayCheckIn.energy : 3}/5
+                </Typography>
+              </View>
+            </View>
+
+            <Pressable
+              style={styles.checkInBtn}
+              onPress={() => setCheckInModalVisible(true)}
+            >
+              <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                {todayCheckIn ? 'Edit Check-In' : '+ Log Feeling'}
+              </Typography>
+            </Pressable>
+          </View>
+
+          <View style={styles.feelingSummaryRow}>
+            <View style={styles.feelingStat}>
+              <Typography variant="caption" color={colors.subtext}>Readiness</Typography>
+              <Typography variant="h2" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                {readiness.score}/100
               </Typography>
             </View>
-            <View style={[styles.percentagePill, { backgroundColor: calorieBalance.isOverTarget ? '#FADBD8' : PALETTE.sage.bg }]}>
+            <View style={styles.feelingDivider} />
+            <View style={styles.feelingStat}>
+              <Typography variant="caption" color={colors.subtext}>Sleep</Typography>
+              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+                {todayCheckIn ? `${todayCheckIn.sleepDuration}h` : '8.0h'}
+              </Typography>
+            </View>
+            <View style={styles.feelingDivider} />
+            <View style={styles.feelingStat}>
+              <Typography variant="caption" color={colors.subtext}>Hydration</Typography>
+              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+                {todayCheckIn ? `${todayCheckIn.hydration}L` : '1.5L'}
+              </Typography>
+            </View>
+          </View>
+        </Card>
+
+        {/* 2. TODAY'S CALORIES HERO VISUAL (PRIORITY 2) */}
+        <Card style={styles.heroCalorieCard}>
+          <View style={styles.calorieHeaderRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Flame color={PALETTE.terracotta.default} size={20} />
+              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+                TODAY'S CALORIES
+              </Typography>
+            </View>
+            <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? PALETTE.rose.bg : PALETTE.sage.bg }]}>
               <Typography
                 variant="caption"
-                color={calorieBalance.isOverTarget ? '#C0392B' : PALETTE.sage.dark}
+                color={calorieBalance.isOverTarget ? PALETTE.rose.default : PALETTE.sage.default}
                 style={{ fontFamily: 'Outfit-Bold' }}
               >
-                {calorieBalance.percentageUsed}% USED
+                {calorieBalance.percentageUsed}% TARGET
               </Typography>
             </View>
           </View>
 
-          <View style={styles.calorieBodyRow}>
-            {/* Visual Progress Ring */}
+          <View style={styles.heroCalorieContent}>
+            {/* Elegant Circular Progress Indicator */}
             <View style={styles.calRingContainer}>
               <Svg width={(calRadius + calStrokeWidth) * 2} height={(calRadius + calStrokeWidth) * 2}>
                 <Circle
                   cx={calRadius + calStrokeWidth}
                   cy={calRadius + calStrokeWidth}
                   r={calRadius}
-                  stroke={isDark ? '#2E2B28' : '#ECE9E4'}
+                  stroke={colors.border}
                   strokeWidth={calStrokeWidth}
                   fill="transparent"
                 />
@@ -340,7 +449,7 @@ export default function TodayScreen() {
                   cx={calRadius + calStrokeWidth}
                   cy={calRadius + calStrokeWidth}
                   r={calRadius}
-                  stroke={calorieBalance.isOverTarget ? '#E74C3C' : PALETTE.sage.default}
+                  stroke={calorieBalance.isOverTarget ? PALETTE.rose.default : PALETTE.terracotta.default}
                   strokeWidth={calStrokeWidth}
                   strokeDasharray={calCircumference}
                   strokeDashoffset={calStrokeDashoffset}
@@ -350,47 +459,36 @@ export default function TodayScreen() {
                 />
               </Svg>
               <View style={styles.calRingLabelContainer}>
-                <Typography variant="h3" align="center" style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold', fontSize: 26 }}>
                   {calorieBalance.consumedCalories.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light} align="center">
+                <Typography variant="caption" color={colors.subtext}>
                   / {calorieBalance.targetCalories.toLocaleString()} kcal
                 </Typography>
               </View>
             </View>
 
-            {/* Hero Number & Stats Column */}
-            <View style={styles.calStatsCol}>
-              {/* HERO NUMBER */}
-              <View style={styles.heroNumberBox}>
-                <Typography variant="caption" color={PALETTE.charcoal.light} style={{ letterSpacing: 0.5 }}>
-                  {calorieBalance.isOverTarget ? 'OVER TARGET' : 'REMAINING'}
-                </Typography>
-                <Typography
-                  variant="h2"
-                  style={{
-                    fontFamily: 'Outfit-Bold',
-                    color: calorieBalance.isOverTarget ? '#C0392B' : PALETTE.sage.default,
-                    fontSize: 22,
-                    marginTop: 2,
-                  }}
-                >
-                  {calorieBalance.isOverTarget
-                    ? `${calorieBalance.overAmount.toLocaleString()} kcal over`
-                    : `${calorieBalance.remainingCalories.toLocaleString()} kcal`}
-                </Typography>
-              </View>
+            {/* Calories Hierarchy & Stats */}
+            <View style={styles.heroCalorieStatsCol}>
+              <Typography variant="display" color={calorieBalance.isOverTarget ? PALETTE.rose.default : PALETTE.plum.default} style={styles.remainingHeroNumber}>
+                {calorieBalance.isOverTarget
+                  ? `${calorieBalance.overAmount}`
+                  : `${calorieBalance.remainingCalories}`}
+              </Typography>
+              <Typography variant="bodyMedium" color={colors.subtext} style={{ fontFamily: 'Outfit-Medium' }}>
+                {calorieBalance.isOverTarget ? 'kcal over target' : 'kcal remaining'}
+              </Typography>
 
-              <View style={styles.calBreakdownRow}>
-                <View style={styles.calBreakdownItem}>
-                  <Typography variant="caption" color={PALETTE.charcoal.light}>FOOD</Typography>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+              <View style={styles.macroMiniRow}>
+                <View style={styles.macroMiniItem}>
+                  <Typography variant="caption" color={colors.subtext}>Food</Typography>
+                  <Typography variant="bodyMedium" color={PALETTE.terracotta.default} style={{ fontFamily: 'Outfit-Bold' }}>
                     {calorieBalance.consumedCalories} kcal
                   </Typography>
                 </View>
-                <View style={styles.calBreakdownItem}>
-                  <Typography variant="caption" color={PALETTE.charcoal.light}>ACTIVITY</Typography>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                <View style={styles.macroMiniItem}>
+                  <Typography variant="caption" color={colors.subtext}>Activity</Typography>
+                  <Typography variant="bodyMedium" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
                     ~{calorieBalance.activityCalories} kcal
                   </Typography>
                 </View>
@@ -398,581 +496,232 @@ export default function TodayScreen() {
             </View>
           </View>
 
-          {/* Supportive Over-Target Message */}
-          {calorieBalance.isOverTarget && (
-            <View style={styles.overTargetBox}>
-              <Typography variant="bodySmall" color="#C0392B" style={{ lineHeight: 16 }}>
-                💡 You're about {calorieBalance.overAmount} kcal above today's target. That's okay — one day doesn't determine your progress!
-              </Typography>
-            </View>
-          )}
-
-          {/* Action Buttons Row */}
-          <View style={styles.calActionsRow}>
+          {/* Quick Log Action Buttons Row */}
+          <View style={styles.quickLogButtonsRow}>
             <Button
-              title="Log Meals & Activities"
-              variant="primary"
+              title="+ Log Food"
+              variant="nutrition"
               onPress={() => router.push('/(tabs)/log')}
-              style={styles.calActionBtn}
+              style={styles.heroActionBtn}
+            />
+            <Button
+              title="+ Activity"
+              variant="positive"
+              onPress={() => router.push('/(tabs)/log')}
+              style={styles.heroActionBtn}
             />
           </View>
         </Card>
 
-        {/* 2. Detailed Recovery & Readiness Breakdown Card */}
-        <Card style={styles.readinessCard}>
-          <View style={styles.readinessHeaderRow}>
-            <View style={styles.readinessHeaderLeft}>
-              <ShieldCheck color={PALETTE.sage.default} size={22} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', flexShrink: 1 }}>
-                Daily Readiness Breakdown
-              </Typography>
-            </View>
-            <View style={[styles.percentagePill, { backgroundColor: PALETTE.sage.bg, alignSelf: 'flex-start' }]}>
-              <Typography variant="caption" color={PALETTE.sage.dark} style={{ fontFamily: 'Outfit-Bold' }}>
-                {readiness.level.toUpperCase()}
-              </Typography>
-            </View>
-          </View>
-
-          <View style={[styles.readinessHeroBox, { backgroundColor: isDark ? '#25211B' : '#FAF8F5', borderColor: isDark ? '#2E2B28' : '#ECE9E4' }]}>
-            <Typography variant="h1" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold', fontSize: 34 }}>
-              {readiness.score}
+        {/* 3. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) */}
+        <Card style={[styles.siniSuggestionCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.cream }]}>
+          <View style={styles.siniHeaderRow}>
+            <SiniAvatar size={30} variant="plum" />
+            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
+              Sini's suggestion
             </Typography>
-            <View style={{ marginLeft: SPACING.sm, flex: 1 }}>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
-                Recovery Score: {readiness.score}/100
-              </Typography>
-              <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, flexWrap: 'wrap' }}>
-                {readiness.recommendation.title}
-              </Typography>
-            </View>
           </View>
 
-          {/* Detailed Full-Width Factor Cards */}
-          <View style={styles.factorDetailList}>
-            {readiness.factors.map((factor) => {
-              const fillPct = Math.min(100, Math.max(10, factor.score));
-              return (
-                <View key={factor.name} style={[styles.fullWidthFactorCard, { backgroundColor: isDark ? '#25211B' : '#FAF8F5', borderColor: isDark ? '#2E2B28' : '#ECE9E4' }]}>
-                  <View style={styles.factorDetailHeader}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', flex: 1, paddingRight: 6 }}>
-                      {factor.name}
-                    </Typography>
-                    <View style={{ alignItems: 'flex-end' }}>
-                      <Typography variant="bodyMedium" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                        {factor.score}/100
-                      </Typography>
-                      <Typography variant="caption" color={PALETTE.charcoal.light}>
-                        +{factor.contribution} pts added
-                      </Typography>
-                    </View>
-                  </View>
-
-                  <View style={styles.factorProgressBarTrack}>
-                    <View style={[styles.factorProgressBarFill, { width: `${fillPct}%` }]} />
-                  </View>
-
-                  {factor.explanation && (
-                    <View style={styles.factorWhyBox}>
-                      <Typography variant="caption" color={PALETTE.charcoal.light} style={{ lineHeight: 16 }}>
-                        💡 {factor.explanation}
-                      </Typography>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
+          <View style={{ marginTop: SPACING.xs }}>
+            {insightLoading ? (
+              <ActivityIndicator size="small" color={PALETTE.plum.default} style={{ marginVertical: 12 }} />
+            ) : (
+              renderFormattedInsight(dailyInsight)
+            )}
           </View>
+
+          <Pressable
+            style={styles.askSiniSubBtn}
+            onPress={() => openSiniWithQuery('Explain my remaining calories for today')}
+          >
+            <Sparkles size={14} color={PALETTE.plum.default} />
+            <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+              Ask Sini to elaborate
+            </Typography>
+          </Pressable>
         </Card>
 
-        {/* 3. Recommendations Card (Movement + Food Recommendations) */}
-        <Card style={styles.planCard}>
-          <View style={styles.planTitleRow}>
-            <ActivityIcon color={PALETTE.sage.default} size={22} />
-            <Typography variant="h3" style={styles.planCardTitle}>Today's Plan</Typography>
+        {/* 4. ACTIVITY & RECOVERY PLAN */}
+        <Card style={styles.activityPlanCard}>
+          <View style={styles.cardTitleRow}>
+            <ActivityIcon color={PALETTE.sage.default} size={20} />
+            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+              Activity & Movement
+            </Typography>
           </View>
-          
-          <View style={styles.planBadgeRow}>
-            <View style={[styles.intensityBadge, { backgroundColor: isDark ? '#25352A' : '#EAF0EC' }]}>
-              <Typography variant="caption" color={isDark ? PALETTE.sage.light : PALETTE.sage.dark}>
-                {readiness.recommendation.activityType.replace('_', ' ')}
+
+          <View style={styles.activityBadgeRow}>
+            <View style={[styles.actBadge, { backgroundColor: PALETTE.sage.bg }]}>
+              <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                {readiness.recommendation.activityType.replace('_', ' ').toUpperCase()}
               </Typography>
             </View>
             {readiness.recommendation.durationMinutes && (
-              <View style={[styles.durationBadge, { backgroundColor: isDark ? '#2E2B28' : '#F5F3EF' }]}>
-                <Typography variant="caption" color={isDark ? PALETTE.cream : PALETTE.charcoal.light}>
+              <View style={[styles.actBadge, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default }]}>
+                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>
                   ⏱ {readiness.recommendation.durationMinutes} mins
                 </Typography>
               </View>
             )}
           </View>
 
-          <Typography variant="bodyLarge" style={styles.recTitle}>
-            Recommended Movement: {readiness.recommendation.title}
+          <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', marginTop: 8 }}>
+            {readiness.recommendation.title}
           </Typography>
-          <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.recDesc}>
+          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
             {readiness.recommendation.explanation}
           </Typography>
 
-          {/* Section 2: Phase & Calorie Synced Meal Recommendations */}
-          <View style={styles.mealRecSection}>
-            <View style={styles.mealRecHeaderRow}>
-              <Utensils color={PALETTE.rose.default} size={18} />
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginLeft: 6, flex: 1, flexWrap: 'wrap' }}>
-                Recommended Meals for {cycleState.phase.toUpperCase()} Phase
+          {/* Quick Hydration Tracker */}
+          <View style={styles.hydrationBox}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
+              <Droplet color={PALETTE.sage.default} size={18} />
+              <Typography variant="bodyMedium" style={{ marginLeft: 8, fontFamily: 'Outfit-Medium' }}>
+                Hydration Target: {recommendedWaterL}L
               </Typography>
             </View>
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.xs }}>
-              Tailored to your {(userProfile?.regionalCuisine || 'indian').toUpperCase()} cuisine & {(userProfile?.dietaryPreference || 'anything').toUpperCase()} preference.
-            </Typography>
-
-            {getRecommendedMealsForToday(
-              cycleState.phase,
-              userProfile?.regionalCuisine || 'indian',
-              userProfile?.dietaryPreference || 'anything'
-            ).map((meal) => (
-              <View key={meal.name} style={[styles.mealRecCard, { backgroundColor: isDark ? '#25211B' : '#FAF8F5' }]}>
-                <View style={styles.mealRecCardTopRow}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', flex: 1, paddingRight: 6 }}>
-                    {meal.name}
-                  </Typography>
-                  <View style={styles.mealCalPill}>
-                    <Typography variant="caption" color={PALETTE.rose.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                      ~{meal.calories} kcal • {meal.protein}
-                    </Typography>
-                  </View>
-                </View>
-                <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 4 }}>
-                  💡 {meal.reason}
-                </Typography>
-              </View>
-            ))}
-          </View>
-
-          {!todayCheckIn && (
-            <View style={styles.baselineIndicator}>
-              <Typography variant="caption" color={PALETTE.charcoal.light} style={styles.baselineText}>
-                ⚠️ Showing baseline estimate. Complete check-in for full personalization.
+            <Pressable onPress={openWaterModal} style={styles.quickAddWaterBtn}>
+              <Typography variant="caption" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                + Add Water
               </Typography>
-            </View>
-          )}
-        </Card>
-
-        {/* 4. AI Insight Card */}
-        <Card style={[styles.insightCard, { backgroundColor: isDark ? '#1C1A18' : '#FAF7F2' }]}>
-          <View style={styles.insightHeader}>
-            <Sparkles color={PALETTE.sage.default} size={18} />
-            <Typography variant="bodySmall" color={PALETTE.sage.default} style={styles.insightHeaderLabel}>
-              DAILY INSIGHT
-            </Typography>
+            </Pressable>
           </View>
-          {insightLoading ? (
-            <ActivityIndicator size="small" color={PALETTE.sage.default} style={styles.insightLoader} />
-          ) : (
-            <Typography variant="bodyMedium" style={styles.insightText}>
-              {dailyInsight}
-            </Typography>
-          )}
         </Card>
 
-        {/* 5. Today's Daily Targets Checklist Card (FOLDABLE) */}
-        <Card style={[styles.targetsChecklistCard, { backgroundColor: isDark ? '#1C1A18' : '#FFFFFF', borderColor: isDark ? '#2E2B28' : '#ECE9E4' }]}>
+        {/* 5. TODAY'S TARGETS CHECKLIST */}
+        <Card style={styles.targetsCard}>
           <Pressable onPress={() => setIsTargetsFolded(!isTargetsFolded)} style={styles.targetsHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Award color={PALETTE.sage.default} size={20} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Award color={PALETTE.gold.default} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
                 Today's Targets
               </Typography>
             </View>
-
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? '#D1FAE5' : '#FEF3C7' }]}>
-                <Typography variant="caption" color={completedTargetsCount >= 2 ? '#059669' : '#D97706'} style={{ fontFamily: 'Outfit-Bold' }}>
+              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? PALETTE.sage.bg : PALETTE.gold.bg }]}>
+                <Typography variant="caption" color={completedTargetsCount >= 2 ? PALETTE.sage.default : PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
                   {completedTargetsCount}/4 Done
                 </Typography>
               </View>
-
-              {isTargetsFolded ? (
-                <ChevronDown color={PALETTE.charcoal.light} size={20} />
-              ) : (
-                <ChevronUp color={PALETTE.charcoal.light} size={20} />
-              )}
+              {isTargetsFolded ? <ChevronDown color={colors.subtext} size={18} /> : <ChevronUp color={colors.subtext} size={18} />}
             </View>
           </Pressable>
 
           {!isTargetsFolded && (
             <View style={styles.targetsList}>
-              {/* 1. Daily Check-In */}
-              <Pressable onPress={() => setCheckInModalVisible(true)} style={styles.targetRowItem}>
-                {isCheckInMet ? (
-                  <CheckCircle2 color="#10B981" size={20} />
-                ) : (
-                  <CircleIcon color={PALETTE.charcoal.light} size={20} />
-                )}
-                <Typography variant="bodyMedium" style={{ marginLeft: 8, textDecorationLine: isCheckInMet ? 'line-through' : 'none', color: isCheckInMet ? PALETTE.charcoal.light : undefined }}>
-                  Daily Wellness Check-In
-                </Typography>
-              </Pressable>
-
-              {/* 2. Hydration Target */}
-              <Pressable onPress={openWaterModal} style={styles.targetRowItem}>
-                {isWaterMet ? (
-                  <CheckCircle2 color="#10B981" size={20} />
-                ) : (
-                  <CircleIcon color={PALETTE.charcoal.light} size={20} />
-                )}
-                <View style={{ marginLeft: 8, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ textDecorationLine: isWaterMet ? 'line-through' : 'none', color: isWaterMet ? PALETTE.charcoal.light : undefined }}>
-                    Water Target ({todayCheckIn?.hydration || 0} / {recommendedWaterL} L)
-                  </Typography>
-                </View>
-                {isWaterMet && (
-                  <View style={styles.successPill}>
-                    <Typography variant="caption" color="#10B981" style={{ fontFamily: 'Outfit-Bold' }}>✓ Met!</Typography>
-                  </View>
-                )}
-              </Pressable>
-
-              {/* 3. Recommended Exercise */}
-              <Pressable onPress={() => setCheckInModalVisible(true)} style={styles.targetRowItem}>
-                {isExerciseMet ? (
-                  <CheckCircle2 color="#10B981" size={20} />
-                ) : (
-                  <CircleIcon color={PALETTE.charcoal.light} size={20} />
-                )}
-                <Typography variant="bodyMedium" style={{ marginLeft: 8, textDecorationLine: isExerciseMet ? 'line-through' : 'none', color: isExerciseMet ? PALETTE.charcoal.light : undefined }}>
-                  Movement ({recentWorkoutMinutes} / {readiness.recommendation.durationMinutes || 20} mins)
-                </Typography>
-              </Pressable>
-
-              {/* 4. Food Log */}
-              <Pressable onPress={() => router.push('/log')} style={styles.targetRowItem}>
-                {isNutritionMet ? (
-                  <CheckCircle2 color="#10B981" size={20} />
-                ) : (
-                  <CircleIcon color={PALETTE.charcoal.light} size={20} />
-                )}
-                <Typography variant="bodyMedium" style={{ marginLeft: 8, textDecorationLine: isNutritionMet ? 'line-through' : 'none', color: isNutritionMet ? PALETTE.charcoal.light : undefined }}>
-                  Food Log ({todayMeals.length} logged)
-                </Typography>
-              </Pressable>
+              <View style={styles.targetItem}>
+                {isCheckInMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                <Typography variant="bodyMedium" style={styles.targetLabel}>Check-in & Energy logged</Typography>
+              </View>
+              <View style={styles.targetItem}>
+                {isWaterMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                <Typography variant="bodyMedium" style={styles.targetLabel}>Hydration target ({recommendedWaterL}L)</Typography>
+              </View>
+              <View style={styles.targetItem}>
+                {isExerciseMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                <Typography variant="bodyMedium" style={styles.targetLabel}>Movement ({readiness.recommendation.durationMinutes || 20}m)</Typography>
+              </View>
+              <View style={styles.targetItem}>
+                {isNutritionMet ? <CheckCircle2 color={PALETTE.sage.default} size={20} /> : <CircleIcon color={colors.border} size={20} />}
+                <Typography variant="bodyMedium" style={styles.targetLabel}>Nutrition logged</Typography>
+              </View>
             </View>
           )}
         </Card>
 
-        {/* Floating Coach Card */}
-        <Pressable onPress={() => setCoachChatVisible(true)}>
-          <Card style={[styles.coachCard, { borderColor: isDark ? '#2E2B28' : '#ECE9E4' }]}>
-            <View style={styles.coachCardLeft}>
-              <Bot color={PALETTE.sage.default} size={26} />
-              <View>
-                <Typography variant="bodyLarge" style={styles.coachCardTitle}>Chat with Aura</Typography>
-                <Typography variant="caption" color={isDark ? PALETTE.sage.light : PALETTE.charcoal.light}>Your hormonal fitness companion</Typography>
-              </View>
-            </View>
-            <View style={styles.coachCardChevron}>
-              <Typography variant="bodyLarge" color={PALETTE.sage.default}>➔</Typography>
-            </View>
-          </Card>
-        </Pressable>
-
-        {/* Quick Logs Row */}
-        <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.logTitleLabel}>
-          QUICK ACTIONS
-        </Typography>
-        
-        <View style={styles.quickLogsRow}>
-          <Pressable
-            onPress={() => setCheckInModalVisible(true)}
-            style={[
-              styles.quickLogBtn,
-              {
-                backgroundColor: todayCheckIn
-                  ? (isDark ? '#25352A' : '#EAF0EC')
-                  : (isDark ? '#1C1A18' : '#FFFFFF'),
-                borderColor: isDark ? '#2E2B28' : '#ECE9E4'
-              }
-            ]}
-          >
-            <Smile color={PALETTE.sage.default} size={22} />
-            <Typography
-              variant="caption"
-              color={todayCheckIn
-                ? PALETTE.sage.default
-                : (isDark ? PALETTE.cream : PALETTE.charcoal.default)}
-              style={styles.quickLogText}
-            >
-              {todayCheckIn ? 'Checked-In' : 'Check-In'}
-            </Typography>
-          </Pressable>
-
-          <Pressable
-            onPress={openWaterModal}
-            style={[
-              styles.quickLogBtn,
-              {
-                backgroundColor: isDark ? '#1C1A18' : '#FFFFFF',
-                borderColor: isDark ? '#2E2B28' : '#ECE9E4'
-              }
-            ]}
-          >
-            <View style={styles.waterQuickRow}>
-              <Droplet color="#4A90E2" size={22} />
-              {todayCheckIn && todayCheckIn.hydration > 0 && (
-                <Typography variant="caption" color="#4A90E2" style={styles.waterCount}>
-                  {todayCheckIn.hydration}L
-                </Typography>
-              )}
-            </View>
-            <Typography
-              variant="caption"
-              color={isDark ? PALETTE.cream : PALETTE.charcoal.default}
-              style={styles.quickLogText}
-            >
-              Water Intake
-            </Typography>
-          </Pressable>
-        </View>
-
       </ScrollView>
 
-      {/* Explicit Water Intake Modal */}
-      <Modal
-        visible={waterModalVisible}
-        animationType="fade"
-        transparent={true}
-        onRequestClose={() => setWaterModalVisible(false)}
-      >
-        <Pressable style={styles.modalOverlay} onPress={() => setWaterModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
-            <View style={styles.modalHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Droplet color="#4A90E2" size={24} />
-                <Typography variant="h2">Water Intake Tracker</Typography>
-              </View>
-            </View>
-
-            {/* Target Recommendation Box */}
-            <View style={[styles.waterTargetBox, { backgroundColor: isDark ? '#182433' : '#EBF3FA' }]}>
-              <Typography variant="caption" color="#4A90E2" style={{ fontFamily: 'Outfit-Bold', letterSpacing: 0.5 }}>
-                RECOMMENDED DAILY TARGET
-              </Typography>
-              <Typography variant="h2" color="#2B6CB0" style={{ marginVertical: 2 }}>
-                {recommendedWaterL} Litres
-              </Typography>
-              <Typography variant="caption" color={PALETTE.charcoal.light}>
-                Calculated for your {userWeight}kg body weight {recentWorkouts.length > 0 ? '(includes +0.5L workout bonus)' : ''}
-              </Typography>
-            </View>
-
-            {/* Current Input Display */}
-            <View style={styles.waterInputGroup}>
-              <InputField
-                label="Water Consumed Today (Litres)"
-                value={waterInputVal}
-                onChangeText={setWaterInputVal}
-                keyboardType="decimal-pad"
-                placeholder="e.g. 2.1"
-              />
-            </View>
-
-            {/* Volume Presets Row */}
-            <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={{ marginBottom: 6 }}>
-              Quick Add Presets:
-            </Typography>
-            <View style={styles.waterPresetRow}>
-              <Pressable style={styles.waterPresetBtn} onPress={() => addWaterPreset(0.25)}>
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>+0.25 L</Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10 }}>1 Glass</Typography>
-              </Pressable>
-              <Pressable style={styles.waterPresetBtn} onPress={() => addWaterPreset(0.5)}>
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>+0.5 L</Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10 }}>1 Bottle</Typography>
-              </Pressable>
-              <Pressable style={styles.waterPresetBtn} onPress={() => addWaterPreset(1.0)}>
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>+1.0 L</Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10 }}>Large Bottle</Typography>
-              </Pressable>
-            </View>
-
-            {/* Modal Actions */}
-            <View style={styles.modalActions}>
-              <Button title="Save Water Intake" onPress={handleSaveWaterModal} style={styles.modalSave} />
-              <Button title="Cancel" variant="outline" onPress={() => setWaterModalVisible(false)} style={styles.modalCancel} />
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
-      {/* Daily Check-In Overlay Modal */}
-      <Modal
-        visible={checkInModalVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setCheckInModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}
-          >
-            <ScrollView contentContainerStyle={styles.modalScroll} keyboardShouldPersistTaps="handled">
-              
-              <Typography variant="h2" style={styles.modalTitle}>Daily Check-In</Typography>
-              <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.modalSubtitle}>
-                Log how you feel today to refine your readiness profile.
-              </Typography>
-
-              {/* Sleep Duration */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>How long did you sleep? (Hours)</Typography>
-                <TextInput
-                  value={sleepDur}
-                  onChangeText={setSleepDur}
-                  keyboardType="decimal-pad"
-                  style={[styles.formInput, { color: isDark ? PALETTE.cream : PALETTE.charcoal.default }]}
-                  placeholder="8"
-                  placeholderTextColor={isDark ? '#6B6256' : '#A89E90'}
-                />
-              </View>
-
-              {/* Sleep Quality */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>Sleep Quality</Typography>
-                <View style={styles.ratingsRow}>
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <Pressable
-                      key={val}
-                      onPress={() => setSleepQual(val)}
-                      style={[styles.ratingBtn, sleepQual === val && styles.ratingBtnActive]}
-                    >
-                      <Typography variant="bodyMedium" color={sleepQual === val ? PALETTE.white : undefined}>
-                        {val === 1 ? 'Poor' : val === 5 ? 'Great' : val}
-                      </Typography>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-
-              {/* Energy Levels */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>Energy Levels</Typography>
-                <View style={styles.ratingsRow}>
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <Pressable
-                      key={val}
-                      onPress={() => setEnergyVal(val)}
-                      style={[styles.ratingBtn, energyVal === val && styles.ratingBtnActive]}
-                    >
-                      <Typography variant="bodyMedium" color={energyVal === val ? PALETTE.white : undefined}>
-                        {val}
-                      </Typography>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-
-              {/* Stress Levels */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>Stress Levels</Typography>
-                <View style={styles.ratingsRow}>
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <Pressable
-                      key={val}
-                      onPress={() => setStressVal(val)}
-                      style={[styles.ratingBtn, stressVal === val && styles.ratingBtnActive]}
-                    >
-                      <Typography variant="bodyMedium" color={stressVal === val ? PALETTE.white : undefined}>
-                        {val === 1 ? 'Low' : val === 5 ? 'High' : val}
-                      </Typography>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-
-              {/* Hydration */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>Hydration (Litres logged)</Typography>
-                <TextInput
-                  value={waterVal}
-                  onChangeText={setWaterVal}
-                  keyboardType="decimal-pad"
-                  style={[styles.formInput, { color: isDark ? PALETTE.cream : PALETTE.charcoal.default }]}
-                  placeholder="2.0"
-                  placeholderTextColor={isDark ? '#6B6256' : '#A89E90'}
-                />
-              </View>
-
-              {/* Mood Selection */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>Current Mood</Typography>
-                <View style={styles.tagsContainer}>
-                  {(['great', 'good', 'okay', 'low', 'irritable', 'anxious', 'tired'] as const).map((mood) => {
-                    const selected = moodVal === mood;
-                    return (
-                      <Pressable
-                        key={mood}
-                        onPress={() => setMoodVal(mood)}
-                        style={[styles.tagItem, selected && styles.tagItemActive]}
-                      >
-                        <Typography variant="bodySmall" color={selected ? PALETTE.white : undefined}>
-                          {mood.toUpperCase()}
-                        </Typography>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-
-              {/* Symptoms */}
-              <View style={styles.formGroup}>
-                <Typography variant="bodyMedium" style={styles.formLabel}>Active Symptoms</Typography>
-                <View style={styles.tagsContainer}>
-                  {(['cramps', 'bloating', 'fatigue', 'headache', 'cravings', 'acne'] as const).map((symptom) => {
-                    const selected = selectedSymptoms.includes(symptom);
-                    return (
-                      <Pressable
-                        key={symptom}
-                        onPress={() => toggleSymptom(symptom)}
-                        style={[styles.tagItem, selected && styles.tagItemActive]}
-                      >
-                        <Typography variant="bodySmall" color={selected ? PALETTE.white : undefined}>
-                          {symptom.toUpperCase()}
-                        </Typography>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-
-              {/* Submit / Cancel buttons */}
-              <View style={styles.modalActions}>
-                <Button title="Save Check-In" onPress={handleCheckInSubmit} style={styles.modalSave} />
-                <Button title="Cancel" variant="outline" onPress={() => setCheckInModalVisible(false)} style={styles.modalCancel} />
-              </View>
-
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
-
-      {/* SLEEK CIRCULAR FLOATING AI COACH BUTTON (FAB) */}
-      <Pressable
-        style={[
-          styles.floatingCoachFabCircle,
-          { backgroundColor: isDark ? '#2E4C38' : PALETTE.sage.default },
-        ]}
-        onPress={() => setCoachChatVisible(true)}
-      >
-        <Sparkles color="#FFFFFF" size={24} />
-        <View style={styles.fabPulseBadgeCircle} />
-      </Pressable>
-
-      {/* Aura Coach Chat Screen Modal */}
+      {/* Sini AI Coach Chat Modal */}
       <CoachChat
         visible={coachChatVisible}
         onClose={() => setCoachChatVisible(false)}
+        initialQuery={coachInitialQuery}
       />
+
+      {/* Daily Check-In Modal */}
+      <Modal visible={checkInModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setCheckInModalVisible(false)}>
+        <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
+          <ScrollView contentContainerStyle={styles.modalScroll}>
+            <View style={styles.modalHeader}>
+              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Daily Feeling & Check-In</Typography>
+              <Pressable onPress={() => setCheckInModalVisible(false)}>
+                <Typography variant="bodyMedium" color={PALETTE.plum.default}>Done</Typography>
+              </Pressable>
+            </View>
+
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
+              How are you feeling today? Sini will adapt your targets to your cycle.
+            </Typography>
+
+            <Card style={{ marginBottom: SPACING.md }}>
+              <Typography variant="h3" style={{ marginBottom: 12 }}>Energy Level ({energyVal}/5)</Typography>
+              <View style={styles.ratingRow}>
+                {[1, 2, 3, 4, 5].map((level) => (
+                  <Pressable
+                    key={level}
+                    style={[styles.ratingChip, energyVal === level && { backgroundColor: PALETTE.plum.default }]}
+                    onPress={() => setEnergyVal(level)}
+                  >
+                    <Typography variant="bodyMedium" color={energyVal === level ? PALETTE.oat.default : colors.text}>
+                      {level}
+                    </Typography>
+                  </Pressable>
+                ))}
+              </View>
+            </Card>
+
+            <Card style={{ marginBottom: SPACING.md }}>
+              <Typography variant="h3" style={{ marginBottom: 12 }}>Symptoms</Typography>
+              <View style={styles.symptomsGrid}>
+                {['Cramps', 'Bloating', 'Fatigue', 'Headache', 'Cravings', 'Acne', 'Mood Swings', 'Backache'].map((sym) => {
+                  const isSel = selectedSymptoms.includes(sym);
+                  return (
+                    <Pressable
+                      key={sym}
+                      style={[
+                        styles.symptomChip,
+                        { borderColor: colors.border },
+                        isSel && { backgroundColor: PALETTE.rose.bg, borderColor: PALETTE.rose.default },
+                      ]}
+                      onPress={() => toggleSymptom(sym)}
+                    >
+                      <Typography variant="bodySmall" color={isSel ? PALETTE.rose.default : colors.text}>
+                        {sym}
+                      </Typography>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </Card>
+
+            <Button
+              title="Save Check-In"
+              variant="primary"
+              onPress={handleCheckInSubmit}
+              style={{ marginTop: SPACING.md }}
+            />
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Water Add Modal */}
+      <Modal visible={waterModalVisible} transparent animationType="fade" onRequestClose={() => setWaterModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <Card style={styles.waterDialog}>
+            <Typography variant="h3" style={{ marginBottom: 8 }}>Log Water Hydration</Typography>
+            <InputField
+              label="Liters (L)"
+              value={waterInputVal}
+              onChangeText={setWaterInputVal}
+              keyboardType="decimal-pad"
+            />
+            <View style={styles.waterDialogButtons}>
+              <Button title="Cancel" variant="outline" onPress={() => setWaterModalVisible(false)} style={{ flex: 1 }} />
+              <Button title="Save" variant="positive" onPress={handleSaveWaterModal} style={{ flex: 1 }} />
+            </View>
+          </Card>
+        </View>
+      </Modal>
 
     </SafeAreaView>
   );
@@ -981,319 +730,90 @@ export default function TodayScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
   },
   scrollContent: {
     padding: SPACING.md,
-    paddingBottom: 130,
+    gap: SPACING.md,
   },
   header: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  headerCalendarBtn: {
-    padding: 8,
-    borderRadius: 100,
-    backgroundColor: '#FCE7F3',
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: SPACING.xs,
   },
   userName: {
+    fontFamily: 'Outfit-Bold',
+    fontSize: 26,
+    lineHeight: 32,
     marginTop: 2,
   },
-  phaseBadge: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 100,
+  calendarIconBtn: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: PALETTE.oat.default,
   },
-  phaseText: {
-    fontFamily: 'Outfit-Bold',
-    fontSize: 10,
-    letterSpacing: 0.5,
-  },
-  readinessCard: {
-    paddingVertical: SPACING.lg,
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  cardHeader: {
-    marginBottom: SPACING.md,
-  },
-  dialContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 170,
-    height: 170,
-  },
-  dialLabelContainer: {
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scoreText: {
-    fontSize: 44,
-    lineHeight: 48,
-  },
-  levelText: {
-    fontFamily: 'Outfit-Bold',
-    letterSpacing: 1.5,
-    marginTop: 2,
-  },
-  factorsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: SPACING.md,
-    marginTop: SPACING.md,
-  },
-  factorCol: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  factorVal: {
-    fontFamily: 'Outfit-Bold',
-    marginTop: 2,
-  },
-  insightCard: {
+  // 1. Cycle & Feeling Card
+  cycleStatusCard: {
     padding: SPACING.md,
-    marginBottom: SPACING.md,
-    backgroundColor: '#FAF7F2',
-    borderLeftWidth: 3,
-    borderLeftColor: PALETTE.sage.default,
-    borderRadius: 12,
   },
-  insightHeader: {
+  cycleHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 6,
+    justifyContent: 'space-between',
+    marginBottom: SPACING.sm,
   },
-  insightHeaderLabel: {
-    fontFamily: 'Outfit-Bold',
-    letterSpacing: 0.8,
-  },
-  insightLoader: {
-    paddingVertical: SPACING.sm,
-  },
-  insightText: {
-    lineHeight: 18,
-    fontStyle: 'italic',
-  },
-  planCard: {
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
-  },
-  planTitleRow: {
+  cycleBadgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: SPACING.sm,
   },
-  planCardTitle: {
-    fontFamily: 'PlayfairDisplay-SemiBold',
-  },
-  planBadgeRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    marginBottom: SPACING.md,
-  },
-  intensityBadge: {
-    backgroundColor: '#EAF0EC',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-  },
-  durationBadge: {
-    backgroundColor: '#F5F3EF',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 6,
-  },
-  recTitle: {
-    fontFamily: 'Outfit-Medium',
-    fontSize: 18,
-    marginBottom: 6,
-  },
-  recDesc: {
-    lineHeight: 20,
-  },
-  baselineIndicator: {
-    marginTop: SPACING.md,
-    paddingTop: SPACING.sm,
-    borderTopWidth: 1.0,
-    borderTopColor: '#ECE9E4',
-  },
-  baselineText: {
-    lineHeight: 14,
-  },
-  coachCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: SPACING.md,
-    marginBottom: SPACING.lg,
-    borderColor: '#ECE9E4',
-    borderWidth: 1.5,
-  },
-  coachCardLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  coachCardTitle: {
-    fontFamily: 'Outfit-Medium',
-  },
-  coachCardChevron: {
-    paddingHorizontal: SPACING.sm,
-  },
-  logTitleLabel: {
-    fontFamily: 'Outfit-Bold',
-    letterSpacing: 1.0,
-    marginBottom: SPACING.sm,
-    marginLeft: 4,
-  },
-  quickLogsRow: {
-    flexDirection: 'row',
-    gap: SPACING.md,
-    marginBottom: SPACING.lg,
-  },
-  quickLogBtn: {
-    flex: 1,
-    height: 72,
-    borderRadius: 16,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#ECE9E4',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: SPACING.xs,
-  },
-  quickLogText: {
-    fontFamily: 'Outfit-Medium',
-    fontSize: 10,
-  },
-  waterQuickRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  waterCount: {
-    fontSize: 10,
-    fontFamily: 'Outfit-Bold',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(42,46,43,0.4)',
-  },
-  modalContent: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    height: '80%',
-    padding: SPACING.lg,
-  },
-  modalScroll: {
-    paddingBottom: SPACING.xl,
-  },
-  modalTitle: {
-    fontFamily: 'PlayfairDisplay-Bold',
-    marginBottom: 4,
-  },
-  modalSubtitle: {
-    marginBottom: SPACING.lg,
-  },
-  formGroup: {
-    marginBottom: SPACING.md,
-  },
-  formLabel: {
-    fontFamily: 'Outfit-Medium',
-    marginBottom: SPACING.xs,
-  },
-  formInput: {
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: '#ECE9E4',
-    borderRadius: 12,
-    paddingHorizontal: SPACING.md,
-    fontFamily: 'Outfit-Regular',
-    fontSize: 14,
-  },
-  ratingsRow: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    marginTop: SPACING.xs,
-  },
-  ratingBtn: {
-    flex: 1,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#ECE9E4',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ratingBtnActive: {
-    backgroundColor: PALETTE.sage.default,
-    borderColor: PALETTE.sage.default,
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.sm,
-    marginTop: SPACING.xs,
-  },
-  tagItem: {
-    paddingVertical: 8,
+  phasePill: {
     paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 100,
-    borderWidth: 1.5,
-    borderColor: '#ECE9E4',
   },
-  tagItemActive: {
-    backgroundColor: PALETTE.sage.default,
-    borderColor: PALETTE.sage.default,
-  },
-  modalHeader: {
+  energyPill: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 100,
   },
-  modalActions: {
-    flexDirection: 'column',
-    gap: SPACING.sm,
-    marginTop: SPACING.lg,
-    width: '100%',
+  checkInBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
-  modalCancel: {
-    width: '100%',
+  feelingSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: SPACING.xs,
+    paddingTop: SPACING.xs,
   },
-  modalSave: {
-    width: '100%',
+  feelingStat: {
+    alignItems: 'center',
   },
-  // Calorie Card Styles
-  calorieCard: {
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
+  feelingDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: 'rgba(0,0,0,0.08)',
+  },
+  // 2. Hero Calorie Card
+  heroCalorieCard: {
+    padding: SPACING.md,
   },
   calorieHeaderRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: SPACING.md,
   },
-  calorieHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  percentagePill: {
+  targetPill: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderRadius: 100,
   },
-  calorieBodyRow: {
+  heroCalorieContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
@@ -1308,215 +828,164 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  calStatsCol: {
+  heroCalorieStatsCol: {
     flex: 1,
-    justifyContent: 'center',
   },
-  heroNumberBox: {
-    marginBottom: SPACING.sm,
+  remainingHeroNumber: {
+    fontSize: 42,
+    fontFamily: 'Outfit-Bold',
+    lineHeight: 46,
   },
-  calBreakdownRow: {
+  macroMiniRow: {
     flexDirection: 'row',
-    gap: SPACING.md,
-    paddingTop: SPACING.xs,
-    borderTopWidth: 1,
-    borderTopColor: '#ECE9E4',
+    gap: 16,
+    marginTop: 12,
   },
-  calBreakdownItem: {
-    flex: 1,
-  },
-  overTargetBox: {
-    backgroundColor: '#FDEDEC',
-    padding: SPACING.sm,
-    borderRadius: 8,
-    marginTop: SPACING.sm,
-    borderWidth: 1,
-    borderColor: '#FADBD8',
-  },
-  calActionsRow: {
-    flexDirection: 'column',
+  macroMiniItem: {},
+  quickLogButtonsRow: {
+    flexDirection: 'row',
     gap: SPACING.sm,
     marginTop: SPACING.md,
   },
-  calActionBtn: {
-    width: '100%',
-  },
-  // Water Modal Styles
-  waterTargetBox: {
-    padding: SPACING.md,
-    borderRadius: 12,
-    marginBottom: SPACING.md,
-  },
-  waterInputGroup: {
-    marginBottom: SPACING.md,
-  },
-  waterPresetRow: {
-    flexDirection: 'row',
-    gap: SPACING.xs,
-    marginBottom: SPACING.md,
-  },
-  waterPresetBtn: {
+  heroActionBtn: {
     flex: 1,
-    paddingVertical: SPACING.sm,
-    alignItems: 'center',
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: '#ECE9E4',
-    backgroundColor: '#FAF8F5',
   },
-  // Streak & Checklist Styles
-  streakHeaderBadge: {
+  // 3. Sini's Suggestion Card
+  siniSuggestionCard: {
+    padding: SPACING.md,
+  },
+  siniHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  insightBlock: {
+    marginBottom: 6,
+  },
+  insightBlockTag: {
+    fontFamily: 'Outfit-Bold',
+    fontSize: 11,
+    letterSpacing: 0.5,
+  },
+  insightBlockText: {
+    lineHeight: 20,
+    marginTop: 2,
+  },
+  askSiniSubBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    alignSelf: 'flex-start',
+  },
+  // 4. Activity Card
+  activityPlanCard: {
+    padding: SPACING.md,
+  },
+  cardTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  activityBadgeRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: SPACING.sm,
+  },
+  actBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  targetsChecklistCard: {
+  hydrationBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: SPACING.md,
+    paddingTop: SPACING.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  quickAddWaterBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 100,
+    backgroundColor: PALETTE.sage.bg,
+  },
+  // 5. Targets Card
+  targetsCard: {
     padding: SPACING.md,
-    marginBottom: SPACING.md,
   },
   targetsHeaderRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    justifyContent: 'space-between',
   },
   targetCountBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 100,
   },
   targetsList: {
-    flexDirection: 'column',
-    gap: SPACING.xs,
+    marginTop: SPACING.sm,
+    gap: 10,
   },
-  targetRowItem: {
+  targetItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
+    gap: 10,
   },
-  successPill: {
-    backgroundColor: '#D1FAE5',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 100,
+  targetLabel: {
+    fontFamily: 'Outfit-Regular',
   },
-  // Detailed Readiness Factor Breakdown Styles
-  readinessHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: SPACING.xs,
-    marginBottom: SPACING.sm,
-  },
-  readinessHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  // Check-In Modal
+  modalContainer: {
     flex: 1,
   },
-  readinessHeroBox: {
+  modalScroll: {
+    padding: SPACING.md,
+  },
+  modalHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.md,
-    padding: SPACING.sm,
-    borderRadius: 12,
-    borderWidth: 1,
   },
-  factorDetailList: {
-    flexDirection: 'column',
-    gap: SPACING.sm,
-  },
-  fullWidthFactorCard: {
-    width: '100%',
-    padding: SPACING.sm,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  factorDetailItem: {
-    paddingVertical: 4,
-  },
-  factorDetailHeader: {
+  ratingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
   },
-  factorWhyBox: {
-    marginTop: 6,
-    paddingTop: 4,
-  },
-  factorProgressBarTrack: {
-    height: 8,
-    backgroundColor: '#ECE9E4',
-    borderRadius: 100,
-    overflow: 'hidden',
-  },
-  factorProgressBarFill: {
-    height: '100%',
-    backgroundColor: PALETTE.sage.default,
-    borderRadius: 100,
-  },
-  // Meal Recommendations Styles
-  mealRecSection: {
-    marginTop: SPACING.md,
-    paddingTop: SPACING.md,
-    borderTopWidth: 1,
-    borderTopColor: '#ECE9E4',
-  },
-  mealRecHeaderRow: {
-    flexDirection: 'row',
+  ratingChip: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
-    marginBottom: 2,
-    flexWrap: 'wrap',
-  },
-  mealRecCard: {
-    padding: SPACING.sm,
-    borderRadius: 10,
-    marginBottom: SPACING.xs,
-    borderWidth: 1,
-    borderColor: '#ECE9E4',
-  },
-  mealRecCardTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: SPACING.xs,
-  },
-  mealCalPill: {
-    backgroundColor: '#FADBD8',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 100,
-    alignSelf: 'flex-start',
-  },
-  // Sleek Circular Floating AI Coach Action Button (FAB)
-  floatingCoachFabCircle: {
-    position: 'absolute',
-    bottom: 90,
-    right: 20,
-    width: 54,
-    height: 54,
-    borderRadius: 27,
     justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    zIndex: 9999,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
   },
-  fabPulseBadgeCircle: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#10B981',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+  symptomsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  symptomChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 100,
+    borderWidth: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: SPACING.md,
+  },
+  waterDialog: {
+    width: '100%',
+    padding: SPACING.lg,
+  },
+  waterDialogButtons: {
+    flexDirection: 'row',
+    gap: SPACING.md,
+    marginTop: SPACING.md,
   },
 });

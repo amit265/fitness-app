@@ -212,7 +212,7 @@ export default function OnboardingScreen() {
                 <Typography variant="h2" style={styles.stepTitle}>What is your goal?</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                Choose a general focus. AuraFit supports healthy recomposition without scale anxiety.
+                Choose a general focus. Sini AI supports healthy recomposition without scale anxiety.
               </Typography>
 
               {(
@@ -318,7 +318,7 @@ export default function OnboardingScreen() {
                 <Typography variant="h2" style={styles.stepTitle}>Privacy & AI Setup</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                AuraFit uses direct client-side AI integration to ensure your data stays 100% private. 
+                Sini AI uses direct client-side AI integration to ensure your data stays 100% private. 
               </Typography>
               <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.infoText}>
                 Input your free Groq API key to unlock natural-language meal/workout extraction and personalized advice. No subscription needed!
@@ -343,7 +343,7 @@ export default function OnboardingScreen() {
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Sparkles color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>Welcome to AuraFit</Typography>
+                <Typography variant="h2" style={styles.stepTitle}>Welcome to Sini AI</Typography>
               </View>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
                 All set, {name}!

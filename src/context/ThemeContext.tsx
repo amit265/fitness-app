@@ -3,7 +3,7 @@ import { useColorScheme as useSystemColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PALETTE } from '../constants/theme';
 
-export type MoodThemeKey = 'system' | 'light' | 'dark' | 'rose' | 'sage' | 'amber' | 'lavender';
+export type MoodThemeKey = 'system' | 'light' | 'dark' | 'rose' | 'sage' | 'gold' | 'lavender';
 
 export interface ThemeColors {
   bg: string;
@@ -20,51 +20,51 @@ export const MOOD_THEME_PALETTES: Record<MoodThemeKey, { name: string; icon: str
     name: 'System Default',
     icon: '📱',
     colors: (isSystemDark) => ({
-      bg: isSystemDark ? '#121110' : PALETTE.oat.bg,
-      card: isSystemDark ? '#1C1A18' : PALETTE.white,
-      text: isSystemDark ? PALETTE.cream : PALETTE.charcoal.default,
-      subtext: isSystemDark ? '#8D8070' : PALETTE.charcoal.light,
-      accent: PALETTE.sage.default,
-      border: isSystemDark ? '#2E2B28' : '#ECE9E4',
+      bg: isSystemDark ? PALETTE.darkBg : PALETTE.oat.bg,
+      card: isSystemDark ? PALETTE.darkCard : PALETTE.white,
+      text: isSystemDark ? PALETTE.darkText : PALETTE.charcoal.default,
+      subtext: isSystemDark ? PALETTE.darkSubtext : PALETTE.charcoal.light,
+      accent: PALETTE.plum.default,
+      border: isSystemDark ? PALETTE.darkBorder : PALETTE.sand,
       isDark: isSystemDark,
     }),
   },
   light: {
-    name: 'Clean Oat',
-    icon: '☀️',
+    name: 'Sini Warm Oat',
+    icon: '🌾',
     colors: () => ({
       bg: PALETTE.oat.bg,
       card: PALETTE.white,
       text: PALETTE.charcoal.default,
       subtext: PALETTE.charcoal.light,
-      accent: PALETTE.sage.default,
-      border: '#ECE9E4',
+      accent: PALETTE.plum.default,
+      border: PALETTE.sand,
       isDark: false,
     }),
   },
   dark: {
-    name: 'Midnight Slate',
+    name: 'Sini Deep Plum Dark',
     icon: '🌙',
     colors: () => ({
-      bg: '#121110',
-      card: '#1C1A18',
-      text: PALETTE.cream,
-      subtext: '#8D8070',
-      accent: PALETTE.sage.default,
-      border: '#2E2B28',
+      bg: PALETTE.darkBg,
+      card: PALETTE.darkCard,
+      text: PALETTE.darkText,
+      subtext: PALETTE.darkSubtext,
+      accent: PALETTE.plum.light,
+      border: PALETTE.darkBorder,
       isDark: true,
     }),
   },
   rose: {
-    name: 'Rose Quartz',
+    name: 'Soft Rose Phase',
     icon: '🌸',
     colors: () => ({
-      bg: '#FFF5F6',
-      card: '#FFFFFF',
-      text: '#4A282D',
-      subtext: '#9E6B73',
-      accent: '#E86375',
-      border: '#FCDCE1',
+      bg: PALETTE.rose.bg,
+      card: PALETTE.white,
+      text: '#4A2930',
+      subtext: '#9E6C75',
+      accent: PALETTE.rose.default,
+      border: PALETTE.rose.light,
       isDark: false,
     }),
   },
@@ -72,25 +72,25 @@ export const MOOD_THEME_PALETTES: Record<MoodThemeKey, { name: string; icon: str
     name: 'Sage Balance',
     icon: '🌿',
     colors: () => ({
-      bg: '#F3F7F4',
-      card: '#FFFFFF',
-      text: '#1E3326',
-      subtext: '#5B7A67',
-      accent: '#487A5B',
-      border: '#D8E5DC',
+      bg: PALETTE.sage.bg,
+      card: PALETTE.white,
+      text: '#22382C',
+      subtext: '#5F7C6B',
+      accent: PALETTE.sage.default,
+      border: PALETTE.sage.light,
       isDark: false,
     }),
   },
-  amber: {
-    name: 'Golden Glow',
-    icon: '⚡',
+  gold: {
+    name: 'Warm Gold Ovulation',
+    icon: '✨',
     colors: () => ({
-      bg: '#FFFBF2',
-      card: '#FFFFFF',
-      text: '#3D2D10',
-      subtext: '#8A7038',
-      accent: '#D97706',
-      border: '#FDE68A',
+      bg: PALETTE.gold.bg,
+      card: PALETTE.white,
+      text: '#3D311A',
+      subtext: '#937331',
+      accent: PALETTE.gold.default,
+      border: PALETTE.gold.light,
       isDark: false,
     }),
   },
@@ -99,11 +99,11 @@ export const MOOD_THEME_PALETTES: Record<MoodThemeKey, { name: string; icon: str
     icon: '💜',
     colors: () => ({
       bg: '#F8F5FF',
-      card: '#FFFFFF',
-      text: '#2D1B4E',
-      subtext: '#7C67A3',
-      accent: '#8B5CF6',
-      border: '#DDD6FE',
+      card: PALETTE.white,
+      text: '#2E243A',
+      subtext: '#7A6B8F',
+      accent: PALETTE.lavender,
+      border: '#E2D9F3',
       isDark: false,
     }),
   },
@@ -116,7 +116,7 @@ interface ThemeContextType {
   setThemeKey: (key: MoodThemeKey) => Promise<void>;
 }
 
-const THEME_KEY_STORAGE = 'ds_user_mood_theme_v2';
+const THEME_KEY_STORAGE = 'ds_user_mood_theme_v3';
 
 const ThemeContext = createContext<ThemeContextType>({
   themeKey: 'system',
