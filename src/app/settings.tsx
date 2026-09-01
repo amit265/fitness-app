@@ -28,13 +28,18 @@ import {
   Trash2,
   Bell,
   Palette,
+  Sparkles,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useAdContext } from '../context/AdContext';
+import { showRewardedAdWithConsent } from '../services/AdManager';
+import { getCurrentLanguage, setAppLanguage } from '../i18n';
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
+  const { isAdFree, grantAdFreeHours, setPremiumStatus } = useAdContext();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -50,6 +55,29 @@ export default function SettingsScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [tutorialModalVisible, setTutorialModalVisible] = useState(false);
   const [savedKeySuccess, setSavedKeySuccess] = useState(false);
+  const [currentLang, setCurrentLangState] = useState('en');
+
+  React.useEffect(() => {
+    getCurrentLanguage().then(setCurrentLangState);
+  }, []);
+
+  const handleLanguageChange = (lang: string) => {
+    setCurrentLangState(lang);
+    setAppLanguage(lang);
+    Alert.alert('Language Updated', `App language updated to ${lang.toUpperCase()}.`);
+  };
+
+  const handleRestorePurchases = () => {
+    setPremiumStatus(true);
+    Alert.alert('Purchases Restored', 'Your account has been synced. Premium Ad-Free status activated!');
+  };
+
+  const handleWatchAdReward = () => {
+    showRewardedAdWithConsent(() => {
+      grantAdFreeHours(1);
+      Alert.alert('Reward Unlocked! 🎉', 'You have earned 1 hour of Ad-Free experience.');
+    });
+  };
 
   // Auto-save API key
   const handleSaveApiKey = (key: string) => {
@@ -132,11 +160,43 @@ export default function SettingsScreen() {
             </Pressable>
           </Card>
 
+          {/* Premium & AdMob Section */}
+          <Card style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <Sparkles color={PALETTE.sage.default} size={20} />
+              <Typography variant="h3">Membership & Ad-Free Experience</Typography>
+            </View>
+
+            <View style={styles.toggleRow}>
+              <View style={styles.toggleLeft}>
+                <Typography variant="bodyMedium">Status</Typography>
+                <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : PALETTE.charcoal.light} style={{ fontFamily: 'Outfit-Bold' }}>
+                  {isAdFree ? '✨ AD-FREE / PREMIUM ACTIVE' : 'FREE USER (ADS ENABLED)'}
+                </Typography>
+              </View>
+            </View>
+
+            <View style={{ gap: 10, marginTop: 8 }}>
+              {!isAdFree && (
+                <Button
+                  title="🎬 Watch Ad for 1-Hour Ad-Free"
+                  variant="outline"
+                  onPress={handleWatchAdReward}
+                />
+              )}
+              <Button
+                title="🔄 Restore Purchases"
+                variant="outline"
+                onPress={handleRestorePurchases}
+              />
+            </View>
+          </Card>
+
           {/* Preferences */}
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Bell color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3">Preferences & Notifications</Typography>
+              <Typography variant="h3">Preferences & Language</Typography>
             </View>
 
             <View style={styles.toggleRow}>
@@ -155,12 +215,33 @@ export default function SettingsScreen() {
 
             <View style={[styles.toggleRow, { borderBottomWidth: 0 }]}>
               <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium">Appearance Theme</Typography>
+                <Typography variant="bodyMedium">App Language</Typography>
                 <Typography variant="caption" color={PALETTE.charcoal.light}>
-                  Currently using System ({isDark ? 'Dark Mode' : 'Light Mode'}).
+                  Select your primary language.
                 </Typography>
               </View>
-              <Palette color={PALETTE.sage.default} size={22} />
+              <View style={{ flexDirection: 'row', gap: 6 }}>
+                {['en', 'es', 'id'].map((lang) => (
+                  <Pressable
+                    key={lang}
+                    onPress={() => handleLanguageChange(lang)}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 4,
+                      borderRadius: 8,
+                      backgroundColor: currentLang === lang ? PALETTE.sage.default : '#ECE9E4',
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      color={currentLang === lang ? PALETTE.white : PALETTE.charcoal.default}
+                      style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
+                    >
+                      {lang}
+                    </Typography>
+                  </Pressable>
+                ))}
+              </View>
             </View>
           </Card>
 

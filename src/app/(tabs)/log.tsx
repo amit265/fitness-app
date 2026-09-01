@@ -20,6 +20,7 @@ import { useAppStore } from '../../store/useAppStore';
 import { parseUserInput } from '../../services/ai/aiService';
 import { calculateActivityEquivalents } from '../../domain/calories/calorieEngine';
 import { getTodayStr } from '../../utils/date';
+import { BannerAdComponent } from '../../services/AdManager';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -533,6 +534,7 @@ export default function LogScreen() {
             )}
           </Card>
 
+          <BannerAdComponent style={{ marginTop: SPACING.md }} />
         </ScrollView>
       </KeyboardAvoidingView>
 
