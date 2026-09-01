@@ -24,7 +24,7 @@ import { getCycleState } from '../../domain/cycle/cycleEngine';
 import { calculateReadinessScore } from '../../domain/readiness/readinessEngine';
 import { generateDailyInsight } from '../../services/ai/aiService';
 import { getTodayStr, diffInDays } from '../../utils/date';
-import { PALETTE, SPACING, SEMANTICS } from '../../constants/theme';
+import { PALETTE, SPACING, SEMANTICS, SHADOWS } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
@@ -36,21 +36,17 @@ import {
   Sparkles,
   Droplet,
   Flame,
-  Smile,
   Activity as ActivityIcon,
-  Apple,
   CheckCircle2,
   Circle as CircleIcon,
   Award,
   ChevronDown,
   ChevronUp,
   Utensils,
-  ShieldCheck,
   Calendar as CalendarIcon,
-  Plus,
-  Heart,
-  Moon,
+  Settings,
   Zap,
+  MessageSquare,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 
@@ -319,17 +315,20 @@ export default function TodayScreen() {
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            {/* Cycle Calendar Link */}
+            {/* Cycle Calendar Link Icon */}
             <Pressable
-              style={styles.calendarIconBtn}
+              style={styles.headerIconBtn}
               onPress={() => router.push('/cycle')}
             >
               <CalendarIcon color={PALETTE.plum.default} size={22} />
             </Pressable>
 
-            {/* Sini AI Avatar Chat Trigger */}
-            <Pressable onPress={() => openSiniWithQuery()}>
-              <SiniAvatar size={42} variant="plum" />
+            {/* Settings Link Icon */}
+            <Pressable
+              style={styles.headerIconBtn}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings color={PALETTE.plum.default} size={22} />
             </Pressable>
           </View>
         </View>
@@ -631,6 +630,21 @@ export default function TodayScreen() {
 
       </ScrollView>
 
+      {/* FLOATING ACTION BUTTON (FAB) FOR SINI AI CHAT */}
+      <Pressable
+        style={({ pressed }) => [
+          styles.siniFloatingFab,
+          { backgroundColor: PALETTE.plum.default },
+          pressed && styles.pressedFab,
+        ]}
+        onPress={() => openSiniWithQuery()}
+      >
+        <SiniAvatar size={34} variant="plum" />
+        <Typography variant="caption" color={PALETTE.oat.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+          Ask Sini
+        </Typography>
+      </Pressable>
+
       {/* Sini AI Coach Chat Modal */}
       <CoachChat
         visible={coachChatVisible}
@@ -733,6 +747,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: SPACING.md,
+    paddingBottom: 140, // Increased bottom padding for full scrollability past tab bar & FAB
     gap: SPACING.md,
   },
   header: {
@@ -747,10 +762,31 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     marginTop: 2,
   },
-  calendarIconBtn: {
+  headerIconBtn: {
     padding: 8,
     borderRadius: 20,
     backgroundColor: PALETTE.oat.default,
+  },
+  siniFloatingFab: {
+    position: 'absolute',
+    bottom: 92,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 4,
+    paddingRight: 14,
+    paddingVertical: 4,
+    borderRadius: 100,
+    elevation: 8,
+    shadowColor: PALETTE.plum.default,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    zIndex: 99,
+  },
+  pressedFab: {
+    transform: [{ scale: 0.95 }],
+    opacity: 0.9,
   },
   // 1. Cycle & Feeling Card
   cycleStatusCard: {

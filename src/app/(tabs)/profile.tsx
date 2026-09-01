@@ -24,6 +24,8 @@ import {
   Ruler,
   Award,
   Calendar as CalendarIcon,
+  ChevronRight,
+  Sliders,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
@@ -66,26 +68,58 @@ export default function ProfileScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* Header */}
+          {/* Clean Screen Header */}
           <View style={styles.header}>
-            <View>
-              <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>Profile & Settings</Typography>
-              <Typography variant="bodyMedium" color={colors.subtext}>
-                Sini AI biometrics, cycle parameters & preferences
-              </Typography>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Pressable style={styles.iconBtn} onPress={() => router.push('/cycle')}>
-                <CalendarIcon color={PALETTE.plum.default} size={22} />
-              </Pressable>
-              <Pressable style={styles.iconBtn} onPress={() => router.push('/settings')}>
-                <Settings color={PALETTE.plum.default} size={22} />
-              </Pressable>
-            </View>
+            <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>Profile & Account</Typography>
+            <Typography variant="bodyMedium" color={colors.subtext}>
+              Sini AI biometrics, cycle parameters & preferences
+            </Typography>
           </View>
 
-          {/* 1. Streak Banner */}
+          {/* 1. Quick Navigation Hub Buttons (Dedicated Calendar & Settings buttons inside screen) */}
+          <View style={styles.quickNavRow}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.navTile,
+                { backgroundColor: PALETTE.rose.bg, borderColor: PALETTE.rose.default },
+                pressed && styles.pressedTile,
+              ]}
+              onPress={() => router.push('/cycle')}
+            >
+              <CalendarIcon color={PALETTE.plum.default} size={24} />
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Typography variant="bodyMedium" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  Cycle Calendar
+                </Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  Phase history & tracking
+                </Typography>
+              </View>
+              <ChevronRight color={PALETTE.plum.default} size={18} />
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.navTile,
+                { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default, borderColor: colors.border },
+                pressed && styles.pressedTile,
+              ]}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings color={PALETTE.plum.default} size={24} />
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Typography variant="bodyMedium" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  App Settings
+                </Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  AI key, theme & language
+                </Typography>
+              </View>
+              <ChevronRight color={PALETTE.plum.default} size={18} />
+            </Pressable>
+          </View>
+
+          {/* 2. Streak Banner */}
           <Card style={[styles.streakBannerCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.bg, borderColor: colors.border }]}>
             <View style={styles.streakBannerRow}>
               <View style={{ flex: 1 }}>
@@ -100,7 +134,7 @@ export default function ProfileScreen() {
             </View>
           </Card>
 
-          {/* 2. User Profile Summary */}
+          {/* 3. User Profile Summary */}
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <SiniAvatar size={34} variant="plum" />
@@ -134,7 +168,7 @@ export default function ProfileScreen() {
             />
           </Card>
 
-          {/* 3. Health & Biometrics */}
+          {/* 4. Health & Biometrics */}
           <Card style={styles.card}>
             <View style={styles.cardHeaderRow}>
               <Ruler color={PALETTE.sage.default} size={20} />
@@ -192,9 +226,23 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContent: { padding: SPACING.md, gap: SPACING.md },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  iconBtn: { padding: 8, borderRadius: 20, backgroundColor: PALETTE.oat.default },
+  scrollContent: {
+    padding: SPACING.md,
+    paddingBottom: 140, // Increased bottom padding for comfortable scrollability past floating tab bar
+    gap: SPACING.md,
+  },
+  header: { marginBottom: SPACING.xs },
+  quickNavRow: { gap: 10 },
+  navTile: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: SPACING.md,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  pressedTile: {
+    opacity: 0.8,
+  },
   streakBannerCard: { padding: SPACING.md, borderWidth: 1 },
   streakBannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   card: { padding: SPACING.md },
