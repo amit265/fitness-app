@@ -25,7 +25,8 @@ import { t } from '../i18n';
 
 export default function BMICalculatorScreen() {
   const router = useRouter();
-  const { colors, isDark } = useAppTheme();
+  const { colors } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
 
   // Store data & actions
   const userProfile = useAppStore((state) => state.userProfile);
@@ -34,18 +35,19 @@ export default function BMICalculatorScreen() {
   const addMeasurement = useAppStore((state) => state.addMeasurement);
 
   // Pre-fill values
-  const defaultHeight = userProfile?.height ? String(userProfile.height) : '';
-  const defaultWeight = measurements[0]?.weight ? String(measurements[0].weight) : '';
-
-  // Local calculation form states
-  const [heightInput, setHeightInput] = useState(defaultHeight);
-  const [weightInput, setWeightInput] = useState(defaultWeight);
+  const [heightInput, setHeightInput] = useState<string>(() =>
+    userProfile?.height ? String(userProfile.height) : ''
+  );
+  const [weightInput, setWeightInput] = useState<string>(() => {
+    const latestWeight = measurements[0]?.weight;
+    return latestWeight ? String(latestWeight) : '';
+  });
   
   // Results states
   const [bmiResult, setBmiResult] = useState<number | null>(() => {
-    const h = parseFloat(defaultHeight);
-    const w = parseFloat(defaultWeight);
-    if (h > 0 && w > 0) {
+    const h = userProfile?.height;
+    const w = measurements[0]?.weight;
+    if (h && w) {
       return calculateBMI(w, h);
     }
     return null;
@@ -60,29 +62,19 @@ export default function BMICalculatorScreen() {
     const w = parseFloat(weightInput);
 
     if (isNaN(h) || h <= 0) {
-      setValidationError('Please enter a valid height greater than 0.');
-      setBmiResult(null);
-      return;
-    }
-    if (h > 300) {
-      setValidationError('Please enter a realistic height (under 300 cm).');
+      setValidationError(t('validation.minHeight'));
       setBmiResult(null);
       return;
     }
     if (isNaN(w) || w <= 0) {
-      setValidationError('Please enter a valid weight greater than 0.');
-      setBmiResult(null);
-      return;
-    }
-    if (w > 600) {
-      setValidationError('Please enter a realistic weight (under 600 kg).');
+      setValidationError(t('validation.minWeight'));
       setBmiResult(null);
       return;
     }
 
     const calculated = calculateBMI(w, h);
     if (isNaN(calculated) || !isFinite(calculated)) {
-      setValidationError('Invalid calculation results.');
+      setValidationError(t('errors.saveFailed'));
       setBmiResult(null);
       return;
     }
@@ -96,7 +88,7 @@ export default function BMICalculatorScreen() {
     const w = parseFloat(weightInput);
 
     if (isNaN(h) || h <= 0 || isNaN(w) || w <= 0) {
-      Alert.alert('Validation Error', 'Please perform a valid calculation before saving.');
+      Alert.alert(t('common.error'), t('validation.required'));
       return;
     }
 
@@ -114,17 +106,18 @@ export default function BMICalculatorScreen() {
       date: getTodayStr(),
     });
 
-    Alert.alert('Success', 'Height & weight updated in your metrics successfully.', [
-      { text: 'OK', onPress: () => router.back() }
+    Alert.alert(t('common.done'), t('profile.saveProfile'), [
+      { text: t('common.done'), onPress: () => router.back() }
     ]);
   };
 
-  const currentCategory = bmiResult !== null ? getBMICategory(bmiResult) : 'Unknown';
+  const currentCategoryKey = bmiResult !== null ? getBMICategory(bmiResult) : null;
+  const currentCategoryTranslated = currentCategoryKey ? t(`bmi.category.${currentCategoryKey}` as any) : '--';
   const userAge = userProfile?.age ?? 25;
   const isUnderage = userAge < 18;
 
   // Category Color Map
-  const getCategoryColor = (category: string) => {
+  const getCategoryColor = (category: string | null) => {
     switch (category) {
       case 'Normal weight':
         return PALETTE.success;
@@ -150,7 +143,7 @@ export default function BMICalculatorScreen() {
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <ChevronLeft color={colors.textPrimary} size={24} />
           </Pressable>
-          <Typography variant="h3">BMI Calculator</Typography>
+          <Typography variant="h3">{t('bmi.title')}</Typography>
           <View style={{ width: 24 }} />
         </View>
 
@@ -158,11 +151,11 @@ export default function BMICalculatorScreen() {
           
           <Card style={styles.card}>
             <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>
-              Calculate Body Mass Index (BMI) using your height and current weight.
+              {t('bmi.explanation')}
             </Typography>
 
             <InputField
-              label="Height (cm)"
+              label={t('bmi.heightLabel')}
               value={heightInput}
               onChangeText={setHeightInput}
               keyboardType="decimal-pad"
@@ -170,7 +163,7 @@ export default function BMICalculatorScreen() {
             />
 
             <InputField
-              label="Weight (kg)"
+              label={t('bmi.weightLabel')}
               value={weightInput}
               onChangeText={setWeightInput}
               keyboardType="decimal-pad"
@@ -184,22 +177,21 @@ export default function BMICalculatorScreen() {
             )}
 
             <View style={styles.buttonRow}>
-              <Button title="Calculate" onPress={handleCalculate} style={{ width: '100%' }} />
-              <Button title="Save to Profile" variant="outline" onPress={handleSaveToProfile} style={{ width: '100%' }} />
+              <Button title={t('common.confirm')} onPress={handleCalculate} style={{ width: '100%' }} />
+              <Button title={t('profile.saveProfile')} variant="outline" onPress={handleSaveToProfile} style={{ width: '100%' }} />
             </View>
           </Card>
 
           {/* Results Summary */}
           {bmiResult !== null && (
             <Card style={styles.resultCard}>
-              <Typography variant="caption" color={PALETTE.charcoal.light}>YOUR BMI</Typography>
-              <Typography variant="dataValue" style={[styles.resultValue, { color: getCategoryColor(currentCategory) }]}>
+              <Typography variant="caption" color={PALETTE.charcoal.light}>{t('bmi.resultTitle')}</Typography>
+              <Typography variant="dataValue" style={[styles.resultValue, { color: getCategoryColor(currentCategoryKey) }]}>
                 {bmiResult.toFixed(1)}
               </Typography>
-              
-              <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(currentCategory) + '15' }]}>
-                <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', color: getCategoryColor(currentCategory) }}>
-                  {currentCategory.toUpperCase()}
+              <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(currentCategoryKey) + '15' }]}>
+                <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', color: getCategoryColor(currentCategoryKey) }}>
+                  {currentCategoryTranslated.toUpperCase()}
                 </Typography>
               </View>
 

@@ -90,11 +90,11 @@ export const NativeAdComponent: React.FC<{ screen?: ScreenName; style?: object }
           <Text style={styles.adBadgeText}>{sponsoredLabel}</Text>
         </View>
         <Text style={[styles.nativeTitle, { color: colors.textPrimary }]}>
-          Destya Fitness & Wellness Partner
+          {t('ads.partnerTitle')}
         </Text>
       </View>
       <Text style={[styles.nativeBody, { color: colors.textSecondary }]}>
-        Explore cycle-synced organic nutrition, recovery tools & certified fitness gear tailored for your active phase.
+        {t('ads.partnerBody')}
       </Text>
       <Pressable
         style={({ pressed }) => [
@@ -102,9 +102,9 @@ export const NativeAdComponent: React.FC<{ screen?: ScreenName; style?: object }
           { backgroundColor: colors.primary },
           pressed && { opacity: 0.85 },
         ]}
-        onPress={() => Alert.alert('Sponsored Offer', 'Opening Destya Studio partner catalog...')}
+        onPress={() => Alert.alert(t('common.sponsored'), t('ads.partnerBody'))}
       >
-        <Text style={[styles.nativeCtaText, { color: colors.primaryText }]}>Explore Offers</Text>
+        <Text style={[styles.nativeCtaText, { color: colors.primaryText }]}>{t('ads.explore')}</Text>
         <ExternalLink color={colors.primaryText} size={12} style={{ marginLeft: 6 }} />
       </Pressable>
     </View>

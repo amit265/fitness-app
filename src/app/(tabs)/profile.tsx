@@ -37,10 +37,11 @@ import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { t } from '../../i18n';
 
 export default function ProfileScreen() {
-  const { colors, isDark } = useAppTheme();
   const router = useRouter();
+  const { colors, isDark } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
 
-  // Store actions & data
+  // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
   const cyclePreferences = useAppStore((state) => state.cyclePreferences);
   const measurements = useAppStore((state) => state.measurements);
@@ -50,16 +51,16 @@ export default function ProfileScreen() {
   const currentHeight = userProfile?.height ?? 165;
   const currentWeight = measurements[0]?.weight ?? 62;
   const bmiVal = calculateBMI(currentWeight, currentHeight);
-  const bmiCategory = getBMICategory(bmiVal);
+  const bmiCategoryKey = getBMICategory(bmiVal);
 
   const handleResetData = () => {
     Alert.alert(
-      'Reset All App Data?',
-      'This will permanently delete all logged meals, workouts, weight points, and cycle records. This action cannot be undone.',
+      t('settings.resetData'),
+      t('settings.resetDataConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Reset Everything',
+          text: t('settings.resetData'),
           style: 'destructive',
           onPress: () => {
             resetStore();
@@ -75,7 +76,7 @@ export default function ProfileScreen() {
         
         {/* Header Bar with Settings Gear Button */}
         <View style={[styles.headerBar, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
-          <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Profile & Health Hub</Typography>
+          <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>{t('profile.title')}</Typography>
           <Pressable
             style={({ pressed }) => [styles.settingsGearBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.7 }]}
             onPress={() => router.push('/settings')}
@@ -99,19 +100,19 @@ export default function ProfileScreen() {
             </View>
 
             <Typography variant="h1" style={styles.userNameText}>
-              {userProfile?.name || 'Sarah'}
+              {userProfile?.name || 'User'}
             </Typography>
             <View style={styles.memberTagPill}>
               <Sparkles size={13} color={colors.primary} />
               <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
-                Sini AI Member · Cycle-Aware Fitness
+                {t('common.appName')} · {t('common.tagline')}
               </Typography>
             </View>
 
             <View style={styles.biometricsStrip}>
               <View style={styles.bioItem}>
-                <Typography variant="caption" color={colors.subtext}>AGE</Typography>
-                <Typography variant="bodyMedium" style={styles.bioValue}>{userProfile?.age || 28} yrs</Typography>
+                <Typography variant="caption" color={colors.subtext}>{t('onboarding.ageLabel')}</Typography>
+                <Typography variant="bodyMedium" style={styles.bioValue}>{userProfile?.age || 28} {t('common.years')}</Typography>
               </View>
               <View style={[styles.bioDivider, { backgroundColor: colors.border }]} />
               <View style={styles.bioItem}>
@@ -146,7 +147,7 @@ export default function ProfileScreen() {
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>BMI & Body Composition</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  {bmiCategory} ({bmiVal.toFixed(1)}) · {currentWeight} kg
+                  {t('bmi.title')} ({bmiVal.toFixed(1)}) · {currentWeight} kg
                 </Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />

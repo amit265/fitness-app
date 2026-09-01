@@ -7,6 +7,7 @@ import { SPACING } from '../constants/theme';
 import { ExternalLink } from 'lucide-react-native';
 import { logAnalyticsEvent } from '../services/analyticsService';
 import { useAppTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 import rawAppData from '../../assets/appData.json';
 
 interface AppItem {
@@ -44,14 +45,14 @@ export const DestyaStudioAppsHub: React.FC = () => {
     <Card style={styles.card}>
       <View style={styles.headerRow}>
         <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
-          More from Destya Studio
+          {t('crossPromo.moreFromDestya')}
         </Typography>
         <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
-          {activeApps.length} APPS
+          {t('crossPromo.appsCount', { count: activeApps.length })}
         </Typography>
       </View>
       <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: SPACING.md }}>
-        Discover our suite of productivity, social, and entertainment mobile apps.
+        {t('crossPromo.subtitle')}
       </Typography>
 
       <View style={styles.appList}>

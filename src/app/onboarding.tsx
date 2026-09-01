@@ -23,6 +23,7 @@ import { t } from '../i18n';
 export default function OnboardingScreen() {
   const router = useRouter();
   const { colors, isDark } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
   const setUserProfile = useAppStore((state) => state.setUserProfile);
   const setCyclePreferences = useAppStore((state) => state.setCyclePreferences);
   const addPeriodLog = useAppStore((state) => state.addPeriodLog);

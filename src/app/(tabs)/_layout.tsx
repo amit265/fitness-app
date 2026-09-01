@@ -103,16 +103,15 @@ export default function TabsLayout() {
         <Pressable style={styles.modalOverlay} onPress={() => setDownloadModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginBottom: 4 }}>
-              Sini AI: Cycle & Fitness
+              {t('webModal.title')}
             </Typography>
             <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 16, lineHeight: 18 }}>
-              Experience full Sini AI calorie tracking, natural food logging, cycle calendar syncing, and personalized coaching on mobile.
+              {t('webModal.description')}
             </Typography>
 
             <View style={{ gap: 8, marginTop: 8 }}>
-              <Button title="📱 Download on Play Store" onPress={handleOpenStore} />
-              <Button title=" Download on App Store" variant="outline" onPress={handleOpenStore} />
-              <Button title="Continue Web Preview" variant="secondary" onPress={() => setDownloadModalVisible(false)} />
+              <Button title={t('webModal.downloadBtn')} onPress={handleOpenStore} />
+              <Button title={t('common.close')} variant="secondary" onPress={() => setDownloadModalVisible(false)} />
             </View>
           </Pressable>
         </Pressable>

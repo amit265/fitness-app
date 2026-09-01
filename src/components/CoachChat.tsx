@@ -28,6 +28,7 @@ import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Send, X, User as UserIcon, RotateCcw, Flag, Sparkles } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 interface CoachChatProps {
   visible: boolean;
@@ -61,12 +62,20 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
     {
       id: 'welcome',
       role: 'assistant',
-      content: `Hello! I'm Sini, your cycle-aware fitness companion. How can I support your nutrition, movement, or cycle today?`,
+      content: t('coach.welcome'),
       timestamp: new Date().toISOString(),
     },
   ]);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
+
+  const quickActions = [
+    t('coach.quickActions.logFood'),
+    t('coach.quickActions.planDinner'),
+    t('coach.quickActions.planWorkout'),
+    t('coach.quickActions.explainCalories'),
+    t('coach.quickActions.howAmIDoing'),
+  ];
 
   // Handle initial query if provided when modal opens
   useEffect(() => {
@@ -102,8 +111,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
 
     const calBalance = getDailyCalorieBalance(today, meals, activities, userProfile, measurements);
     const todayMeals = meals.filter((m) => m.timestamp.split('T')[0] === today);
-    const loggedMealsSummary = todayMeals.map((m) => `${m.name} (${m.calories} kcal)`).join(', ') || 'None logged yet';
-    const loggedWorkoutsSummary = todayActivities.map((a) => `${a.type} ${a.durationMinutes}m`).join(', ') || 'None logged yet';
+    const loggedMealsSummary = todayMeals.map((m) => `${m.name} (${m.calories} kcal)`).join(', ') || t('coach.noneLogged');
+    const loggedWorkoutsSummary = todayActivities.map((a) => `${a.type} ${a.durationMinutes}m`).join(', ') || t('coach.noneLogged');
 
     const eatingPattern = analyzeEatingPatterns(meals, userProfile);
 
@@ -136,19 +145,19 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
 
   const handleClearChat = () => {
     Alert.alert(
-      'Clear Conversation?',
-      'Would you like to reset your chat history with Sini?',
+      t('coach.clearChat'),
+      t('coach.confirmClear'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => {
             setMessages([
               {
-                id: 'welcome-' + Date.now(),
+                id: 'welcome',
                 role: 'assistant',
-                content: `Hello! I'm Sini, your cycle-aware fitness companion. How can I support your nutrition, movement, or cycle today?`,
+                content: t('coach.welcome'),
                 timestamp: new Date().toISOString(),
               },
             ]);
@@ -158,44 +167,39 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
     );
   };
 
-  const handleSendText = async (textToSend: string) => {
-    if (!textToSend.trim() || sending) return;
+  const handleSendText = async (text: string) => {
+    if (!text.trim() || sending) return;
 
-    const userMessage: ChatMessage = {
-      id: Math.random().toString(36).substring(7),
-      role: 'user',
-      content: textToSend.trim(),
-      timestamp: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage].slice(-30));
+    const userMessageText = text.trim();
     setInputText('');
     setSending(true);
 
+    const userMsg: ChatMessage = {
+      id: Math.random().toString(36).substring(7),
+      role: 'user',
+      content: userMessageText,
+      timestamp: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, userMsg].slice(-30));
+
     try {
       const context = getContext();
-      const currentHistory = [...messages, userMessage];
+      const answer = await answerCoachQuestion(userMessageText, messages, context, userProfile?.groqApiKey);
 
-      const response = await answerCoachQuestion(
-        userMessage.content,
-        currentHistory,
-        context,
-        userProfile?.groqApiKey
-      );
-
-      const assistantMessage: ChatMessage = {
+      const assistantMsg: ChatMessage = {
         id: Math.random().toString(36).substring(7),
         role: 'assistant',
-        content: response,
+        content: answer,
         timestamp: new Date().toISOString(),
       };
 
-      setMessages((prev) => [...prev, assistantMessage].slice(-30));
+      setMessages((prev) => [...prev, assistantMsg].slice(-30));
     } catch (e: any) {
       const errorMessage: ChatMessage = {
         id: Math.random().toString(36).substring(7),
         role: 'assistant',
-        content: `I'm having trouble connecting right now. Let's try again in a moment.`,
+        content: t('errors.aiError'),
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage].slice(-30));
@@ -214,8 +218,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
           <View style={styles.headerTitleRow}>
             <SiniAvatar size={38} variant="plum" />
             <View>
-              <Typography variant="h2" style={styles.headerTitle}>Sini</Typography>
-              <Typography variant="caption" color={colors.subtext}>Your cycle-aware fitness companion</Typography>
+              <Typography variant="h2" style={styles.headerTitle}>{t('coach.title')}</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('coach.subtitle')}</Typography>
             </View>
           </View>
 
@@ -236,7 +240,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
           {/* Quick Action Chips Horizontal Bar */}
           <View style={[styles.quickActionsContainer, { borderBottomColor: colors.border }]}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsScroll}>
-              {QUICK_ACTIONS.map((action, idx) => (
+              {quickActions.map((action, idx) => (
                 <Pressable
                   key={idx}
                   style={({ pressed }) => [
@@ -293,19 +297,6 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                     ]}
                   >
                     <MarkdownText text={m.content} isCoach={isCoach} />
-                    {isCoach && (
-                      <Pressable
-                        style={styles.flagBtn}
-                        onPress={() =>
-                          Alert.alert('Response Reported', 'Thank you. Sini AI output feedback has been submitted.')
-                        }
-                      >
-                        <Flag color={colors.subtext} size={11} />
-                        <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10, marginLeft: 4 }}>
-                          Report Output
-                        </Typography>
-                      </Pressable>
-                    )}
                   </View>
                 </View>
               );
@@ -323,7 +314,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
           {/* AI Compliance Disclaimer Banner */}
           <View style={[styles.disclaimerRow, { backgroundColor: colors.surface }]}>
             <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10, textAlign: 'center', lineHeight: 14 }}>
-              Sini AI provides empathetic coaching & guidance. Not medical diagnosis.
+              {t('coach.disclaimer')}
             </Typography>
           </View>
 
@@ -332,7 +323,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
             <TextInput
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Ask Sini about your nutrition, cycle, or workout..."
+              placeholder={t('coach.askPlaceholder')}
               placeholderTextColor={colors.subtext}
               style={[
                 styles.textInput,

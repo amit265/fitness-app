@@ -362,15 +362,15 @@ export default function LogScreen() {
       <Modal visible={mealModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setMealModalVisible(false)}>
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>Log Meal</Typography>
-            <InputField label="Food Description" value={manualMealName} onChangeText={setManualMealName} placeholder="e.g. Avocado Toast" />
-            <InputField label="Calories (kcal)" value={manualMealCal} onChangeText={setManualMealCal} keyboardType="numeric" placeholder="e.g. 350" />
-            <InputField label="Protein (g)" value={manualMealProt} onChangeText={setManualMealProt} keyboardType="numeric" placeholder="e.g. 18" />
-            <InputField label="Carbs (g)" value={manualMealCarb} onChangeText={setManualMealCarb} keyboardType="numeric" placeholder="e.g. 30" />
-            <InputField label="Fat (g)" value={manualMealFat} onChangeText={setManualMealFat} keyboardType="numeric" placeholder="e.g. 12" />
+            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logMealHeader')}</Typography>
+            <InputField label={t('nutrition.mealName')} value={manualMealName} onChangeText={setManualMealName} placeholder={t('log.mealPlaceholder')} />
+            <InputField label={t('nutrition.calories')} value={manualMealCal} onChangeText={setManualMealCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
+            <InputField label={t('nutrition.protein')} value={manualMealProt} onChangeText={setManualMealProt} keyboardType="numeric" placeholder="18" />
+            <InputField label={t('nutrition.carbs')} value={manualMealCarb} onChangeText={setManualMealCarb} keyboardType="numeric" placeholder="30" />
+            <InputField label={t('nutrition.fat')} value={manualMealFat} onChangeText={setManualMealFat} keyboardType="numeric" placeholder="12" />
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title="Cancel" variant="outline" onPress={() => setMealModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Save Meal" variant="nutrition" onPress={handleManualMealSubmit} style={{ flex: 1 }} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setMealModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('common.save')} variant="nutrition" onPress={handleManualMealSubmit} style={{ flex: 1 }} />
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -380,12 +380,12 @@ export default function LogScreen() {
       <Modal visible={workoutModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setWorkoutModalVisible(false)}>
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>Log Workout</Typography>
-            <InputField label="Duration (minutes)" value={manualWorkDur} onChangeText={setManualWorkDur} keyboardType="numeric" placeholder="e.g. 45" />
-            <InputField label="Calories Burned (~kcal optional)" value={manualWorkCal} onChangeText={setManualWorkCal} keyboardType="numeric" placeholder="Auto estimated if empty" />
+            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logActivityHeader')}</Typography>
+            <InputField label={t('activity.duration')} value={manualWorkDur} onChangeText={setManualWorkDur} keyboardType="numeric" placeholder={t('log.durationPlaceholder')} />
+            <InputField label={t('activity.caloriesBurned')} value={manualWorkCal} onChangeText={setManualWorkCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title="Cancel" variant="outline" onPress={() => setWorkoutModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Save Workout" variant="positive" onPress={handleManualWorkoutSubmit} style={{ flex: 1 }} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setWorkoutModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('common.save')} variant="positive" onPress={handleManualWorkoutSubmit} style={{ flex: 1 }} />
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -395,11 +395,11 @@ export default function LogScreen() {
       <Modal visible={weightModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setWeightModalVisible(false)}>
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>Log Weight</Typography>
-            <InputField label="Weight (kg)" value={manualWeight} onChangeText={setManualWeight} keyboardType="decimal-pad" placeholder="e.g. 62.5" />
+            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logWeightHeader')}</Typography>
+            <InputField label={t('progress.currentWeight')} value={manualWeight} onChangeText={setManualWeight} keyboardType="decimal-pad" placeholder={t('log.weightPlaceholder')} />
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title="Cancel" variant="outline" onPress={() => setWeightModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Save Weight" variant="primary" onPress={handleManualWeightSubmit} style={{ flex: 1 }} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setWeightModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('common.save')} variant="primary" onPress={handleManualWeightSubmit} style={{ flex: 1 }} />
             </View>
           </ScrollView>
         </SafeAreaView>

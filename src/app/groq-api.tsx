@@ -19,10 +19,12 @@ import { SPACING } from '../constants/theme';
 import { ArrowLeft, Key, Sparkles, ExternalLink, ShieldCheck } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { APP_LINKS } from '../constants/links';
+import { t } from '../i18n';
 
 export default function GroqApiScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
 
   const userProfile = useAppStore((state) => state.userProfile);
   const setUserProfile = useAppStore((state) => state.setUserProfile);
@@ -50,12 +52,12 @@ export default function GroqApiScreen() {
 
   const handleClearKey = () => {
     Alert.alert(
-      'Remove Groq API Key?',
-      'Are you sure you want to remove your custom Groq API Key? The app will revert to local offline intelligence.',
+      t('settings.groqApiKeySection'),
+      t('settings.resetDataConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Remove Key',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => {
             setApiKey('');
@@ -81,8 +83,8 @@ export default function GroqApiScreen() {
             <ArrowLeft color={colors.textPrimary} size={22} />
           </Pressable>
           <View style={{ alignItems: 'center' }}>
-            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Custom AI Setup</Typography>
-            <Typography variant="caption" color={colors.subtext}>Groq Cloud AI Engine</Typography>
+            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>{t('groq.setupTitle')}</Typography>
+            <Typography variant="caption" color={colors.subtext}>{t('groq.setupSubtitle')}</Typography>
           </View>
           <View style={{ width: 36 }} />
         </View>
@@ -96,18 +98,18 @@ export default function GroqApiScreen() {
                 <Sparkles size={20} color={colors.primary} />
               </View>
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
-                Why Add Your Own AI Key?
+                {t('groq.setupTitle')}
               </Typography>
             </View>
             <Typography variant="bodyMedium" color={colors.subtext} style={{ lineHeight: 22, marginTop: 4 }}>
-              Sini AI comes with a built-in offline smart engine. Adding your own free <Typography variant="bodyMedium" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>Groq API Key</Typography> enables hyper-fast, natural language food logging, dynamic meal estimations, and personal cycle-aware fitness advice!
+              {t('groq.setupSubtitle')}
             </Typography>
           </View>
 
           {/* CARD 2: HOW TO GET A FREE KEY */}
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginBottom: 12 }}>
-              How to Get a Free Groq Key
+              {t('groq.getKeyTitle')}
             </Typography>
 
             {/* Step 1 */}
@@ -117,15 +119,7 @@ export default function GroqApiScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium">
-                  Visit{' '}
-                  <Typography
-                    variant="bodyMedium"
-                    color={colors.primary}
-                    style={{ fontFamily: 'Outfit-Bold', textDecorationLine: 'underline' }}
-                    onPress={() => Linking.openURL(APP_LINKS.groqConsole)}
-                  >
-                    console.groq.com/keys
-                  </Typography>
+                  {t('groq.getKeyStep1')}
                 </Typography>
               </View>
             </View>
@@ -137,7 +131,7 @@ export default function GroqApiScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium">
-                  Sign up or log in using your Google account (100% Free Developer Tier).
+                  {t('groq.getKeyStep2')}
                 </Typography>
               </View>
             </View>
@@ -149,7 +143,7 @@ export default function GroqApiScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium">
-                  Tap <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>"Create API Key"</Typography>, name it "Sini AI", and copy the generated key (starts with <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>gsk_</Typography>).
+                  {t('groq.getKeyStep3')}
                 </Typography>
               </View>
             </View>
@@ -160,7 +154,7 @@ export default function GroqApiScreen() {
             >
               <ExternalLink size={16} color={colors.primary} />
               <Typography variant="bodySmall" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-                Open console.groq.com in Browser
+                console.groq.com
               </Typography>
             </Pressable>
           </View>
@@ -173,38 +167,35 @@ export default function GroqApiScreen() {
               </View>
               <View style={{ marginLeft: 10, flex: 1 }}>
                 <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
-                  Save Your API Key
-                </Typography>
-                <Typography variant="caption" color={userProfile?.groqApiKey ? colors.primary : colors.subtext}>
-                  {userProfile?.groqApiKey ? '✓ Custom Groq Key Connected' : 'Stored securely on device only'}
+                  {t('settings.groqApiKeySection')}
                 </Typography>
               </View>
             </View>
 
             <InputField
-              label="Groq API Key (starts with gsk_)"
+              label={t('settings.groqApiKeySection')}
               value={apiKey}
               onChangeText={setApiKey}
               secureTextEntry={true}
-              placeholder="gsk_yourApiKeyHere"
+              placeholder={t('settings.apiKeyPlaceholder')}
             />
 
             {savedSuccess && (
               <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginBottom: 10 }}>
-                ✓ API Key Saved Successfully!
+                ✓ {t('groq.savedSuccess')}
               </Typography>
             )}
 
             <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
               <Button
-                title={savedSuccess ? 'Saved! ✓' : 'Save Key'}
+                title={savedSuccess ? `✓ ${t('common.done')}` : t('common.save')}
                 variant="primary"
                 onPress={handleSaveKey}
                 style={{ flex: 1 }}
               />
               {apiKey.length > 0 && (
                 <Button
-                  title="Clear"
+                  title={t('common.cancel')}
                   variant="outline"
                   onPress={handleClearKey}
                   style={{ borderColor: colors.border }}
@@ -217,7 +208,7 @@ export default function GroqApiScreen() {
           <View style={[styles.privacyBox, { backgroundColor: colors.surface }]}>
             <ShieldCheck size={18} color={colors.primary} />
             <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 8, flex: 1, lineHeight: 16 }}>
-              Your API key is saved locally in private app storage. It is never sent to external tracking servers or third parties.
+              {t('groq.securityNotice')}
             </Typography>
           </View>
 

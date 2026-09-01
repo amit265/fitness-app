@@ -405,12 +405,12 @@ export default function DedicatedCyclePage() {
               >
                 <HelpCircle color={colors.primary} size={14} />
                 <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', fontSize: 11 }}>
-                  How it works
+                  {t('cycle.howItWorks')}
                 </Typography>
               </Pressable>
             </View>
             <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
-              Track your period & explore phase-by-phase insights
+              {t('cycle.guideSubtitle')}
             </Typography>
           </View>
         </View>
@@ -421,12 +421,12 @@ export default function DedicatedCyclePage() {
             <View style={styles.statusTitleCol}>
               <Heart color={JEWEL_COLORS.period} size={22} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', flexShrink: 1 }}>
-                {userProfile?.pauseCycleTracking ? 'Tracking Paused' : `${t('cycle.currentDay', { day: todayCycleState.cycleDay })} • ${t('cycle.phase.' + todayCycleState.phase)}`}
+                {userProfile?.pauseCycleTracking ? t('cycle.notLogged') : `${t('cycle.currentDay', { day: todayCycleState.cycleDay })} • ${t('cycle.phase.' + todayCycleState.phase)}`}
               </Typography>
             </View>
             <View style={[styles.confidenceBadge, { backgroundColor: stats.confidence === 'high' ? colors.successBg : colors.warningBg }]}>
               <Typography variant="caption" color={stats.confidence === 'high' ? colors.success : colors.warning} style={{ fontFamily: 'Outfit-Bold' }}>
-                {stats.confidence.toUpperCase()} CONFIDENCE
+                {t('cycle.confidenceLabel')}: {stats.confidence.toUpperCase()}
               </Typography>
             </View>
           </View>
@@ -434,7 +434,7 @@ export default function DedicatedCyclePage() {
           <View style={styles.statusGrid}>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Typography variant="caption" color={colors.subtext} style={styles.statusLabelText}>
-                NEXT PERIOD
+                {t('cycle.nextPeriodLabel')}
               </Typography>
               <Typography
                 variant="bodySmall"
@@ -443,12 +443,12 @@ export default function DedicatedCyclePage() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                {nextPeriodDateStr}
+                {nextPeriodDateStr === 'Not logged' ? t('cycle.notLogged') : nextPeriodDateStr}
               </Typography>
             </View>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Typography variant="caption" color={colors.subtext} style={styles.statusLabelText}>
-                CYCLE LENGTH
+                {t('cycle.cycleLengthLabel')}
               </Typography>
               <Typography
                 variant="bodySmall"
@@ -457,12 +457,12 @@ export default function DedicatedCyclePage() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                ~{stats.averageCycleLength} Days
+                ~{stats.averageCycleLength} {t('common.days_other', { count: stats.averageCycleLength })}
               </Typography>
             </View>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Typography variant="caption" color={colors.subtext} style={styles.statusLabelText}>
-                PERIOD DURATION
+                {t('cycle.periodDurationLabel')}
               </Typography>
               <Typography
                 variant="bodySmall"
@@ -471,7 +471,7 @@ export default function DedicatedCyclePage() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                ~{stats.averagePeriodDuration} Days
+                ~{stats.averagePeriodDuration} {t('common.days_other', { count: stats.averagePeriodDuration })}
               </Typography>
             </View>
           </View>

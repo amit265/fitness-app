@@ -40,6 +40,7 @@ type TimeWindow = 7 | 30 | 90;
 export default function ProgressScreen() {
   const router = useRouter();
   const { colors, isDark } = useAppTheme();
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
 
   // Store bindings
   const measurements = useAppStore((state) => state.measurements);
@@ -75,7 +76,8 @@ export default function ProgressScreen() {
   // BMI calculations
   const currentHeight = userProfile?.height ?? 0;
   const bmiScore = latestWeight && currentHeight > 0 ? calculateBMI(latestWeight, currentHeight) : 0;
-  const bmiCategory = getBMICategory(bmiScore);
+  const bmiCategoryKey = getBMICategory(bmiScore);
+  const bmiCategoryTranslated = bmiCategoryKey ? t(`bmi.category.${bmiCategoryKey}` as any) : '--';
 
   // Latest Body Measurements
   const latestWaist = measurements.find((m) => m.waist !== undefined)?.waist;
@@ -105,9 +107,11 @@ export default function ProgressScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>See how you're changing</Typography>
-          <Typography variant="bodyMedium" color={colors.subtext}>
-            Weight, body measurements, calories & physical rhythms
+          <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>
+            {t('progress.title')}
+          </Typography>
+          <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
+            {t('progress.weightTrend')}
           </Typography>
         </View>
 
@@ -115,17 +119,11 @@ export default function ProgressScreen() {
         <Card style={styles.card}>
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Scale color={colors.primary} size={20} />
+              <TrendingUp color={colors.primary} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Weight Progress
+                {t('progress.weightTrend')}
               </Typography>
             </View>
-            <Pressable onPress={() => setMeasureModalVisible(true)} style={styles.addBtn}>
-              <Plus size={16} color={colors.primary} />
-              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
-                Log Weight
-              </Typography>
-            </Pressable>
           </View>
 
           {/* Time Window Chips */}
@@ -140,7 +138,7 @@ export default function ProgressScreen() {
                 onPress={() => setTimeWindow(days as TimeWindow)}
               >
                 <Typography variant="caption" color={timeWindow === days ? colors.primaryText : colors.textPrimary}>
-                  {days} Days
+                  {days === 7 ? t('progress.range7d') : days === 30 ? t('progress.range30d') : t('progress.rangeAll')}
                 </Typography>
               </Pressable>
             ))}
@@ -149,21 +147,21 @@ export default function ProgressScreen() {
           {/* Summary Stat Grid */}
           <View style={styles.statGrid}>
             <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>Current Weight</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('progress.currentWeight')}</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>
                 {latestWeight ? `${latestWeight} kg` : '--'}
               </Typography>
             </View>
             <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>Overall Change</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('progress.weightChange')}</Typography>
               <Typography variant="h2" color={weightChange && weightChange <= 0 ? colors.activity : colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
                 {weightChange !== null ? `${weightChange > 0 ? '+' : ''}${weightChange} kg` : '--'}
               </Typography>
             </View>
             <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>BMI Category</Typography>
-              <Typography variant="h3" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', textTransform: 'capitalize' }}>
-                {bmiCategory || '--'}
+              <Typography variant="caption" color={colors.subtext}>BMI</Typography>
+              <Typography variant="h3" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
+                {bmiCategoryTranslated}
               </Typography>
             </View>
           </View>
@@ -180,37 +178,37 @@ export default function ProgressScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ruler color={colors.period} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Body Measurements (cm)
+                {t('progress.logMeasurement')}
               </Typography>
             </View>
             <Pressable onPress={() => setMeasureModalVisible(true)}>
               <Typography variant="caption" color={colors.period} style={{ fontFamily: 'Outfit-Bold' }}>
-                + Update
+                + {t('common.edit')}
               </Typography>
             </Pressable>
           </View>
 
           <View style={styles.measurementsGrid}>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>Waist</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('progress.waist')}</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestWaist ? `${latestWaist} cm` : '--'}
               </Typography>
             </View>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>Hips</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('progress.hips')}</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestHips ? `${latestHips} cm` : '--'}
               </Typography>
             </View>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>Chest</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('progress.chest')}</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestChest ? `${latestChest} cm` : '--'}
               </Typography>
             </View>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>Thigh</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('progress.thigh')}</Typography>
               <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 {latestThigh ? `${latestThigh} cm` : '--'}
               </Typography>
@@ -224,12 +222,12 @@ export default function ProgressScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Flame color={colors.nutrition} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Nutrition & Activity Summary
+                {t('nutrition.title')} & {t('activity.title')}
               </Typography>
             </View>
           </View>
           <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-            Total Logged Meals: {meals.length} · Workouts: {activities.length}
+            {t('nutrition.recentMeals')}: {meals.length} · {t('activity.recentWorkouts')}: {activities.length}
           </Typography>
         </Card>
 
@@ -239,17 +237,17 @@ export default function ProgressScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <CalendarIcon color={colors.activity} size={20} />
               <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Cycle & Recovery History
+                {t('cycle.cycleHistory')}
               </Typography>
             </View>
             <Pressable onPress={() => router.push('/cycle')}>
               <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
-                Full Calendar →
+                {t('home.viewDetails')} →
               </Typography>
             </Pressable>
           </View>
           <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-            Recorded Period Cycles: {periods.length} · Check-Ins: {Object.keys(dailyCheckIns).length}
+            {t('cycle.title')}: {periods.length}
           </Typography>
         </Card>
 
