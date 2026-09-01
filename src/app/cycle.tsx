@@ -369,67 +369,78 @@ export default function DedicatedCyclePage() {
   const isCurrentMonthView = viewDate.getMonth() === new Date().getMonth() && viewDate.getFullYear() === new Date().getFullYear();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {/* Header */}
         <View style={styles.header}>
-          <Pressable style={styles.backBtn} onPress={() => router.back()}>
-            <ArrowLeft color={PALETTE.sage.default} size={22} />
+          <Pressable
+            style={({ pressed }) => [
+              styles.backBtn,
+              { backgroundColor: colors.surface },
+              pressed && { opacity: 0.8 },
+            ]}
+            onPress={() => router.back()}
+          >
+            <ArrowLeft color={colors.primary} size={22} />
           </Pressable>
           <View style={{ flex: 1, marginLeft: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Typography variant="h3" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
+              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
                 Cycle Guide
               </Typography>
               <Pressable
-                style={styles.howItWorksPill}
+                style={({ pressed }) => [
+                  styles.howItWorksPill,
+                  { backgroundColor: colors.surface },
+                  pressed && { opacity: 0.8 },
+                ]}
                 onPress={() => setTutorialModalVisible(true)}
               >
-                <HelpCircle color={PALETTE.sage.default} size={14} />
-                <Typography variant="caption" color={PALETTE.sage.dark} style={{ fontFamily: 'Outfit-Bold', fontSize: 11 }}>
+                <HelpCircle color={colors.primary} size={14} />
+                <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', fontSize: 11 }}>
                   How it works
                 </Typography>
               </Pressable>
             </View>
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2 }}>
+            <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
               Track your period & explore phase-by-phase insights
             </Typography>
           </View>
         </View>
 
         {/* 1. Cycle Status Summary Card (FIXED TO TODAY) */}
-        <Card style={[styles.statusCard, { backgroundColor: isDark ? '#1C1A18' : '#FFFFFF' }]}>
+        <Card style={[styles.statusCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.statusHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={styles.statusTitleCol}>
               <Heart color={JEWEL_COLORS.period} size={22} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', flexShrink: 1 }}>
                 {userProfile?.pauseCycleTracking ? 'Tracking Paused' : `${t('cycle.currentDay', { day: todayCycleState.cycleDay })} • ${t('cycle.phase.' + todayCycleState.phase)}`}
               </Typography>
             </View>
-            <View style={[styles.confidenceBadge, { backgroundColor: stats.confidence === 'high' ? '#D1FAE5' : '#FEF3C7' }]}>
-              <Typography variant="caption" color={stats.confidence === 'high' ? '#059669' : '#D97706'} style={{ fontFamily: 'Outfit-Bold' }}>
+            <View style={[styles.confidenceBadge, { backgroundColor: stats.confidence === 'high' ? colors.successBg : colors.warningBg }]}>
+              <Typography variant="caption" color={stats.confidence === 'high' ? colors.success : colors.warning} style={{ fontFamily: 'Outfit-Bold' }}>
                 {stats.confidence.toUpperCase()} CONFIDENCE
               </Typography>
             </View>
           </View>
 
           <View style={styles.statusGrid}>
-            <View style={styles.statusGridItem}>
-              <Typography variant="caption" color={PALETTE.charcoal.light}>NEXT PERIOD</Typography>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 2 }}>
+            <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Typography variant="caption" color={colors.subtext}>NEXT PERIOD</Typography>
+              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }} numberOfLines={2}>
                 {nextPeriodDateStr}
               </Typography>
             </View>
-            <View style={styles.statusGridItem}>
-              <Typography variant="caption" color={PALETTE.charcoal.light}>CYCLE LENGTH</Typography>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 2 }}>
+            <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Typography variant="caption" color={colors.subtext}>CYCLE LENGTH</Typography>
+              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 ~{stats.averageCycleLength} Days
               </Typography>
             </View>
-            <View style={styles.statusGridItem}>
-              <Typography variant="caption" color={PALETTE.charcoal.light}>PERIOD DURATION</Typography>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 2 }}>
+            <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Typography variant="caption" color={colors.subtext}>PERIOD DURATION</Typography>
+              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
                 ~{stats.averagePeriodDuration} Days
               </Typography>
             </View>
@@ -437,10 +448,10 @@ export default function DedicatedCyclePage() {
         </Card>
 
         {/* 2. Interactive Vibrant Jewel-Tone Calendar View */}
-        <Card style={styles.calendarCard}>
+        <Card style={[styles.calendarCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.calendarHeaderRow}>
-            <Pressable onPress={handlePrevMonth} style={styles.monthNavBtn}>
-              <ChevronLeft color={PALETTE.sage.default} size={20} />
+            <Pressable onPress={handlePrevMonth} style={[styles.monthNavBtn, { backgroundColor: colors.surface }]}>
+              <ChevronLeft color={colors.primary} size={20} />
             </Pressable>
             
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -448,23 +459,23 @@ export default function DedicatedCyclePage() {
                 {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
               </Typography>
               {!isCurrentMonthView && (
-                <Pressable style={styles.todaySnapBtn} onPress={handleResetToToday}>
-                  <Typography variant="caption" color={PALETTE.sage.dark} style={{ fontFamily: 'Outfit-Bold', fontSize: 10 }}>
+                <Pressable style={[styles.todaySnapBtn, { backgroundColor: colors.surface }]} onPress={handleResetToToday}>
+                  <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', fontSize: 10 }}>
                     Today
                   </Typography>
                 </Pressable>
               )}
             </View>
 
-            <Pressable onPress={handleNextMonth} style={styles.monthNavBtn}>
-              <ChevronRight color={PALETTE.sage.default} size={20} />
+            <Pressable onPress={handleNextMonth} style={[styles.monthNavBtn, { backgroundColor: colors.surface }]}>
+              <ChevronRight color={colors.primary} size={20} />
             </Pressable>
           </View>
 
           {/* Days of Week Header */}
           <View style={styles.weekdayHeaderRow}>
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
-              <Typography key={idx} variant="caption" color={PALETTE.charcoal.light} style={styles.weekdayText}>
+              <Typography key={idx} variant="caption" color={colors.subtext} style={styles.weekdayText}>
                 {day}
               </Typography>
             ))}
@@ -1078,31 +1089,48 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   statusCard: {
-    padding: SPACING.lg,
+    padding: SPACING.md,
     marginBottom: SPACING.md,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   statusHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
     marginBottom: SPACING.md,
   },
+  statusTitleCol: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+    minWidth: 180,
+  },
   confidenceBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 100,
   },
   statusGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: SPACING.xs,
+    flexWrap: 'wrap',
+    gap: 8,
   },
   statusGridItem: {
     flex: 1,
+    minWidth: 100,
+    padding: SPACING.sm + 2,
+    borderRadius: 14,
+    borderWidth: 1,
   },
   calendarCard: {
-    padding: SPACING.lg,
+    padding: SPACING.md,
     marginBottom: SPACING.md,
+    borderRadius: 20,
+    borderWidth: 1,
   },
   calendarHeaderRow: {
     flexDirection: 'row',
