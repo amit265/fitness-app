@@ -74,6 +74,7 @@ interface CalendarCellState {
   isFertile: boolean;
   isPeak: boolean;
   isOvulation: boolean;
+  hasSymptoms?: boolean;
 }
 
 export default function DedicatedCyclePage() {
@@ -191,6 +192,9 @@ export default function DedicatedCyclePage() {
     const dayInCycle = state.cycleDay > 0 ? ((state.cycleDay - 1) % stats.averageCycleLength) + 1 : 1;
     const fertileInfo = isFertileDay(dayInCycle, stats.averageCycleLength);
 
+    const checkIn = dailyCheckIns[cellDateStr];
+    const hasSymptoms = checkIn && checkIn.symptoms && checkIn.symptoms.length > 0;
+
     const cellState: CalendarCellState = {
       ...state,
       isConfirmed: !!confirmedLog,
@@ -199,6 +203,7 @@ export default function DedicatedCyclePage() {
       isFertile: fertileInfo.isFertile,
       isPeak: fertileInfo.isPeak,
       isOvulation: fertileInfo.isPeak && dayInCycle === (stats.averageCycleLength - 14),
+      hasSymptoms: !!hasSymptoms,
     };
 
     return { cellDateStr, cellState };
@@ -566,9 +571,21 @@ export default function DedicatedCyclePage() {
 
                   {/* Indicators */}
                   <View style={styles.indicatorRow}>
-                    {cellState.isConfirmed && <View style={[styles.jewelDot, { backgroundColor: '#FFFFFF' }]} />}
-                    {cellState.isFertile && !cellState.isConfirmed && <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.fertile }]} />}
-                    {cellState.isOvulation && !cellState.isConfirmed && <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.ovulation }]} />}
+                    {(cellState.phase === 'menstrual' || cellState.isConfirmed) && (
+                      <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.period }]} />
+                    )}
+                    {cellState.isFertile && (
+                      <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.fertile }]} />
+                    )}
+                    {(cellState.isOvulation || cellState.phase === 'ovulatory') && (
+                      <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.ovulation }]} />
+                    )}
+                    {cellState.phase === 'luteal' && (
+                      <View style={[styles.jewelDot, { backgroundColor: JEWEL_COLORS.luteal }]} />
+                    )}
+                    {cellState.hasSymptoms && (
+                      <View style={[styles.jewelDot, { backgroundColor: colors.primary }]} />
+                    )}
                   </View>
                 </Pressable>
               );
@@ -579,19 +596,23 @@ export default function DedicatedCyclePage() {
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.period }]} />
-              <Typography variant="caption" color={PALETTE.charcoal.light}>Period</Typography>
+              <Typography variant="caption" color={colors.subtext}>Period</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.fertile }]} />
-              <Typography variant="caption" color={PALETTE.charcoal.light}>Fertile</Typography>
+              <Typography variant="caption" color={colors.subtext}>Fertile</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.ovulation }]} />
-              <Typography variant="caption" color={PALETTE.charcoal.light}>Ovulation</Typography>
+              <Typography variant="caption" color={colors.subtext}>Ovulation</Typography>
             </View>
             <View style={styles.legendItem}>
               <View style={[styles.legendDot, { backgroundColor: JEWEL_COLORS.luteal }]} />
-              <Typography variant="caption" color={PALETTE.charcoal.light}>Luteal</Typography>
+              <Typography variant="caption" color={colors.subtext}>Luteal</Typography>
+            </View>
+            <View style={styles.legendItem}>
+              <View style={[styles.legendDot, { backgroundColor: colors.primary }]} />
+              <Typography variant="caption" color={colors.subtext}>Logged</Typography>
             </View>
           </View>
         </Card>
