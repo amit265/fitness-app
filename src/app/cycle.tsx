@@ -358,7 +358,7 @@ export default function DedicatedCyclePage() {
 
   // Calculate next predicted period start date string
   const latestPeriod = periods.length > 0 ? [...periods].sort((a, b) => b.startDate.localeCompare(a.startDate))[0] : null;
-  const nextPeriodDateStr = latestPeriod ? addDays(latestPeriod.startDate, stats.averageCycleLength) : 'Log period to predict';
+  const nextPeriodDateStr = latestPeriod ? addDays(latestPeriod.startDate, stats.averageCycleLength) : 'Not logged';
 
   const handleResetToToday = () => {
     const now = new Date();
@@ -427,20 +427,44 @@ export default function DedicatedCyclePage() {
 
           <View style={styles.statusGrid}>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Typography variant="caption" color={colors.subtext}>NEXT PERIOD</Typography>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }} numberOfLines={2}>
+              <Typography variant="caption" color={colors.subtext} style={styles.statusLabelText}>
+                NEXT PERIOD
+              </Typography>
+              <Typography
+                variant="bodySmall"
+                color={colors.textPrimary}
+                style={styles.statusValueText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 {nextPeriodDateStr}
               </Typography>
             </View>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Typography variant="caption" color={colors.subtext}>CYCLE LENGTH</Typography>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
+              <Typography variant="caption" color={colors.subtext} style={styles.statusLabelText}>
+                CYCLE LENGTH
+              </Typography>
+              <Typography
+                variant="bodySmall"
+                color={colors.textPrimary}
+                style={styles.statusValueText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 ~{stats.averageCycleLength} Days
               </Typography>
             </View>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Typography variant="caption" color={colors.subtext}>PERIOD DURATION</Typography>
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
+              <Typography variant="caption" color={colors.subtext} style={styles.statusLabelText}>
+                PERIOD DURATION
+              </Typography>
+              <Typography
+                variant="bodySmall"
+                color={colors.textPrimary}
+                style={styles.statusValueText}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+              >
                 ~{stats.averagePeriodDuration} Days
               </Typography>
             </View>
@@ -1114,17 +1138,31 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 100,
   },
+  statusLabelText: {
+    fontSize: 9.5,
+    fontFamily: 'Outfit-Bold',
+    letterSpacing: 0.3,
+    textAlign: 'center',
+  },
+  statusValueText: {
+    fontSize: 12,
+    fontFamily: 'Outfit-Bold',
+    marginTop: 3,
+    textAlign: 'center',
+  },
   statusGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    gap: 6,
   },
   statusGridItem: {
     flex: 1,
-    minWidth: 100,
-    padding: SPACING.sm + 2,
-    borderRadius: 14,
+    minWidth: 90,
+    paddingHorizontal: 6,
+    paddingVertical: 10,
+    borderRadius: 12,
     borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   calendarCard: {
     padding: SPACING.md,
