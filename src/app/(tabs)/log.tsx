@@ -353,7 +353,7 @@ export default function LogScreen() {
             </Card>
           ))}
 
-// BannerAdComponent removed per spec section 13 & 14
+          {/* BannerAdComponent removed per spec section 13 & 14 */}
 
         </ScrollView>
       </KeyboardAvoidingView>
