@@ -66,6 +66,7 @@ export default function TodayScreen() {
   const meals = useAppStore((state) => state.meals);
   const measurements = useAppStore((state) => state.measurements);
   const streak = useAppStore((state) => state.streak);
+  const uiLanguage = useAppStore((state) => state.uiLanguage);
   const dailyInsightCache = useAppStore((state) => state.dailyInsightCache);
   const setCachedInsight = useAppStore((state) => state.setCachedInsight);
   const setDailyCheckIn = useAppStore((state) => state.setDailyCheckIn);
@@ -169,8 +170,8 @@ export default function TodayScreen() {
   };
 
   useEffect(() => {
-    fetchDailyInsight(false);
-  }, [todayStr]);
+    fetchDailyInsight(true);
+  }, [todayStr, uiLanguage]);
 
 
   // Check-In Form State
@@ -506,13 +507,13 @@ export default function TodayScreen() {
           {/* Quick Log Action Buttons Row */}
           <View style={styles.quickLogButtonsRow}>
             <Button
-              title="+ Log Food"
+              title={`+ ${t('nutrition.logFood')}`}
               variant="nutrition"
               onPress={() => router.push('/(tabs)/log')}
               style={styles.heroActionBtn}
             />
             <Button
-              title="+ Activity"
+              title={`+ ${t('activity.logWorkout')}`}
               variant="positive"
               onPress={() => router.push('/(tabs)/log')}
               style={styles.heroActionBtn}
@@ -525,7 +526,7 @@ export default function TodayScreen() {
           <View style={styles.siniHeaderRow}>
             <SiniAvatar size={30} variant="plum" />
             <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
-              Sini's suggestion
+              {t('home.dailyInsightTitle')}
             </Typography>
           </View>
 
@@ -543,7 +544,7 @@ export default function TodayScreen() {
           >
             <Sparkles size={14} color={colors.primary} />
             <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-              Ask Sini to elaborate
+              {t('home.askSiniCoach')}
             </Typography>
           </Pressable>
         </Card>
