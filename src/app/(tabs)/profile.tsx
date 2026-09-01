@@ -9,8 +9,6 @@ import {
   Platform,
 } from 'react-native';
 import { Typography } from '../../components/Typography';
-import { Card } from '../../components/Card';
-import { Button } from '../../components/Button';
 import { SiniAvatar } from '../../components/SiniAvatar';
 import { useAppStore } from '../../store/useAppStore';
 import { DestyaStudioFooter } from '../../components/DestyaStudioFooter';
@@ -25,7 +23,13 @@ import {
   Award,
   Calendar as CalendarIcon,
   ChevronRight,
+  User,
   Sliders,
+  Sparkles,
+  Flame,
+  ShieldCheck,
+  Moon,
+  Zap,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
@@ -41,15 +45,15 @@ export default function ProfileScreen() {
   const streak = useAppStore((state) => state.streak);
   const resetStore = useAppStore((state) => state.resetStore);
 
-  const currentHeight = userProfile?.height ?? 0;
-  const currentWeight = measurements[0]?.weight ?? 0;
+  const currentHeight = userProfile?.height ?? 165;
+  const currentWeight = measurements[0]?.weight ?? 62;
   const bmiVal = calculateBMI(currentWeight, currentHeight);
   const bmiCategory = getBMICategory(bmiVal);
 
   const handleResetData = () => {
     Alert.alert(
-      'Reset App State?',
-      'This will delete all saved logs, meals, workouts, weight data, and configuration. This action is permanent.',
+      'Reset All App Data?',
+      'This will permanently delete all logged meals, workouts, weight points, and cycle records. This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -68,153 +72,156 @@ export default function ProfileScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* Clean Screen Header */}
-          <View style={styles.header}>
-            <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>Profile & Account</Typography>
-            <Typography variant="bodyMedium" color={colors.subtext}>
-              Sini AI biometrics, cycle parameters & preferences
+          {/* Top Hero User Identity Card */}
+          <View style={[styles.heroProfileCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.avatarWrapper}>
+              <SiniAvatar size={76} variant="plum" />
+              <View style={styles.streakBadgeOverlay}>
+                <Flame size={14} color={PALETTE.gold.default} />
+                <Typography variant="caption" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 2 }}>
+                  {streak?.currentStreak || 1}d
+                </Typography>
+              </View>
+            </View>
+
+            <Typography variant="h1" style={styles.userNameText}>
+              {userProfile?.name || 'Sarah'}
             </Typography>
+            <View style={styles.memberTagPill}>
+              <Sparkles size={13} color={PALETTE.plum.default} />
+              <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                Sini AI Member · Cycle-Aware Fitness
+              </Typography>
+            </View>
+
+            <View style={styles.biometricsStrip}>
+              <View style={styles.bioItem}>
+                <Typography variant="caption" color={colors.subtext}>AGE</Typography>
+                <Typography variant="bodyMedium" style={styles.bioValue}>{userProfile?.age || 28} yrs</Typography>
+              </View>
+              <View style={styles.bioDivider} />
+              <View style={styles.bioItem}>
+                <Typography variant="caption" color={colors.subtext}>HEIGHT</Typography>
+                <Typography variant="bodyMedium" style={styles.bioValue}>{currentHeight} cm</Typography>
+              </View>
+              <View style={styles.bioDivider} />
+              <View style={styles.bioItem}>
+                <Typography variant="caption" color={colors.subtext}>WEIGHT</Typography>
+                <Typography variant="bodyMedium" style={styles.bioValue}>{currentWeight} kg</Typography>
+              </View>
+              <View style={styles.bioDivider} />
+              <View style={styles.bioItem}>
+                <Typography variant="caption" color={colors.subtext}>BMI</Typography>
+                <Typography variant="bodyMedium" color={PALETTE.plum.default} style={styles.bioValue}>{bmiVal.toFixed(1)}</Typography>
+              </View>
+            </View>
           </View>
 
-          {/* 1. Quick Navigation Hub Buttons (Dedicated Calendar & Settings buttons inside screen) */}
-          <View style={styles.quickNavRow}>
+          {/* GROUP 1: HEALTH & CYCLE PROFILE */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            HEALTH & CYCLE PROFILE
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
             <Pressable
-              style={({ pressed }) => [
-                styles.navTile,
-                { backgroundColor: PALETTE.rose.bg, borderColor: PALETTE.rose.default },
-                pressed && styles.pressedTile,
-              ]}
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => router.push('/edit-profile')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg }]}>
+                <User size={18} color={PALETTE.terracotta.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Profile & Goals</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  {(userProfile?.weightGoal || 'wellness').toUpperCase()} · {(userProfile?.regionalCuisine || 'indian').toUpperCase()} cuisine
+                </Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/cycle')}
             >
-              <CalendarIcon color={PALETTE.plum.default} size={24} />
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Typography variant="bodyMedium" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                  Cycle Calendar
-                </Typography>
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.rose.bg }]}>
+                <CalendarIcon size={18} color={PALETTE.rose.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Cycle Parameters</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  Phase history & tracking
+                  {cyclePreferences?.typicalCycleLength || 28}d cycle · {cyclePreferences?.typicalPeriodDuration || 5}d period
                 </Typography>
               </View>
-              <ChevronRight color={PALETTE.plum.default} size={18} />
+              <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
 
+            <View style={styles.rowSeparator} />
+
             <Pressable
-              style={({ pressed }) => [
-                styles.navTile,
-                { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.default, borderColor: colors.border },
-                pressed && styles.pressedTile,
-              ]}
-              onPress={() => router.push('/settings')}
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => router.push('/bmi')}
             >
-              <Settings color={PALETTE.plum.default} size={24} />
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Typography variant="bodyMedium" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                  App Settings
-                </Typography>
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg }]}>
+                <Ruler size={18} color={PALETTE.sage.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>BMI & Body Composition</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  AI key, theme & language
+                  {bmiCategory} ({bmiVal.toFixed(1)})
                 </Typography>
               </View>
-              <ChevronRight color={PALETTE.plum.default} size={18} />
+              <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
           </View>
 
-          {/* 2. Streak Banner */}
-          <Card style={[styles.streakBannerCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.oat.bg, borderColor: colors.border }]}>
-            <View style={styles.streakBannerRow}>
-              <View style={{ flex: 1 }}>
-                <Typography variant="h3" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                  🔥 {streak?.currentStreak || 1} Day Active Streak
-                </Typography>
-                <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
-                  Personal Best: {streak?.longestStreak || 1} consecutive days logged
+          {/* GROUP 2: APP PREFERENCES & AI INTEGRATION */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            APP & PREFERENCES
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => router.push('/settings')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
+                <Settings size={18} color={PALETTE.plum.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>App Settings & Groq AI Key</Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  {userProfile?.groqApiKey ? '✓ Groq API Key Connected' : 'Local Offline Mode (Tap to add key)'}
                 </Typography>
               </View>
-              <Award color={PALETTE.gold.default} size={30} />
-            </View>
-          </Card>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+          </View>
 
-          {/* 3. User Profile Summary */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <SiniAvatar size={34} variant="plum" />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
-                Sini Companion Profile
-              </Typography>
-            </View>
-
-            <View style={styles.profileSummaryRow}>
-              <View style={{ flex: 1 }}>
-                <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>
-                  {userProfile?.name || 'Sarah'} ({userProfile?.age || 28} yrs)
+          {/* GROUP 3: DATA & ACCOUNT ACTIONS */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            DATA & ECOSYSTEM
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={handleResetData}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: '#FADBD8' }]}>
+                <Trash2 size={18} color={PALETTE.error} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" color={PALETTE.error} style={{ fontFamily: 'Outfit-Bold' }}>
+                  Reset All Logs & App Data
                 </Typography>
-                <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
-                  Goal: {(userProfile?.weightGoal || 'wellness').toUpperCase()} • {userProfile?.height || 165} cm
-                </Typography>
-                <Typography variant="caption" color={PALETTE.plum.default} style={{ marginTop: 4 }}>
-                  Cuisine: {(userProfile?.regionalCuisine || 'indian').toUpperCase()} • Diet: {(userProfile?.dietaryPreference || 'anything').toUpperCase()}
-                </Typography>
-                <Typography variant="caption" color={PALETTE.rose.default} style={{ marginTop: 4, fontFamily: 'Outfit-Bold' }}>
-                  Cycle: {cyclePreferences?.typicalCycleLength || 28}d length • Period: {cyclePreferences?.typicalPeriodDuration || 5}d
+                <Typography variant="caption" color={colors.subtext}>
+                  Clear all meals, workouts, weight points & cycle history
                 </Typography>
               </View>
-            </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+          </View>
 
-            <Button
-              title="Edit Profile & Preferences"
-              variant="secondary"
-              onPress={() => router.push('/edit-profile')}
-              style={{ marginTop: SPACING.md }}
-            />
-          </Card>
-
-          {/* 4. Health & Biometrics */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Ruler color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Biometrics
-              </Typography>
-            </View>
-
-            <View style={styles.metricsRow}>
-              <View style={styles.metricItem}>
-                <Typography variant="caption" color={colors.subtext}>HEIGHT</Typography>
-                <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold' }}>
-                  {currentHeight > 0 ? `${currentHeight} cm` : 'Not set'}
-                </Typography>
-              </View>
-              <View style={styles.metricItem}>
-                <Typography variant="caption" color={colors.subtext}>WEIGHT</Typography>
-                <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold' }}>
-                  {currentWeight > 0 ? `${currentWeight} kg` : 'Not logged'}
-                </Typography>
-              </View>
-              <View style={styles.metricItem}>
-                <Typography variant="caption" color={colors.subtext}>BMI</Typography>
-                <Typography variant="bodyLarge" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                  {bmiVal > 0 ? `${bmiVal.toFixed(1)}` : 'N/A'}
-                </Typography>
-              </View>
-            </View>
-
-            <Button
-              title="Calculate BMI & Health Metrics"
-              variant="outline"
-              onPress={() => router.push('/bmi')}
-              style={{ marginTop: SPACING.md }}
-            />
-          </Card>
-
-          {/* Reset App Data */}
-          <Pressable onPress={handleResetData} style={styles.resetBtn}>
-            <Trash2 color={PALETTE.error} size={18} />
-            <Typography variant="bodyMedium" color={PALETTE.error} style={{ marginLeft: 6, fontFamily: 'Outfit-Bold' }}>
-              Reset All App Logs & Data
-            </Typography>
-          </Pressable>
-
-          {/* Cross Promo & Footer */}
+          {/* Cross Promotion Hub & Destya Footer */}
           <DestyaStudioAppsHub />
           <DestyaStudioFooter />
 
@@ -228,27 +235,106 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: {
     padding: SPACING.md,
-    paddingBottom: 140, // Increased bottom padding for comfortable scrollability past floating tab bar
-    gap: SPACING.md,
+    paddingBottom: 140,
+    gap: SPACING.sm,
   },
-  header: { marginBottom: SPACING.xs },
-  quickNavRow: { gap: 10 },
-  navTile: {
+  heroProfileCard: {
+    padding: SPACING.lg,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
+  },
+  avatarWrapper: {
+    position: 'relative',
+    marginBottom: SPACING.sm,
+  },
+  streakBadgeOverlay: {
+    position: 'absolute',
+    bottom: -2,
+    right: -4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FAF5EA',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 100,
+    borderWidth: 1,
+    borderColor: PALETTE.gold.default,
+  },
+  userNameText: {
+    fontFamily: 'Outfit-Bold',
+    fontSize: 26,
+    lineHeight: 30,
+  },
+  memberTagPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: PALETTE.plum.bg,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 100,
+    marginTop: 6,
+  },
+  biometricsStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: SPACING.md,
+    paddingTop: SPACING.sm,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.06)',
+  },
+  bioItem: {
+    alignItems: 'center',
+  },
+  bioValue: {
+    fontFamily: 'Outfit-Bold',
+    marginTop: 2,
+  },
+  bioDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: 'rgba(0,0,0,0.08)',
+  },
+  sectionHeaderTitle: {
+    fontFamily: 'Outfit-Bold',
+    fontSize: 11,
+    letterSpacing: 0.8,
+    marginTop: SPACING.xs,
+    marginLeft: 4,
+  },
+  groupedCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  rowItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: SPACING.md,
-    borderRadius: 16,
-    borderWidth: 1,
   },
-  pressedTile: {
-    opacity: 0.8,
+  pressedRow: {
+    opacity: 0.75,
   },
-  streakBannerCard: { padding: SPACING.md, borderWidth: 1 },
-  streakBannerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  card: { padding: SPACING.md },
-  cardHeaderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm },
-  profileSummaryRow: { marginTop: 4 },
-  metricsRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: SPACING.sm },
-  metricItem: { flex: 1, alignItems: 'center' },
-  resetBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
+  rowIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rowTextCol: {
+    flex: 1,
+    marginLeft: SPACING.sm,
+  },
+  rowTitle: {
+    fontFamily: 'Outfit-Bold',
+  },
+  rowSeparator: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    marginLeft: 62,
+  },
 });

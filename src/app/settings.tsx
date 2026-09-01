@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
-  useColorScheme,
   ScrollView,
   Pressable,
   Modal,
@@ -25,11 +24,13 @@ import {
   HelpCircle,
   BookOpen,
   ShieldAlert,
-  RotateCcw,
   Trash2,
   Bell,
   Palette,
   Sparkles,
+  ChevronRight,
+  Globe,
+  Database,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useAdContext } from '../context/AdContext';
@@ -40,7 +41,7 @@ import { useAppTheme, MOOD_THEME_PALETTES, MoodThemeKey } from '../context/Theme
 export default function SettingsScreen() {
   const router = useRouter();
   const { isAdFree, grantAdFreeHours, setPremiumStatus } = useAdContext();
-  const { themeKey, isDark, setThemeKey } = useAppTheme();
+  const { themeKey, isDark, setThemeKey, colors } = useAppTheme();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -66,7 +67,7 @@ export default function SettingsScreen() {
   const handleLanguageChange = (lang: string) => {
     setCurrentLangState(lang);
     setAppLanguage(lang);
-    Alert.alert('Language Updated', `App language updated to ${lang.toUpperCase()}.`);
+    Alert.alert('Language Updated', `App language set to ${lang.toUpperCase()}.`);
   };
 
   const handleRestorePurchases = () => {
@@ -81,7 +82,6 @@ export default function SettingsScreen() {
     });
   };
 
-  // Auto-save API key
   const handleSaveApiKey = (key: string) => {
     setApiKey(key);
     if (userProfile) {
@@ -94,10 +94,9 @@ export default function SettingsScreen() {
     }
   };
 
-  // Reset store with confirmation
   const handleResetData = () => {
     Alert.alert(
-      'Reset App State?',
+      'Reset All App Data?',
       'This will delete all logged meals, workouts, weight records, and period history. This action cannot be undone.',
       [
         { text: 'Cancel', style: 'cancel' },
@@ -114,382 +113,352 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        {/* Top Header */}
-        <View style={[styles.header, { borderBottomColor: isDark ? '#2E2B28' : '#ECE9E4' }]}>
+
+        {/* Header Bar */}
+        <View style={[styles.header, { borderBottomColor: colors.border }]}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
-            <ArrowLeft color={isDark ? PALETTE.cream : PALETTE.charcoal.default} size={22} />
+            <ArrowLeft color={colors.text} size={22} />
           </Pressable>
           <Typography variant="h2" style={styles.headerTitle}>App Settings</Typography>
-          <View style={{ width: 24 }} />
+          <View style={{ width: 36 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-          {/* Groq AI Settings */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Key color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3">Groq AI API Setup</Typography>
-            </View>
 
-            <InputField
-              label="Custom Groq API Key (gsk_...)"
-              value={apiKey}
-              secureTextEntry={true}
-              onChangeText={handleSaveApiKey}
-              placeholder="gsk_yourApiKeyHere"
-            />
-
-            {savedKeySuccess && (
-              <Typography variant="caption" color="#10B981" style={{ marginTop: 2, fontFamily: 'Outfit-Bold' }}>
-                ✓ API Key Auto-Saved!
-              </Typography>
-            )}
-
-            <Typography variant="caption" color={PALETTE.charcoal.light} style={styles.captionText}>
-              Used client-side for dynamic food parsing and conversational coaching. Keys are stored locally on your device.
-            </Typography>
-
-            <Pressable
-              style={styles.tutorialTriggerBtn}
-              onPress={() => setTutorialModalVisible(true)}
-            >
-              <HelpCircle color={PALETTE.sage.default} size={18} />
-              <Typography variant="bodySmall" color={PALETTE.sage.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-                How to get a free Groq API Key?
-              </Typography>
-            </Pressable>
-          </Card>
-
-          {/* Premium & AdMob Section */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Sparkles color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3">Membership & Ad-Free Experience</Typography>
-            </View>
-
-            <View style={styles.toggleRow}>
-              <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium">Status</Typography>
-                <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : PALETTE.charcoal.light} style={{ fontFamily: 'Outfit-Bold' }}>
-                  {isAdFree ? '✨ AD-FREE / PREMIUM ACTIVE' : 'FREE USER (ADS ENABLED)'}
+          {/* GROUP 1: SINI AI & CLOUD INTEGRATION */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            INTELLIGENCE & AI ENGINE
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.cardPadding}>
+              <View style={styles.cardHeaderRow}>
+                <Key color={PALETTE.plum.default} size={20} />
+                <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+                  Groq Cloud AI Integration
                 </Typography>
               </View>
-            </View>
 
-            <View style={{ gap: 10, marginTop: 8 }}>
-              {!isAdFree && (
-                <Button
-                  title="🎬 Watch Ad for 1-Hour Ad-Free"
-                  variant="outline"
-                  onPress={handleWatchAdReward}
-                />
+              <InputField
+                label="Groq API Key (starts with gsk_)"
+                value={apiKey}
+                secureTextEntry={true}
+                onChangeText={handleSaveApiKey}
+                placeholder="gsk_yourApiKeyHere"
+              />
+
+              {savedKeySuccess && (
+                <Typography variant="caption" color={PALETTE.sage.default} style={{ marginTop: 2, fontFamily: 'Outfit-Bold' }}>
+                  ✓ API Key Auto-Saved!
+                </Typography>
               )}
-              <Button
-                title="🔄 Restore Purchases"
-                variant="outline"
-                onPress={handleRestorePurchases}
-              />
-            </View>
-          </Card>
 
-          {/* Preferences */}
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <Bell color={PALETTE.sage.default} size={20} />
-              <Typography variant="h3">Preferences, Theme & Language</Typography>
-            </View>
+              <Typography variant="caption" color={colors.subtext} style={{ marginTop: 4, lineHeight: 16 }}>
+                Enables natural-language food logging and Sini AI conversational completions. Stored 100% locally.
+              </Typography>
 
-            <View style={styles.toggleRow}>
-              <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium">Daily Target Reminders</Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light}>
-                  Receive gentle notifications for check-in and water targets.
+              <Pressable
+                style={styles.tutorialLinkBtn}
+                onPress={() => setTutorialModalVisible(true)}
+              >
+                <HelpCircle color={PALETTE.plum.default} size={16} />
+                <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+                  How to get a free Groq API Key?
+                </Typography>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* GROUP 2: APPEARANCE & THEMES */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            APPEARANCE & THEMES
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.cardPadding}>
+              <View style={styles.cardHeaderRow}>
+                <Palette color={PALETTE.rose.default} size={20} />
+                <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+                  Mood & Rhythm Theme
                 </Typography>
               </View>
-              <Switch
-                value={notificationsEnabled}
-                onValueChange={setNotificationsEnabled}
-                trackColor={{ false: '#ECE9E4', true: PALETTE.sage.default }}
-              />
-            </View>
 
-            <View style={styles.toggleRow}>
-              <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium">Mood & Rhythm App Palette</Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light}>
-                  Sync your app colors with your daily mood or cycle phase.
-                </Typography>
-              </View>
-            </View>
-
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6, marginBottom: 16 }}>
-              {(Object.keys(MOOD_THEME_PALETTES) as MoodThemeKey[]).map((key) => {
-                const item = MOOD_THEME_PALETTES[key];
-                const isSelected = themeKey === key;
-                return (
-                  <Pressable
-                    key={key}
-                    onPress={() => setThemeKey(key)}
-                    style={{
-                      width: '48%',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      padding: 10,
-                      borderRadius: 14,
-                      borderWidth: isSelected ? 2 : 1,
-                      borderColor: isSelected ? PALETTE.sage.default : isDark ? '#2E2B28' : '#ECE9E4',
-                      backgroundColor: isSelected
-                        ? isDark ? '#2A2724' : '#F4F8F5'
-                        : isDark ? '#1F1C1A' : '#FAF8F5',
-                    }}
-                  >
-                    <Text style={{ fontSize: 18, marginRight: 8 }}>{item.icon}</Text>
-                    <View style={{ flex: 1 }}>
+              <View style={styles.themeGrid}>
+                {(Object.keys(MOOD_THEME_PALETTES) as MoodThemeKey[]).map((key) => {
+                  const item = MOOD_THEME_PALETTES[key];
+                  const isSelected = themeKey === key;
+                  return (
+                    <Pressable
+                      key={key}
+                      onPress={() => setThemeKey(key)}
+                      style={[
+                        styles.themeChip,
+                        {
+                          borderColor: isSelected ? PALETTE.plum.default : colors.border,
+                          backgroundColor: isSelected
+                            ? (isDark ? PALETTE.darkBg : PALETTE.oat.default)
+                            : (isDark ? PALETTE.darkCard : PALETTE.cream),
+                        },
+                      ]}
+                    >
+                      <Text style={{ fontSize: 16, marginRight: 6 }}>{item.icon}</Text>
                       <Typography
                         variant="caption"
                         style={{ fontFamily: isSelected ? 'Outfit-Bold' : 'Outfit-Medium' }}
-                        color={isSelected ? PALETTE.sage.default : isDark ? PALETTE.cream : PALETTE.charcoal.default}
+                        color={isSelected ? PALETTE.plum.default : colors.text}
                       >
                         {item.name}
                       </Typography>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
 
-            <View style={[styles.toggleRow, { borderBottomWidth: 0 }]}>
-              <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium">App Language</Typography>
-                <Typography variant="caption" color={PALETTE.charcoal.light}>
-                  Select your primary language.
+              <View style={styles.rowSeparator} />
+
+              <View style={styles.settingRowInline}>
+                <View style={{ flex: 1 }}>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>App Language</Typography>
+                  <Typography variant="caption" color={colors.subtext}>Primary display language</Typography>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                  {['en', 'es', 'id'].map((lang) => (
+                    <Pressable
+                      key={lang}
+                      onPress={() => handleLanguageChange(lang)}
+                      style={[
+                        styles.langPill,
+                        { backgroundColor: currentLang === lang ? PALETTE.plum.default : colors.border },
+                      ]}
+                    >
+                      <Typography
+                        variant="caption"
+                        color={currentLang === lang ? PALETTE.oat.default : colors.text}
+                        style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
+                      >
+                        {lang}
+                      </Typography>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* GROUP 3: MEMBERSHIP & ADS */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            MEMBERSHIP & EXPERIENCE
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.cardPadding}>
+              <View style={styles.cardHeaderRow}>
+                <Sparkles color={PALETTE.gold.default} size={20} />
+                <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+                  Ad-Free Experience
                 </Typography>
               </View>
-              <View style={{ flexDirection: 'row', gap: 6 }}>
-                {['en', 'es', 'id'].map((lang) => (
-                  <Pressable
-                    key={lang}
-                    onPress={() => handleLanguageChange(lang)}
-                    style={{
-                      paddingHorizontal: 10,
-                      paddingVertical: 4,
-                      borderRadius: 8,
-                      backgroundColor: currentLang === lang ? PALETTE.sage.default : '#ECE9E4',
-                    }}
-                  >
-                    <Typography
-                      variant="caption"
-                      color={currentLang === lang ? PALETTE.white : PALETTE.charcoal.default}
-                      style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
-                    >
-                      {lang}
-                    </Typography>
-                  </Pressable>
-                ))}
+
+              <View style={styles.settingRowInline}>
+                <View style={{ flex: 1 }}>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Current Status</Typography>
+                  <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : colors.subtext}>
+                    {isAdFree ? '✨ AD-FREE ACTIVE' : 'Free Tier (Non-intrusive ads)'}
+                  </Typography>
+                </View>
+              </View>
+
+              <View style={{ gap: 10, marginTop: 10 }}>
+                {!isAdFree && (
+                  <Button
+                    title="🎬 Watch Ad for 1-Hour Ad-Free"
+                    variant="outline"
+                    onPress={handleWatchAdReward}
+                  />
+                )}
+                <Button
+                  title="🔄 Restore Purchases"
+                  variant="secondary"
+                  onPress={handleRestorePurchases}
+                />
               </View>
             </View>
-          </Card>
+          </View>
 
-          {/* Storage Diagnostics */}
-          <Card style={styles.diagnosticCard}>
-            <View style={styles.cardHeaderRow}>
-              <ShieldAlert color="#E67E22" size={20} />
-              <Typography variant="h3" color="#E67E22">Storage & Cache Diagnostics</Typography>
-            </View>
-            
-            <View style={styles.diagnosticRow}>
-              <Typography variant="bodySmall">Period Logs Cached:</Typography>
-              <Typography variant="bodySmall" style={styles.boldText}>{periods.length} records</Typography>
-            </View>
-            <View style={styles.diagnosticRow}>
-              <Typography variant="bodySmall">Daily Check-Ins Cached:</Typography>
-              <Typography variant="bodySmall" style={styles.boldText}>{Object.keys(dailyCheckIns).length} records</Typography>
-            </View>
-            <View style={styles.diagnosticRow}>
-              <Typography variant="bodySmall">Logged Meals Cached:</Typography>
-              <Typography variant="bodySmall" style={styles.boldText}>{meals.length} records</Typography>
-            </View>
-            <View style={styles.diagnosticRow}>
-              <Typography variant="bodySmall">Workouts Cached:</Typography>
-              <Typography variant="bodySmall" style={styles.boldText}>{activities.length} records</Typography>
-            </View>
+          {/* GROUP 4: DIAGNOSTICS & RESET */}
+          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
+            DIAGNOSTICS & DATA
+          </Typography>
+          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+            <View style={styles.cardPadding}>
+              <View style={styles.cardHeaderRow}>
+                <Database color={PALETTE.sage.default} size={20} />
+                <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+                  Storage Diagnostics
+                </Typography>
+              </View>
 
-            <View style={styles.btnDivider} />
+              <View style={styles.diagRow}>
+                <Typography variant="caption" color={colors.subtext}>Cached Meals:</Typography>
+                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>{meals.length} items</Typography>
+              </View>
+              <View style={styles.diagRow}>
+                <Typography variant="caption" color={colors.subtext}>Cached Workouts:</Typography>
+                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>{activities.length} items</Typography>
+              </View>
+              <View style={styles.diagRow}>
+                <Typography variant="caption" color={colors.subtext}>Period Records:</Typography>
+                <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>{periods.length} records</Typography>
+              </View>
 
-            <Button
-              title="🧪 Seed 45-Day Mock Testing Data"
-              variant="outline"
-              onPress={() => {
-                seedMockData();
-                Alert.alert('Demo Data Loaded', 'Populated 45 days of realistic testing data for fitness, cycle, workouts, meals, and measurements!');
-              }}
-              style={{ marginBottom: 8 }}
-            />
+              <View style={{ gap: 10, marginTop: 12 }}>
+                <Button
+                  title="🧪 Seed 45-Day Mock Testing Data"
+                  variant="outline"
+                  onPress={() => {
+                    seedMockData();
+                    Alert.alert('Demo Data Loaded', 'Loaded 45 days of realistic testing data!');
+                  }}
+                />
+                <Button
+                  title="Reset All App Data"
+                  variant="outline"
+                  onPress={handleResetData}
+                  style={{ borderColor: PALETTE.error }}
+                />
+              </View>
+            </View>
+          </View>
 
-            <Button
-              title="Reset All App Data"
-              variant="outline"
-              onPress={handleResetData}
-              style={styles.dangerBtn}
-            />
-          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
 
       {/* API Key Tutorial Modal */}
       <Modal visible={tutorialModalVisible} transparent animationType="slide" onRequestClose={() => setTutorialModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setTutorialModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
+          <Pressable style={[styles.modalContent, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white }]}>
             <View style={styles.modalHeader}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <BookOpen color={PALETTE.sage.default} size={24} />
-                <Typography variant="h2">Free Groq API Key Setup</Typography>
-              </View>
+              <BookOpen color={PALETTE.plum.default} size={24} />
+              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+                Free Groq API Key Setup
+              </Typography>
             </View>
 
-            <ScrollView style={{ maxHeight: 350, marginVertical: SPACING.sm }} showsVerticalScrollIndicator={false}>
-              <View style={styles.tutorialStepItem}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', color: PALETTE.sage.default }}>
-                  Step 1: Open Groq Console
-                </Typography>
-                <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={{ marginTop: 2 }}>
-                  Visit <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>console.groq.com</Typography> in your browser.
-                </Typography>
-              </View>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 8, lineHeight: 22 }}>
+              1. Visit console.groq.com on your phone or PC.{"\n"}
+              2. Sign up for a free developer account.{"\n"}
+              3. Navigate to API Keys and tap "Create API Key".{"\n"}
+              4. Copy your key (starts with gsk_...) and paste it into Sini AI Settings!
+            </Typography>
 
-              <View style={styles.tutorialStepItem}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', color: PALETTE.sage.default }}>
-                  Step 2: Sign Up Free
-                </Typography>
-                <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={{ marginTop: 2 }}>
-                  Click "Sign In with Google" or create a free account. No credit card required!
-                </Typography>
-              </View>
-
-              <View style={styles.tutorialStepItem}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', color: PALETTE.sage.default }}>
-                  Step 3: Create API Key
-                </Typography>
-                <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={{ marginTop: 2 }}>
-                  In the left sidebar, click <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>API Keys</Typography> $\rightarrow$ click <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>"+ Create API Key"</Typography>.
-                </Typography>
-              </View>
-
-              <View style={styles.tutorialStepItem}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', color: PALETTE.sage.default }}>
-                  Step 4: Copy & Paste Key
-                </Typography>
-                <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={{ marginTop: 2 }}>
-                  Copy your key (starts with <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>gsk_...</Typography>) and paste it into the field above!
-                </Typography>
-              </View>
-            </ScrollView>
-
-            <Button title="Got it!" onPress={() => setTutorialModalVisible(false)} style={{ width: '100%', marginTop: SPACING.sm }} />
+            <Button
+              title="Close Tutorial"
+              variant="primary"
+              onPress={() => setTutorialModalVisible(false)}
+              style={{ marginTop: 20 }}
+            />
           </Pressable>
         </Pressable>
       </Modal>
+
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.sm + 4,
     borderBottomWidth: 1,
   },
-  backBtn: {
-    padding: SPACING.xs,
-  },
   headerTitle: {
-    fontFamily: 'PlayfairDisplay-Bold',
+    fontFamily: 'Outfit-Bold',
+  },
+  backBtn: {
+    padding: 6,
   },
   scrollContent: {
     padding: SPACING.md,
-    paddingBottom: 60,
+    paddingBottom: 140,
+    gap: SPACING.sm,
   },
-  card: {
-    padding: SPACING.lg,
-    marginBottom: SPACING.md,
+  sectionHeaderTitle: {
+    fontFamily: 'Outfit-Bold',
+    fontSize: 11,
+    letterSpacing: 0.8,
+    marginTop: SPACING.xs,
+    marginLeft: 4,
+  },
+  groupedCard: {
+    borderRadius: 20,
+    borderWidth: 1,
+    overflow: 'hidden',
+  },
+  cardPadding: {
+    padding: SPACING.md,
   },
   cardHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  tutorialLinkBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  themeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
-    marginBottom: SPACING.md,
+    marginTop: 6,
   },
-  captionText: {
-    marginTop: 4,
-    lineHeight: 16,
-  },
-  tutorialTriggerBtn: {
+  themeChip: {
+    width: '48%',
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: SPACING.md,
-    paddingVertical: SPACING.xs,
+    padding: 10,
+    borderRadius: 14,
+    borderWidth: 1,
   },
-  toggleRow: {
+  rowSeparator: {
+    height: 1,
+    backgroundColor: 'rgba(0,0,0,0.06)',
+    marginVertical: 14,
+  },
+  settingRowInline: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ECE9E4',
   },
-  toggleLeft: {
-    flex: 1,
-    paddingRight: SPACING.md,
+  langPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
   },
-  diagnosticCard: {
-    padding: SPACING.lg,
-    borderColor: '#FADBD8',
-    borderWidth: 1.5,
-    marginBottom: SPACING.lg,
-  },
-  diagnosticRow: {
+  diagRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 4,
   },
-  boldText: {
-    fontFamily: 'Outfit-Bold',
-  },
-  btnDivider: {
-    height: 1.5,
-    backgroundColor: '#FADBD8',
-    marginVertical: SPACING.md,
-  },
-  dangerBtn: {
-    backgroundColor: '#C0392B',
-    borderColor: '#C0392B',
-  },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: SPACING.md,
+    padding: 20,
   },
   modalContent: {
     width: '100%',
-    borderRadius: 20,
-    padding: SPACING.lg,
+    maxWidth: 420,
+    padding: 24,
+    borderRadius: 24,
   },
   modalHeader: {
-    marginBottom: SPACING.sm,
-  },
-  tutorialStepItem: {
-    paddingVertical: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ECE9E4',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
