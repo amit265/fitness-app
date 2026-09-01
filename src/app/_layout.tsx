@@ -15,7 +15,8 @@ import {
 import { Stack, useSegments, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform, Animated } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import { PALETTE } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
 import { setupDailyEngagementNotifications } from '../services/notificationService';
@@ -24,13 +25,22 @@ import { useDeepLinkHandler } from '../hooks/useDeepLinkHandler';
 import { AdProvider } from '../context/AdContext';
 import { ThemeCustomProvider } from '../context/ThemeContext';
 import { IAPProvider } from '../context/IAPContext';
+import { SplashScreenComponent } from '../components/SplashScreenComponent';
 
-function NavigationGuard({ children }: { children: React.ReactNode }) {
+// Keep native splash screen visible while app resources initialize
+void SplashScreen.preventAutoHideAsync();
+
+function NavigationGuard({
+  children,
+  onHydrated,
+}: {
+  children: React.ReactNode;
+  onHydrated: () => void;
+}) {
   const userProfile = useAppStore((state) => state.userProfile);
   const segments = useSegments();
   const router = useRouter();
   const [hydrated, setHydrated] = useState(false);
-  const isDark = useColorScheme() === 'dark';
 
   useDeepLinkHandler();
 
@@ -41,6 +51,7 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
         state.seedMockData();
       }
       setHydrated(true);
+      onHydrated();
     };
 
     if (useAppStore.persist.hasHydrated()) {
@@ -69,25 +80,17 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
     }
   }, [hydrated, userProfile?.hasCompletedOnboarding, segments]);
 
-  if (!hydrated) {
-    return (
-      <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg },
-        ]}
-      >
-        <ActivityIndicator size="large" color={PALETTE.plum.default} />
-      </View>
-    );
-  }
-
   return <>{children}</>;
 }
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+
+  const [hydrated, setHydrated] = useState(false);
+  const [showAppSplash, setShowAppSplash] = useState(true);
+  const [hasHiddenNativeSplash, setHasHiddenNativeSplash] = useState(false);
+  const [splashOpacity] = useState(() => new Animated.Value(1));
 
   const [fontsLoaded, fontError] = useFonts({
     'PlayfairDisplay-Regular': PlayfairDisplay_400Regular,
@@ -100,24 +103,43 @@ export default function RootLayout() {
     'Outfit-Bold': Outfit_700Bold,
   });
 
-  if (!fontsLoaded && !fontError) {
-    return (
-      <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg },
-        ]}
-      >
-        <ActivityIndicator size="large" color={PALETTE.plum.default} />
-      </View>
-    );
-  }
+  const isAppReady = (fontsLoaded || Boolean(fontError)) && hydrated;
+
+  // 1. Hide native splash screen once fonts and store hydration finish
+  useEffect(() => {
+    if (isAppReady && !hasHiddenNativeSplash) {
+      const hideSplash = async () => {
+        setHasHiddenNativeSplash(true);
+        try {
+          await SplashScreen.hideAsync();
+        } catch (e) {
+          console.warn('Failed to hide native splash screen:', e);
+        }
+      };
+      hideSplash();
+    }
+  }, [isAppReady, hasHiddenNativeSplash]);
+
+  // 2. Smoothly fade out custom splash overlay after coin spin & text animation completes
+  useEffect(() => {
+    if (isAppReady && hasHiddenNativeSplash) {
+      const fadeTimer = setTimeout(() => {
+        Animated.timing(splashOpacity, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }).start(() => setShowAppSplash(false));
+      }, 2400);
+
+      return () => clearTimeout(fadeTimer);
+    }
+  }, [isAppReady, hasHiddenNativeSplash, splashOpacity]);
 
   const content = (
     <ThemeCustomProvider>
       <IAPProvider>
         <AdProvider>
-          <NavigationGuard>
+          <NavigationGuard onHydrated={() => setHydrated(true)}>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
@@ -126,6 +148,13 @@ export default function RootLayout() {
               <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
               <Stack.Screen name="cycle" options={{ headerShown: false }} />
             </Stack>
+
+            {/* Custom Animated Splash Screen Overlay */}
+            {showAppSplash && (
+              <Animated.View style={[StyleSheet.absoluteFill, { opacity: splashOpacity, zIndex: 99999 }]}>
+                <SplashScreenComponent showBranding={true} startAnimation={hasHiddenNativeSplash} />
+              </Animated.View>
+            )}
           </NavigationGuard>
         </AdProvider>
       </IAPProvider>
