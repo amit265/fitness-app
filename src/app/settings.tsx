@@ -424,16 +424,16 @@ export default function SettingsScreen() {
 
           {/* SECTION 5: SUPPORT, SHARE & LEGAL */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            SUPPORT & ECOSYSTEM
+            SUPPORT, COMMUNITY & LEGAL
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={handleShareApp}>
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg }]}>
-                <Share2 size={18} color={PALETTE.sage.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Share2 size={18} color={colors.primary} />
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Share Sini AI App</Typography>
-                <Typography variant="caption" color={colors.subtext}>Share with friends & fitness partners</Typography>
+                <Typography variant="caption" color={colors.subtext}>Share with friends & workout partners</Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
@@ -441,8 +441,8 @@ export default function SettingsScreen() {
             <View style={styles.rowSeparator} />
 
             <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={handleContactUs}>
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.terracotta.bg }]}>
-                <Mail size={18} color={PALETTE.terracotta.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Mail size={18} color={colors.nutrition} />
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Contact Support & Feedback</Typography>
@@ -454,12 +454,38 @@ export default function SettingsScreen() {
             <View style={styles.rowSeparator} />
 
             <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={() => openWebLink('https://destyastudio.com/privacy')}>
-              <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
-                <ShieldCheck size={18} color={PALETTE.plum.default} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <ShieldCheck size={18} color={colors.primary} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Privacy Policy & Data Security</Typography>
-                <Typography variant="caption" color={colors.subtext}>100% Client-side local data storage</Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Privacy Policy</Typography>
+                <Typography variant="caption" color={colors.subtext}>100% Client-side local privacy guarantee</Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={() => openWebLink('https://destyastudio.com/terms')}>
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <BookOpen size={18} color={colors.primary} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Terms of Service</Typography>
+                <Typography variant="caption" color={colors.subtext}>End-user license & service agreement</Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={() => openWebLink('https://destyastudio.com')}>
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Globe size={18} color={colors.primary} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Destya Studio Website</Typography>
+                <Typography variant="caption" color={colors.subtext}>Explore destyastudio.com</Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>

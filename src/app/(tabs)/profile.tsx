@@ -71,6 +71,18 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        
+        {/* Header Bar with Settings Gear Button */}
+        <View style={[styles.headerBar, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
+          <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Profile & Health Hub</Typography>
+          <Pressable
+            style={({ pressed }) => [styles.settingsGearBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.7 }]}
+            onPress={() => router.push('/settings')}
+          >
+            <Settings size={20} color={colors.primary} />
+          </Pressable>
+        </View>
+
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
           {/* Top Hero User Identity Card */}
@@ -118,47 +130,11 @@ export default function ProfileScreen() {
             </View>
           </View>
 
-          {/* GROUP 1: HEALTH & CYCLE PROFILE */}
+          {/* GROUP 1: HEALTH & BODY COMPOSITION */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            HEALTH & CYCLE PROFILE
+            HEALTH & BODY COMPOSITION
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Pressable
-              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={() => router.push('/edit-profile')}
-            >
-              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-                <User size={18} color={colors.nutrition} />
-              </View>
-              <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Profile & Goals</Typography>
-                <Typography variant="caption" color={colors.subtext}>
-                  {(userProfile?.weightGoal || 'wellness').toUpperCase()} · {(userProfile?.regionalCuisine || 'indian').toUpperCase()} cuisine
-                </Typography>
-              </View>
-              <ChevronRight size={18} color={colors.subtext} />
-            </Pressable>
-
-            <View style={styles.rowSeparator} />
-
-            <Pressable
-              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={() => router.push('/cycle')}
-            >
-              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-                <CalendarIcon size={18} color={colors.period} />
-              </View>
-              <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>Cycle Parameters</Typography>
-                <Typography variant="caption" color={colors.subtext}>
-                  {cyclePreferences?.typicalCycleLength || 28}d cycle · {cyclePreferences?.typicalPeriodDuration || 5}d period
-                </Typography>
-              </View>
-              <ChevronRight size={18} color={colors.subtext} />
-            </Pressable>
-
-            <View style={styles.rowSeparator} />
-
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
               onPress={() => router.push('/bmi')}
@@ -169,53 +145,47 @@ export default function ProfileScreen() {
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>BMI & Body Composition</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  {bmiCategory} ({bmiVal.toFixed(1)})
+                  {bmiCategory} ({bmiVal.toFixed(1)}) · {currentWeight} kg
                 </Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
-          </View>
 
-          {/* GROUP 2: APP PREFERENCES & AI INTEGRATION */}
-          <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            APP & PREFERENCES
-          </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.rowSeparator} />
+
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={() => router.push('/settings')}
+              onPress={() => router.push('/edit-profile')}
             >
               <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-                <Settings size={18} color={colors.primary} />
+                <User size={18} color={colors.nutrition} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>App Settings & Groq AI Key</Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Nutrition & Weight Goals</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  {userProfile?.groqApiKey ? '✓ Groq API Key Connected' : 'Local Offline Mode (Tap to add key)'}
+                  {(userProfile?.weightGoal || 'wellness').toUpperCase()} · {(userProfile?.regionalCuisine || 'indian').toUpperCase()} cuisine
                 </Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
           </View>
 
-          {/* GROUP 3: DATA & ACCOUNT ACTIONS */}
+          {/* GROUP 2: MENSTRUAL CYCLE PARAMETERS */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-            DATA & ECOSYSTEM
+            CYCLE PARAMETERS
           </Typography>
           <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable
               style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-              onPress={handleResetData}
+              onPress={() => router.push('/cycle')}
             >
-              <View style={[styles.rowIconCircle, { backgroundColor: colors.errorBg }]}>
-                <Trash2 size={18} color={colors.error} />
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <CalendarIcon size={18} color={colors.period} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" color={colors.error} style={{ fontFamily: 'Outfit-Bold' }}>
-                  Reset All Logs & App Data
-                </Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Cycle Calendar & Predictions</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  Clear all meals, workouts, weight points & cycle history
+                  {cyclePreferences?.typicalCycleLength || 28}d typical cycle · {cyclePreferences?.typicalPeriodDuration || 5}d period
                 </Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
@@ -225,8 +195,7 @@ export default function ProfileScreen() {
           {/* Native Ad Card */}
           <NativeAdComponent style={{ marginVertical: SPACING.sm }} />
 
-          {/* Cross Promotion Hub & Destya Footer */}
-          <DestyaStudioAppsHub />
+          {/* Destya Studio Footer */}
           <DestyaStudioFooter />
 
         </ScrollView>
@@ -237,6 +206,18 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  headerBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 4,
+    borderBottomWidth: 1,
+  },
+  settingsGearBtn: {
+    padding: 8,
+    borderRadius: 100,
+  },
   scrollContent: {
     padding: SPACING.md,
     paddingBottom: 140,
