@@ -25,7 +25,7 @@ import { answerCoachQuestion } from '../services/ai/aiService';
 import { ChatMessage, CoachingContext } from '../types';
 import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, X, Bot, User as UserIcon, RotateCcw } from 'lucide-react-native';
+import { Send, X, Bot, User as UserIcon, RotateCcw, Flag } from 'lucide-react-native';
 
 interface CoachChatProps {
   visible: boolean;
@@ -246,6 +246,19 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
                     ]}
                   >
                     <MarkdownText text={m.content} isCoach={isCoach} />
+                    {isCoach && (
+                      <Pressable
+                        style={styles.flagBtn}
+                        onPress={() =>
+                          Alert.alert('Response Reported', 'Thank you. This AI output has been flagged for safety review.')
+                        }
+                      >
+                        <Flag color={PALETTE.charcoal.light} size={11} />
+                        <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10, marginLeft: 4 }}>
+                          Report Output
+                        </Typography>
+                      </Pressable>
+                    )}
                   </View>
                 </View>
               );
@@ -261,6 +274,13 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose }) => {
               </View>
             )}
           </ScrollView>
+
+          {/* AI Compliance Disclaimer Banner */}
+          <View style={[styles.disclaimerRow, { backgroundColor: isDark ? '#1F1B18' : '#FAF8F5' }]}>
+            <Typography variant="caption" color={PALETTE.charcoal.light} style={{ fontSize: 10, textAlign: 'center', lineHeight: 14 }}>
+              ⚠️ AI responses are generated dynamically and may contain errors. Please verify critical facts.
+            </Typography>
+          </View>
 
           {/* Footer Input */}
           <View style={[styles.inputRow, { borderTopColor: isDark ? '#2E2B28' : '#ECE9E4', backgroundColor: isDark ? '#1C1A18' : PALETTE.white }]}>
@@ -358,6 +378,19 @@ const styles = StyleSheet.create({
   },
   bubbleText: {
     lineHeight: 18,
+  },
+  flagBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    alignSelf: 'flex-start',
+    opacity: 0.7,
+  },
+  disclaimerRow: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
   },
   inputRow: {
     flexDirection: 'row',

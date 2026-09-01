@@ -16,6 +16,8 @@ import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { InputField } from '../../components/InputField';
 import { useAppStore } from '../../store/useAppStore';
+import { DestyaStudioFooter } from '../../components/DestyaStudioFooter';
+import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -200,6 +202,8 @@ export default function ProfileScreen() {
             />
           </Card>
 
+          <DestyaStudioAppsHub />
+          <DestyaStudioFooter style={{ marginTop: SPACING.md }} />
           <View style={{ height: SPACING.xl }} />
 
         </ScrollView>

@@ -15,9 +15,11 @@ import {
 import { Stack, useSegments, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View, StyleSheet, useColorScheme } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform } from 'react-native';
 import { PALETTE } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
+import { setupDailyEngagementNotifications } from '../services/notificationService';
+import { EasUpdateModal } from '../components/EasUpdateModal';
 
 function NavigationGuard({ children }: { children: React.ReactNode }) {
   const userProfile = useAppStore((state) => state.userProfile);
@@ -36,6 +38,9 @@ function NavigationGuard({ children }: { children: React.ReactNode }) {
       setHydrated(true);
     });
     
+    // Setup daily notifications once safely
+    setupDailyEngagementNotifications();
+
     return () => unsubFinish();
   }, []);
 
@@ -98,19 +103,32 @@ export default function RootLayout() {
     );
   }
 
+  const content = (
+    <NavigationGuard>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="bmi" options={{ headerShown: false }} />
+        <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+        <Stack.Screen name="cycle" options={{ headerShown: false }} />
+      </Stack>
+    </NavigationGuard>
+  );
+
   return (
     <SafeAreaProvider>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      <NavigationGuard>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
-          <Stack.Screen name="bmi" options={{ headerShown: false }} />
-          <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-          <Stack.Screen name="cycle" options={{ headerShown: false }} />
-        </Stack>
-      </NavigationGuard>
+      <EasUpdateModal />
+      {Platform.OS === 'web' ? (
+        <View style={styles.webOuterContainer}>
+          <View style={[styles.webPhoneFrame, { backgroundColor: isDark ? '#121110' : PALETTE.oat.bg }]}>
+            {content}
+          </View>
+        </View>
+      ) : (
+        content
+      )}
     </SafeAreaProvider>
   );
 }
@@ -120,5 +138,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  webOuterContainer: {
+    flex: 1,
+    backgroundColor: '#0C1D59',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  webPhoneFrame: {
+    width: '100%',
+    maxWidth: 480,
+    height: '96%',
+    maxHeight: 880,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowRadius: 24,
+    elevation: 12,
   },
 });
