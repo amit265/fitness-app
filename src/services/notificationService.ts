@@ -44,18 +44,17 @@ export const setupDailyEngagementNotifications = async (): Promise<boolean> => {
     await Notifications.cancelAllScheduledNotificationsAsync();
 
     // 4. Schedule a single recurring daily reminder at 7:00 PM (19:00)
+    const triggerInput: any = Platform.OS === 'android'
+      ? { hour: 19, minute: 0, repeats: true }
+      : { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: 19, minute: 0 };
+
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Time for your daily readiness check-in! 🧘‍♀️',
         body: "Track today's workout, log your energy & check your cycle readiness.",
         sound: true,
       },
-      trigger: {
-        type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
-        hour: 19,
-        minute: 0,
-        repeats: true,
-      },
+      trigger: triggerInput,
     });
 
     // 5. Mark as scheduled in AsyncStorage so it NEVER runs again on subsequent cold starts
