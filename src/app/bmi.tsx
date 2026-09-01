@@ -119,13 +119,13 @@ export default function BMICalculatorScreen() {
   // Category Color Map
   const getCategoryColor = (category: string | null) => {
     switch (category) {
-      case 'Normal weight':
+      case 'normal':
         return PALETTE.success;
-      case 'Underweight':
+      case 'underweight':
         return '#D4A373';
-      case 'Overweight':
+      case 'overweight':
         return '#E29578';
-      case 'Obesity':
+      case 'obese':
         return PALETTE.error;
       default:
         return PALETTE.charcoal.light;
@@ -208,24 +208,24 @@ export default function BMICalculatorScreen() {
           {/* Reference Categories Table */}
           <Card style={styles.referenceCard}>
             <Typography variant="h3" style={{ marginBottom: SPACING.sm }}>
-              Standard Adult BMI Categories
+              {t('bmi.categoryBreakdown')}
             </Typography>
             
             <View style={styles.tableRow}>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>Below 18.5</Typography>
-              <Typography variant="bodyMedium" style={styles.boldText}>Underweight</Typography>
+              <Typography variant="bodyMedium" style={styles.boldText}>{t('bmi.category.underweight')}</Typography>
             </View>
             <View style={styles.tableRow}>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>18.5 – 24.9</Typography>
-              <Typography variant="bodyMedium" style={[styles.boldText, { color: PALETTE.success }]}>Normal weight</Typography>
+              <Typography variant="bodyMedium" style={[styles.boldText, { color: PALETTE.success }]}>{t('bmi.category.normal')}</Typography>
             </View>
             <View style={styles.tableRow}>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>25.0 – 29.9</Typography>
-              <Typography variant="bodyMedium" style={styles.boldText}>Overweight</Typography>
+              <Typography variant="bodyMedium" style={styles.boldText}>{t('bmi.category.overweight')}</Typography>
             </View>
             <View style={styles.tableRow}>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>30.0+</Typography>
-              <Typography variant="bodyMedium" style={styles.boldText}>Obesity</Typography>
+              <Typography variant="bodyMedium" style={styles.boldText}>{t('bmi.category.obese')}</Typography>
             </View>
 
             <View style={styles.divider} />

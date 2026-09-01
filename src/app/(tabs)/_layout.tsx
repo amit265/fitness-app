@@ -76,7 +76,7 @@ export default function TabsLayout() {
           name="log"
           listeners={webTabListener}
           options={{
-            title: t('home.logMeal'),
+            title: t('log.logMealHeader'),
             tabBarIcon: ({ color, size }) => <PlusCircle color={color} size={size} />,
           }}
         />

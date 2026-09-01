@@ -7,17 +7,17 @@ export function calculateBMI(weightKg: number, heightCm: number): number {
   return weightKg / (heightM * heightM);
 }
 
-export type BMICategory = 'Underweight' | 'Normal weight' | 'Overweight' | 'Obesity' | 'Unknown';
+export type BMICategory = 'underweight' | 'normal' | 'overweight' | 'obese' | 'unknown';
 
 /**
- * Returns the standard adult BMI category name
+ * Returns an i18n-safe key matching bmi.category.* in the translation files
  */
 export function getBMICategory(bmi: number): BMICategory {
-  if (bmi <= 0) return 'Unknown';
-  if (bmi < 18.5) return 'Underweight';
-  if (bmi < 25.0) return 'Normal weight';
-  if (bmi < 30.0) return 'Overweight';
-  return 'Obesity';
+  if (bmi <= 0) return 'unknown';
+  if (bmi < 18.5) return 'underweight';
+  if (bmi < 25.0) return 'normal';
+  if (bmi < 30.0) return 'overweight';
+  return 'obese';
 }
 
 /**

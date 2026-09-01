@@ -544,7 +544,7 @@ export default function TodayScreen() {
           >
             <Sparkles size={14} color={colors.primary} />
             <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-              {t('home.askSiniCoach')}
+              {t('home.askSiniAction')}
             </Typography>
           </Pressable>
         </Card>
