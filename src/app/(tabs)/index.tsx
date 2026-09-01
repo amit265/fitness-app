@@ -672,18 +672,18 @@ export default function TodayScreen() {
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={styles.modalScroll}>
             <View style={styles.modalHeader}>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>Daily Feeling & Check-In</Typography>
+              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>{t('home.dailyCheckInTitle')}</Typography>
               <Pressable onPress={() => setCheckInModalVisible(false)}>
-                <Typography variant="bodyMedium" color={colors.primary}>Done</Typography>
+                <Typography variant="bodyMedium" color={colors.primary}>{t('common.done')}</Typography>
               </Pressable>
             </View>
 
             <Typography variant="bodyMedium" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
-              How are you feeling today? Sini will adapt your targets to your cycle.
+              {t('home.moodLabel')}
             </Typography>
 
             <Card style={{ marginBottom: SPACING.md }}>
-              <Typography variant="h3" style={{ marginBottom: 12 }}>Energy Level ({energyVal}/5)</Typography>
+              <Typography variant="h3" style={{ marginBottom: 12 }}>{t('home.energyLabel')} ({energyVal}/5)</Typography>
               <View style={styles.ratingRow}>
                 {[1, 2, 3, 4, 5].map((level) => (
                   <Pressable
@@ -700,7 +700,7 @@ export default function TodayScreen() {
             </Card>
 
             <Card style={{ marginBottom: SPACING.md }}>
-              <Typography variant="h3" style={{ marginBottom: 12 }}>Symptoms</Typography>
+              <Typography variant="h3" style={{ marginBottom: 12 }}>{t('home.symptomsLabel')}</Typography>
               <View style={styles.symptomsGrid}>
                 {['Cramps', 'Bloating', 'Fatigue', 'Headache', 'Cravings', 'Acne', 'Mood Swings', 'Backache'].map((sym) => {
                   const isSel = selectedSymptoms.includes(sym);
@@ -724,7 +724,7 @@ export default function TodayScreen() {
             </Card>
 
             <Button
-              title="Save Check-In"
+              title={t('common.save')}
               variant="primary"
               onPress={handleCheckInSubmit}
               style={{ marginTop: SPACING.md }}
@@ -737,16 +737,16 @@ export default function TodayScreen() {
       <Modal visible={waterModalVisible} transparent animationType="fade" onRequestClose={() => setWaterModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <Card style={styles.waterDialog}>
-            <Typography variant="h3" style={{ marginBottom: 8 }}>Log Water Hydration</Typography>
+            <Typography variant="h3" style={{ marginBottom: 8 }}>{t('nutrition.water')}</Typography>
             <InputField
-              label="Liters (L)"
+              label={t('common.litres')}
               value={waterInputVal}
               onChangeText={setWaterInputVal}
               keyboardType="decimal-pad"
             />
             <View style={styles.waterDialogButtons}>
-              <Button title="Cancel" variant="outline" onPress={() => setWaterModalVisible(false)} style={{ flex: 1 }} />
-              <Button title="Save" variant="positive" onPress={handleSaveWaterModal} style={{ flex: 1 }} />
+              <Button title={t('common.cancel')} variant="outline" onPress={() => setWaterModalVisible(false)} style={{ flex: 1 }} />
+              <Button title={t('common.save')} variant="positive" onPress={handleSaveWaterModal} style={{ flex: 1 }} />
             </View>
           </Card>
         </View>

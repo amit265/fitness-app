@@ -205,7 +205,7 @@ export default function SettingsScreen() {
 
         {/* SECTION 2: MEMBERSHIP & AD-FREE UNLOCK */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          MEMBERSHIP & AD-FREE UNLOCK
+          {t('settings.membershipHeader').toUpperCase()}
         </Typography>
         <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Pressable
@@ -217,10 +217,10 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                Remove All Ads Permanently
+                {t('settings.removeAdsTitle')}
               </Typography>
               <Typography variant="caption" color={colors.subtext}>
-                {isIapPremium ? '✨ Lifetime Premium Active' : 'Permanent Ad-Free + Unlimited AI Coaching'}
+                {isIapPremium ? t('settings.lifetimeActive') : t('settings.lifetimeDesc')}
               </Typography>
             </View>
             <View style={styles.priceTagBadge}>
@@ -245,7 +245,7 @@ export default function SettingsScreen() {
                     {t('settings.watchAdForPass')}
                   </Typography>
                   <Typography variant="caption" color={isAdFree ? colors.primary : colors.subtext}>
-                    {isAdFree && timeRemainingStr ? `Active remaining: ${timeRemainingStr}` : 'Watch 1 short video ad to disable ads'}
+                    {isAdFree && timeRemainingStr ? t('settings.adFreeRemaining', { time: timeRemainingStr }) : t('settings.watchAdDesc')}
                   </Typography>
                 </View>
                 <ChevronRight size={18} color={colors.subtext} />
@@ -265,7 +265,7 @@ export default function SettingsScreen() {
                     {t('settings.restorePurchases')}
                   </Typography>
                   <Typography variant="caption" color={colors.subtext}>
-                    Restore previously purchased premium upgrade
+                    {t('settings.restoreDesc')}
                   </Typography>
                 </View>
                 <ChevronRight size={18} color={colors.subtext} />
@@ -289,7 +289,7 @@ export default function SettingsScreen() {
                   {t('settings.theme')}
                 </Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  Active Palette: <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>{activeThemeName}</Typography>
+                  {t('settings.selectTheme')}: <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>{activeThemeName}</Typography>
                 </Typography>
               </View>
             </View>
@@ -339,7 +339,7 @@ export default function SettingsScreen() {
 
         {/* SECTION 4: NOTIFICATIONS & ALERTS */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          NOTIFICATIONS & ALERTS
+          {t('settings.notificationsHeader').toUpperCase()}
         </Typography>
         <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.cardPadding}>
@@ -349,8 +349,8 @@ export default function SettingsScreen() {
                   <Bell size={18} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Daily Target Reminders</Typography>
-                  <Typography variant="caption" color={colors.subtext}>Check-in & hydration notifications</Typography>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>{t('settings.dailyRemindersTitle')}</Typography>
+                  <Typography variant="caption" color={colors.subtext}>{t('settings.dailyRemindersDesc')}</Typography>
                 </View>
               </View>
               <Switch
@@ -368,8 +368,8 @@ export default function SettingsScreen() {
                   <Sparkles size={18} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Cycle Transition Alerts</Typography>
-                  <Typography variant="caption" color={colors.subtext}>Notify when entering new cycle phase</Typography>
+                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>{t('settings.cycleAlertsTitle')}</Typography>
+                  <Typography variant="caption" color={colors.subtext}>{t('settings.cycleAlertsDesc')}</Typography>
                 </View>
               </View>
               <Switch
@@ -383,7 +383,7 @@ export default function SettingsScreen() {
 
         {/* SECTION 5: AI ENGINE INTEGRATION */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          AI & CLOUD INTEGRATION
+          {t('settings.aiHeader').toUpperCase()}
         </Typography>
         <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Pressable
@@ -394,9 +394,9 @@ export default function SettingsScreen() {
               <Sparkles size={18} color={colors.primary} />
             </View>
             <View style={styles.rowTextCol}>
-              <Typography variant="bodyMedium" style={styles.rowTitle}>Custom Groq AI Setup</Typography>
+              <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.customGroqTitle')}</Typography>
               <Typography variant="caption" color={userProfile?.groqApiKey ? colors.primary : colors.subtext}>
-                {userProfile?.groqApiKey ? '✓ Custom Groq Key Connected' : 'Configure free API key for unlimited AI features'}
+                {userProfile?.groqApiKey ? t('settings.customGroqConnected') : t('settings.customGroqNotConnected')}
               </Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
@@ -405,7 +405,7 @@ export default function SettingsScreen() {
 
         {/* SECTION 6: SUPPORT & LEGAL */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          SUPPORT, COMMUNITY & LEGAL
+          {t('settings.supportHeader').toUpperCase()}
         </Typography>
         <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={handleShareApp}>
@@ -414,7 +414,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.shareApp')}</Typography>
-              <Typography variant="caption" color={colors.subtext}>Invite friends & workout partners to Sini AI</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('settings.shareDesc')}</Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
           </Pressable>
@@ -427,7 +427,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.supportContact')}</Typography>
-              <Typography variant="caption" color={colors.subtext}>Reach out to Destya Studio team for help</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('settings.supportContactDesc')}</Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
           </Pressable>
@@ -440,7 +440,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.privacyPolicy')}</Typography>
-              <Typography variant="caption" color={colors.subtext}>See how your data is processed locally with 100% privacy</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('settings.privacyPolicyDesc')}</Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
           </Pressable>
@@ -453,7 +453,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.termsOfService')}</Typography>
-              <Typography variant="caption" color={colors.subtext}>End-user license & service agreement</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('settings.termsDesc')}</Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
           </Pressable>
@@ -465,8 +465,8 @@ export default function SettingsScreen() {
               <Globe size={18} color={colors.primary} />
             </View>
             <View style={styles.rowTextCol}>
-              <Typography variant="bodyMedium" style={styles.rowTitle}>Destya Studio Website</Typography>
-              <Typography variant="caption" color={colors.subtext}>Explore destyastudio.com & our mobile ecosystem</Typography>
+              <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.websiteTitle')}</Typography>
+              <Typography variant="caption" color={colors.subtext}>{t('settings.websiteDesc')}</Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
           </Pressable>
@@ -474,7 +474,7 @@ export default function SettingsScreen() {
 
         {/* SECTION 7: SYSTEM & DATA RESET */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          SYSTEM & DATA
+          {t('settings.systemHeader').toUpperCase()}
         </Typography>
         <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
           <View style={styles.cardPadding}>
@@ -483,20 +483,20 @@ export default function SettingsScreen() {
                 <Database size={18} color={PALETTE.sage.default} />
               </View>
               <View style={{ marginLeft: 10, flex: 1 }}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Local Storage Summary</Typography>
+                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>{t('settings.localStorageTitle')}</Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  {meals.length} meals · {activities.length} workouts · {periods.length} cycle logs
+                  {t('settings.storageSummary', { meals: meals.length, workouts: activities.length, periods: periods.length })}
                 </Typography>
               </View>
             </View>
 
             <View style={{ gap: 10, marginTop: 10 }}>
               <Button
-                title="🧪 Seed 45-Day Mock Testing Data"
+                title={t('settings.seedMockData')}
                 variant="outline"
                 onPress={() => {
                   seedMockData();
-                  Alert.alert('Demo Data Loaded', 'Loaded 45 days of realistic testing data!');
+                  Alert.alert(t('settings.demoDataLoaded'), t('settings.demoDataLoadedDesc'));
                 }}
               />
 
@@ -514,7 +514,7 @@ export default function SettingsScreen() {
                         style: 'destructive',
                         onPress: () => {
                           resetStore();
-                          Alert.alert('Data Cleared', 'App state reset successfully.');
+                          Alert.alert(t('settings.dataCleared'), t('settings.dataClearedDesc'));
                         },
                       },
                     ]

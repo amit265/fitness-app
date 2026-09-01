@@ -7,6 +7,7 @@ import { PALETTE, SPACING } from '../constants/theme';
 import { RefreshCw, Sparkles } from 'lucide-react-native';
 
 import { useAppTheme } from '../context/ThemeContext';
+import { t } from '../i18n';
 
 export const EasUpdateModal: React.FC = () => {
   const { colors } = useAppTheme();
@@ -53,14 +54,14 @@ export const EasUpdateModal: React.FC = () => {
           </View>
 
           <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold', textAlign: 'center', marginBottom: 4 }}>
-            App Update Ready!
+            {t('eas.updateReady')}
           </Typography>
           <Typography variant="caption" color={colors.subtext} style={{ textAlign: 'center', lineHeight: 18, marginBottom: SPACING.lg }}>
-            A new version with performance improvements and feature updates has been downloaded. Restart now to apply!
+            {t('eas.updateDesc')}
           </Typography>
 
           <Button
-            title={updating ? 'Restarting App...' : '🚀 Restart & Update Now'}
+            title={updating ? t('eas.restarting') : t('eas.restartBtn')}
             onPress={handleApplyUpdate}
             disabled={updating}
           />

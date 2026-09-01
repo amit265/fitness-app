@@ -221,7 +221,7 @@ export default function DedicatedCyclePage() {
 
   const handleOpenAddPeriod = () => {
     if (selectedDateStr > todayStr) {
-      Alert.alert('Future Date Restriction', 'You cannot log or edit period records for future dates.');
+      Alert.alert(t('cycle.futureDateRestriction'), '');
       return;
     }
 
@@ -243,12 +243,12 @@ export default function DedicatedCyclePage() {
 
   const handleSavePeriod = () => {
     if (!periodStartDate) {
-      Alert.alert('Error', 'Please select a valid start date.');
+      Alert.alert(t('common.error'), t('cycle.selectValidStartDate'));
       return;
     }
 
     if (periodStartDate > todayStr) {
-      Alert.alert('Future Date', 'Period start date cannot be in the future.');
+      Alert.alert(t('cycle.futureDateStart'), '');
       return;
     }
 
@@ -270,10 +270,10 @@ export default function DedicatedCyclePage() {
   };
 
   const handleDeletePeriod = (id: string) => {
-    Alert.alert('Delete Log', 'Are you sure you want to delete this period record?', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('common.delete'), t('cycle.deleteLogConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('common.delete'),
         style: 'destructive',
         onPress: () => deletePeriodLog(id),
       },
@@ -290,7 +290,7 @@ export default function DedicatedCyclePage() {
 
   const handleSaveSymptoms = () => {
     if (selectedDateStr > todayStr) {
-      Alert.alert('Future Date', 'Cannot log symptoms for future dates.');
+      Alert.alert(t('cycle.futureDateSymptoms'), '');
       return;
     }
 

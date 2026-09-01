@@ -133,7 +133,7 @@ export default function LogScreen() {
   const handleConfirmAllDrafts = () => {
     if (draftLogs.length === 0) return;
     draftLogs.forEach((item) => saveItemToStore(item));
-    Alert.alert('Logged Successfully', `Added ${draftLogs.length} items to Sini AI!`);
+    Alert.alert(t('log.loggedSuccess'), t('log.addedItems', { count: draftLogs.length }));
     setDraftLogs([]);
     setInputText('');
   };
@@ -144,7 +144,7 @@ export default function LogScreen() {
 
   const handleManualMealSubmit = () => {
     if (!manualMealName.trim()) {
-      Alert.alert('Missing Name', 'Please enter a meal description.');
+      Alert.alert(t('common.error'), t('log.missingName'));
       return;
     }
     addMeal({
@@ -154,7 +154,7 @@ export default function LogScreen() {
       carbs: parseFloat(manualMealCarb) || 0,
       fat: parseFloat(manualMealFat) || 0,
     });
-    Alert.alert('Meal Logged', `${manualMealName.trim()} saved!`);
+    Alert.alert(t('log.mealLogged'), t('log.mealSaved', { name: manualMealName.trim() }));
     setManualMealName('');
     setManualMealCal('');
     setManualMealProt('');
@@ -165,7 +165,7 @@ export default function LogScreen() {
 
   const handleManualWorkoutSubmit = () => {
     if (!manualWorkDur || isNaN(Number(manualWorkDur))) {
-      Alert.alert('Missing Duration', 'Please enter duration in minutes.');
+      Alert.alert(t('common.error'), t('log.missingDuration'));
       return;
     }
     const dur = parseInt(manualWorkDur) || 30;
@@ -178,7 +178,7 @@ export default function LogScreen() {
       caloriesBurned: cal,
       notes: 'Manual log',
     });
-    Alert.alert('Workout Logged', `${manualWorkType.toUpperCase()} saved!`);
+    Alert.alert(t('log.workoutLogged'), t('log.workoutSaved', { type: manualWorkType.toUpperCase() }));
     setManualWorkDur('');
     setManualWorkCal('');
     setWorkoutModalVisible(false);
@@ -186,13 +186,13 @@ export default function LogScreen() {
 
   const handleManualWeightSubmit = () => {
     if (!manualWeight || isNaN(Number(manualWeight))) {
-      Alert.alert('Missing Weight', 'Please enter weight in kg.');
+      Alert.alert(t('common.error'), t('log.missingWeight'));
       return;
     }
     addMeasurement({
       weight: parseFloat(manualWeight),
     });
-    Alert.alert('Weight Logged', `${manualWeight} kg recorded!`);
+    Alert.alert(t('log.weightLogged'), t('log.weightSaved', { weight: manualWeight }));
     setManualWeight('');
     setWeightModalVisible(false);
   };
