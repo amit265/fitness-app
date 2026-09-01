@@ -198,77 +198,78 @@ export default function SettingsScreen() {
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* SECTION 1: IN-APP PURCHASES & MONETIZATION (QUESTION-GAMES STYLE) */}
+          {/* SECTION 1: MEMBERSHIP & AD-FREE UNLOCK (QUESTION-GAMES PATTERN) */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             MEMBERSHIP & AD-FREE UNLOCK
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
-            <View style={styles.cardPadding}>
-              
-              {/* Lifetime Remove Ads Card */}
-              <Pressable
-                style={({ pressed }) => [
-                  styles.premiumPurchaseBox,
-                  { backgroundColor: isDark ? '#2A2016' : '#FFF9F0', borderColor: PALETTE.gold.default },
-                  pressed && { opacity: 0.8 },
-                ]}
-                onPress={requestPurchase}
-              >
-                <View style={[styles.rowIconCircle, { backgroundColor: '#FBEED6' }]}>
-                  <Crown size={20} color={PALETTE.gold.default} />
-                </View>
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
-                    Remove All Ads Permanently
-                  </Typography>
-                  <Typography variant="caption" color={colors.subtext}>
-                    {isIapPremium ? '✨ Lifetime Premium Active' : 'Permanent Ad-Free + Unlimited AI Coaching'}
-                  </Typography>
-                </View>
-                <View style={styles.priceTagBadge}>
-                  <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
-                    {premiumProduct?.displayPrice || '$2.99'}
-                  </Typography>
-                </View>
-              </Pressable>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            
+            {/* Lifetime Remove Ads Option */}
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={requestPurchase}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Crown size={18} color={PALETTE.gold.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
+                  Remove All Ads Permanently
+                </Typography>
+                <Typography variant="caption" color={colors.subtext}>
+                  {isIapPremium ? '✨ Lifetime Premium Active' : 'Permanent Ad-Free + Unlimited AI Coaching'}
+                </Typography>
+              </View>
+              <View style={styles.priceTagBadge}>
+                <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
+                  {premiumProduct?.displayPrice || '$2.99'}
+                </Typography>
+              </View>
+            </Pressable>
 
-              {/* Temporary Ad-Free Pass */}
-              {!isIapPremium && (
-                <View style={{ marginTop: 12 }}>
-                  <View style={styles.settingRowInline}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                      <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.sage.bg, marginRight: 10 }]}>
-                        <Timer size={18} color={PALETTE.sage.default} />
-                      </View>
-                      <View style={{ flex: 1 }}>
-                        <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>15-Minute Ad-Free Pass</Typography>
-                        <Typography variant="caption" color={isAdFree ? PALETTE.sage.default : colors.subtext}>
-                          {isAdFree && timeRemainingStr ? `Active: ${timeRemainingStr}` : 'Watch 1 short video ad to disable ads'}
-                        </Typography>
-                      </View>
-                    </View>
+            {!isIapPremium && (
+              <>
+                <View style={styles.rowSeparator} />
+
+                {/* 15-Minute Ad-Free Pass */}
+                <Pressable
+                  style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+                  onPress={handleWatchAdReward}
+                >
+                  <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                    <Timer size={18} color={colors.primary} />
                   </View>
-
-                  <View style={{ flexDirection: 'column', gap: 10, marginTop: 12, width: '100%' }}>
-                    {!isAdFree && (
-                      <Button
-                        title="🎬 Watch Ad for 15-Min Ad-Free Pass"
-                        variant="outline"
-                        onPress={handleWatchAdReward}
-                        style={{ width: '100%' }}
-                      />
-                    )}
-                    <Button
-                      title="🔄 Restore Purchases"
-                      variant="secondary"
-                      onPress={handleRestorePurchases}
-                      style={{ width: '100%' }}
-                    />
+                  <View style={styles.rowTextCol}>
+                    <Typography variant="bodyMedium" style={styles.rowTitle}>
+                      Watch Ad (15m Ad-Free Pass)
+                    </Typography>
+                    <Typography variant="caption" color={isAdFree ? colors.primary : colors.subtext}>
+                      {isAdFree && timeRemainingStr ? `Active remaining: ${timeRemainingStr}` : 'Watch 1 short video ad to disable ads'}
+                    </Typography>
                   </View>
-                </View>
-              )}
+                  <ChevronRight size={18} color={colors.subtext} />
+                </Pressable>
 
-            </View>
+                <View style={styles.rowSeparator} />
+
+                {/* Restore Purchases */}
+                <Pressable
+                  style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+                  onPress={handleRestorePurchases}
+                >
+                  <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                    <Star size={18} color={colors.subtext} />
+                  </View>
+                  <View style={styles.rowTextCol}>
+                    <Typography variant="bodyMedium" style={styles.rowTitle}>Restore Purchases</Typography>
+                    <Typography variant="caption" color={colors.subtext}>
+                      Restore previously purchased premium upgrade
+                    </Typography>
+                  </View>
+                  <ChevronRight size={18} color={colors.subtext} />
+                </Pressable>
+              </>
+            )}
           </View>
 
           {/* SECTION 2: APPEARANCE & CYCLE-ADAPTIVE THEMES */}
@@ -336,13 +337,13 @@ export default function SettingsScreen() {
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             NOTIFICATIONS & ALERTS
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardPadding}>
 
               <View style={styles.settingRowInline}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.gold.bg, marginRight: 10 }]}>
-                    <Bell size={18} color={PALETTE.gold.default} />
+                  <View style={[styles.rowIconCircle, { backgroundColor: colors.surface, marginRight: 10 }]}>
+                    <Bell size={18} color={colors.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Daily Target Reminders</Typography>
@@ -352,7 +353,7 @@ export default function SettingsScreen() {
                 <Switch
                   value={notificationsEnabled}
                   onValueChange={setNotificationsEnabled}
-                  trackColor={{ false: colors.border, true: PALETTE.plum.default }}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                 />
               </View>
 
@@ -360,8 +361,8 @@ export default function SettingsScreen() {
 
               <View style={styles.settingRowInline}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                  <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.rose.bg, marginRight: 10 }]}>
-                    <Sparkles size={18} color={PALETTE.rose.default} />
+                  <View style={[styles.rowIconCircle, { backgroundColor: colors.surface, marginRight: 10 }]}>
+                    <Sparkles size={18} color={colors.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Cycle Transition Alerts</Typography>
@@ -371,7 +372,7 @@ export default function SettingsScreen() {
                 <Switch
                   value={cycleAlertsEnabled}
                   onValueChange={setCycleAlertsEnabled}
-                  trackColor={{ false: colors.border, true: PALETTE.plum.default }}
+                  trackColor={{ false: colors.border, true: colors.primary }}
                 />
               </View>
 
@@ -382,47 +383,25 @@ export default function SettingsScreen() {
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             AI & CLOUD INTEGRATION
           </Typography>
-          <View style={[styles.groupedCard, { backgroundColor: isDark ? PALETTE.darkCard : PALETTE.white, borderColor: colors.border }]}>
-            <View style={styles.cardPadding}>
-              <View style={styles.cardHeaderRow}>
-                <View style={[styles.rowIconCircle, { backgroundColor: PALETTE.plum.bg }]}>
-                  <Key size={18} color={PALETTE.plum.default} />
-                </View>
-                <View style={{ marginLeft: 10, flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>Groq Cloud AI Engine</Typography>
-                  <Typography variant="caption" color={apiKey ? PALETTE.sage.default : colors.subtext}>
-                    {apiKey ? '✓ Custom Key Connected (Dynamic NLP Active)' : 'Local Fallback Engine Active'}
-                  </Typography>
-                </View>
+          <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => router.push('/groq-api')}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Sparkles size={18} color={colors.primary} />
               </View>
-
-              <InputField
-                label="Groq API Key (starts with gsk_)"
-                value={apiKey}
-                secureTextEntry={true}
-                onChangeText={handleSaveApiKey}
-                placeholder="gsk_yourApiKeyHere"
-              />
-
-              {savedKeySuccess && (
-                <Typography variant="caption" color={PALETTE.sage.default} style={{ marginTop: 2, fontFamily: 'Outfit-Bold' }}>
-                  ✓ API Key Saved Locally!
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Custom Groq AI Setup</Typography>
+                <Typography variant="caption" color={userProfile?.groqApiKey ? colors.primary : colors.subtext}>
+                  {userProfile?.groqApiKey ? '✓ Custom Groq Key Connected' : 'Configure free API key for unlimited AI features'}
                 </Typography>
-              )}
-
-              <Pressable
-                style={styles.tutorialLinkBtn}
-                onPress={() => setTutorialModalVisible(true)}
-              >
-                <HelpCircle color={PALETTE.plum.default} size={15} />
-                <Typography variant="caption" color={PALETTE.plum.default} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
-                  How to get a free Groq API Key?
-                </Typography>
-              </Pressable>
-            </View>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
           </View>
 
-          {/* SECTION 5: SUPPORT, SHARE & LEGAL */}
+          {/* SECTION 5: SUPPORT, COMMUNITY & LEGAL */}
           <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
             SUPPORT, COMMUNITY & LEGAL
           </Typography>
@@ -433,7 +412,7 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Share Sini AI App</Typography>
-                <Typography variant="caption" color={colors.subtext}>Share with friends & workout partners</Typography>
+                <Typography variant="caption" color={colors.subtext}>Invite friends & workout partners to Sini AI</Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
@@ -446,7 +425,28 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Contact Support & Feedback</Typography>
-                <Typography variant="caption" color={colors.subtext}>Reach out to Destya Studio team</Typography>
+                <Typography variant="caption" color={colors.subtext}>Reach out to Destya Studio team for help or ideas</Typography>
+              </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+
+            <View style={styles.rowSeparator} />
+
+            <Pressable
+              style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
+              onPress={() => {
+                const storeUrl = Platform.OS === 'ios'
+                  ? 'https://apps.apple.com/app/id6759521053'
+                  : 'https://play.google.com/store/apps/details?id=com.destya.sini';
+                Linking.openURL(storeUrl).catch(() => {});
+              }}
+            >
+              <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+                <Star size={18} color={PALETTE.gold.default} />
+              </View>
+              <View style={styles.rowTextCol}>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Rate and Review</Typography>
+                <Typography variant="caption" color={colors.subtext}>Help others discover Sini AI on store</Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
@@ -459,7 +459,7 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Privacy Policy</Typography>
-                <Typography variant="caption" color={colors.subtext}>100% Client-side local privacy guarantee</Typography>
+                <Typography variant="caption" color={colors.subtext}>See how your data is processed locally with 100% privacy</Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
@@ -485,7 +485,7 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.rowTextCol}>
                 <Typography variant="bodyMedium" style={styles.rowTitle}>Destya Studio Website</Typography>
-                <Typography variant="caption" color={colors.subtext}>Explore destyastudio.com</Typography>
+                <Typography variant="caption" color={colors.subtext}>Explore destyastudio.com & our mobile ecosystem</Typography>
               </View>
               <ChevronRight size={18} color={colors.subtext} />
             </Pressable>
@@ -545,34 +545,6 @@ export default function SettingsScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* API Key Tutorial Modal */}
-      <Modal visible={tutorialModalVisible} transparent animationType="slide" onRequestClose={() => setTutorialModalVisible(false)}>
-        <Pressable style={styles.modalOverlay} onPress={() => setTutorialModalVisible(false)}>
-          <Pressable style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-            <View style={styles.modalHeader}>
-              <BookOpen color={colors.primary} size={24} />
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
-                Free Groq API Key Setup
-              </Typography>
-            </View>
-
-            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 12, lineHeight: 22 }}>
-              1. Visit console.groq.com on your phone or PC.{"\n"}
-              2. Sign up for a free developer account.{"\n"}
-              3. Navigate to API Keys and tap "Create API Key".{"\n"}
-              4. Copy your key (starts with gsk_...) and paste it into Sini AI Settings!
-            </Typography>
-
-            <Button
-              title="Close Tutorial"
-              variant="primary"
-              onPress={() => setTutorialModalVisible(false)}
-              style={{ marginTop: 20 }}
-            />
-          </Pressable>
-        </Pressable>
-      </Modal>
 
     </SafeAreaView>
   );
