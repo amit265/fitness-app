@@ -81,7 +81,10 @@
             "minSdkVersion": 24,
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
-            "enableHermes": true
+            "enableHermes": true,
+            "extraGradleProps": {
+              "org.gradle.jvmargs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError"
+            }
           },
           "ios": {
             "useFrameworks": "static",
