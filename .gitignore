@@ -1,42 +1,80 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# ===========================
+# Dependencies
+# ===========================
 node_modules/
 
+# ===========================
 # Expo
+# ===========================
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
-.kotlin/
-*.orig.*
+# ===========================
+# Native (Android/iOS)
+# ===========================
+# We ignore these so each OS (Mac/Linux) generates its own native files
+/android
+/ios
+
+# ===========================
+# Credentials & Secrets (NEVER PUSH THESE)
+# ===========================
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.keystore
+*.pem
+.env
+.env*.local
+google-services-key.json
+google-service-account*.json
+expo-apps-submissions*.json
 
-# Metro
-.metro-health-check*
+# ===========================
+# Build Artifacts
+# ===========================
+*.aab
+*.apk
+*.ipa
+build/
+bin/
+obj/
 
-# debug
+# ===========================
+# macOS / Windows / Linux
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===========================
+# IDE / Editor Config
+# ===========================
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+
+# ===========================
+# Logs
+# ===========================
+*.log
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-# generated native folders
-/ios
-/android
+# ===========================
+# Misc
+# ===========================
+.qodo
+app-example/
+.metro-health-check*

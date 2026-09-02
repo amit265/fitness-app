@@ -84,6 +84,7 @@
             "enableHermes": true
           },
           "ios": {
+            "useFrameworks": "static",
             "deploymentTarget": "16.4"
           }
         }
