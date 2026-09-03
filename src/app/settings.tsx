@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Modal, Switch, Platform, KeyboardAvoidingView, Text, Share, Linking, ActivityIndicator,  } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Switch, Platform, KeyboardAvoidingView, Text, Share, Linking, ActivityIndicator,  } from 'react-native';
+import { AppModal as Modal } from '../components/AppModal';
 import { useTranslation } from 'react-i18next';
 import { Typography } from '../components/Typography';
 import { Button } from '../components/Button';

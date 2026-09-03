@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TextInput, Pressable, Keyboard, Modal, Platform, KeyboardAvoidingView, ActivityIndicator,  } from 'react-native';
+import { View, StyleSheet, ScrollView, TextInput, Pressable, Keyboard, Platform, KeyboardAvoidingView, ActivityIndicator,  } from 'react-native';
+import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';

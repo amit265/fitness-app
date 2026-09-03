@@ -1,12 +1,12 @@
 import React from 'react';
 import {
-  Modal,
   View,
   StyleSheet,
   Pressable,
   TouchableWithoutFeedback,
   ScrollView,
 } from 'react-native';
+import { AppModal as Modal } from './AppModal';
 import { Typography } from './Typography';
 import { Button } from './Button';
 import { useAppTheme } from '../context/ThemeContext';

@@ -4,10 +4,10 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
-  Modal,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';

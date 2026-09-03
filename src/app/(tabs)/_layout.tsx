@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Tabs, useFocusEffect } from 'expo-router';
-import { useColorScheme, Platform, Linking, Modal, Pressable, View, StyleSheet, BackHandler } from 'react-native';
+import { useColorScheme, Platform, Linking, Pressable, View, StyleSheet, BackHandler } from 'react-native';
+import { AppModal as Modal } from '../../components/AppModal';
 import { Sparkles, PlusCircle, TrendingUp, Calendar, User } from 'lucide-react-native';
 import { PALETTE } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

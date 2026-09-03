@@ -215,7 +215,10 @@ export default function RootLayout() {
               <Text style={[styles.webToggleText, webFrameMode === 'ipad' && styles.webToggleTextActive]}>iPad Size</Text>
             </Pressable>
           </View>
-          <View style={[styles.webPhoneFrame, { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg, maxWidth: webFrameMode === 'phone' ? 480 : 820 }]}>
+          <View 
+            nativeID="web-modal-root" 
+            style={[styles.webPhoneFrame, { position: 'relative', backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg, maxWidth: webFrameMode === 'phone' ? 480 : 820 }]}
+          >
             {content}
           </View>
         </View>

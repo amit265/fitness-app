@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Modal, Pressable, useColorScheme, Platform } from 'react-native';
+import { View, StyleSheet, Pressable, useColorScheme, Platform } from 'react-native';
+import { AppModal as Modal } from './AppModal';
 import * as Updates from 'expo-updates';
 import { Typography } from './Typography';
 import { Button } from './Button';

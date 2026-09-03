@@ -5,7 +5,6 @@ import {
   useColorScheme,
   ScrollView,
   Pressable,
-  Modal,
   TextInput,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -13,6 +12,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
+import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';

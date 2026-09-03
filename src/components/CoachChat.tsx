@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Modal, View, StyleSheet, ScrollView, TextInput, Pressable, useColorScheme, ActivityIndicator, KeyboardAvoidingView, Platform,  } from 'react-native';
+import { View, StyleSheet, ScrollView, TextInput, Pressable, useColorScheme, ActivityIndicator, KeyboardAvoidingView, Platform,  } from 'react-native';
+import { AppModal as Modal } from './AppModal';
 import { StatusBar } from 'expo-status-bar';
 import { Typography } from './Typography';
 import { MarkdownText } from './MarkdownText';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Modal, Pressable } from 'react-native';
+import { View, StyleSheet, Pressable } from 'react-native';
+import { AppModal as Modal } from './AppModal';
 import { useAppStore } from '../store/useAppStore';
 import { useAppTheme } from '../context/ThemeContext';
 import { Typography } from './Typography';
