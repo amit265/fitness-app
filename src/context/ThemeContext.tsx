@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { Appearance } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   ThemeTokens,
@@ -137,7 +137,9 @@ export const ThemeCustomProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Sync native Appearance (affects Alert modals and system UI)
   useEffect(() => {
-    Appearance.setColorScheme(activeTokens.isDark ? 'dark' : 'light');
+    if (Platform.OS !== 'web') {
+      Appearance.setColorScheme(activeTokens.isDark ? 'dark' : 'light');
+    }
   }, [activeTokens.isDark]);
 
   return (

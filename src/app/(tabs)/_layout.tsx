@@ -23,8 +23,9 @@ export default function TabsLayout() {
   const webTabListener = {
     tabPress: (e: any) => {
       if (Platform.OS === 'web') {
-        e.preventDefault();
-        setDownloadModalVisible(true);
+        // Temporarily disabled for testing
+        // e.preventDefault();
+        // setDownloadModalVisible(true);
       }
     },
   };

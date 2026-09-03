@@ -57,7 +57,8 @@
     "lint": "tsc --noEmit",
     "test": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/domain/cycle/test-runner.ts",
     "test:i18n": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/i18n/validate-i18n.ts",
-    "build:apk": "cd android && ./gradlew assembleRelease"
+    "build:apk": "cd android && ./gradlew assembleRelease",
+    "build": "expo export -p web"
   },
   "private": true
 }

@@ -16,7 +16,7 @@ import {
 import { Stack, useSegments, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform, Animated, LogBox } from 'react-native';
+import { ActivityIndicator, View, StyleSheet, useColorScheme, Platform, Animated, LogBox, Pressable, Text } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { PALETTE } from '../constants/theme';
 import { useAppStore } from '../store/useAppStore';
@@ -114,6 +114,7 @@ export default function RootLayout() {
   const [showAppSplash, setShowAppSplash] = useState(true);
   const [hasHiddenNativeSplash, setHasHiddenNativeSplash] = useState(false);
   const [splashOpacity] = useState(() => new Animated.Value(1));
+  const [webFrameMode, setWebFrameMode] = useState<'phone' | 'ipad'>('phone');
 
   const [fontsLoaded, fontError] = useFonts({
     'PlayfairDisplay-Regular': PlayfairDisplay_400Regular,
@@ -200,7 +201,21 @@ export default function RootLayout() {
       <EasUpdateModal />
       {Platform.OS === 'web' ? (
         <View style={styles.webOuterContainer}>
-          <View style={[styles.webPhoneFrame, { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg }]}>
+          <View style={styles.webToggleContainer}>
+            <Pressable
+              style={[styles.webToggleBtn, webFrameMode === 'phone' && styles.webToggleBtnActive]}
+              onPress={() => setWebFrameMode('phone')}
+            >
+              <Text style={[styles.webToggleText, webFrameMode === 'phone' && styles.webToggleTextActive]}>Phone Size</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.webToggleBtn, webFrameMode === 'ipad' && styles.webToggleBtnActive]}
+              onPress={() => setWebFrameMode('ipad')}
+            >
+              <Text style={[styles.webToggleText, webFrameMode === 'ipad' && styles.webToggleTextActive]}>iPad Size</Text>
+            </Pressable>
+          </View>
+          <View style={[styles.webPhoneFrame, { backgroundColor: isDark ? PALETTE.darkBg : PALETTE.oat.bg, maxWidth: webFrameMode === 'phone' ? 480 : 820 }]}>
             {content}
           </View>
         </View>
@@ -234,5 +249,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.35,
     shadowRadius: 24,
     elevation: 12,
+  },
+  webToggleContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 6,
+    borderRadius: 30,
+    gap: 8,
+  },
+  webToggleBtn: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 24,
+  },
+  webToggleBtnActive: {
+    backgroundColor: '#FF6B6B', // Destya primary red/coral
+  },
+  webToggleText: {
+    color: '#rgba(255,255,255,0.6)',
+    fontFamily: 'Outfit-Medium',
+    fontSize: 14,
+  },
+  webToggleTextActive: {
+    color: '#fff',
+    fontFamily: 'Outfit-Bold',
   },
 });

@@ -33,6 +33,7 @@ export let AD_CONFIG = {
 };
 
 export const fetchRemoteConfig = async () => {
+  if (Platform.OS === 'web') return;
   try {
     const rc = getRemoteConfig();
     
