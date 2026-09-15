@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontFamily: 'Outfit-Bold',
     marginBottom: 8,
   },
   message: {

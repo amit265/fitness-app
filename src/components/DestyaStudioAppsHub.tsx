@@ -44,10 +44,10 @@ export const DestyaStudioAppsHub: React.FC = () => {
   return (
     <Card style={styles.card}>
       <View style={styles.headerRow}>
-        <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+        <Typography variant="h3" >
           {t('crossPromo.moreFromDestya')}
         </Typography>
-        <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
+        <Typography variant="caption" color={colors.primary} >
           {t('crossPromo.appsCount', { count: activeApps.length })}
         </Typography>
       </View>
@@ -68,7 +68,7 @@ export const DestyaStudioAppsHub: React.FC = () => {
           >
             <Image source={{ uri: app.icon }} style={[styles.appIcon, { backgroundColor: colors.border }]} />
             <View style={{ flex: 1, marginLeft: 10 }}>
-              <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="bodySmall" >
                 {app.name}
               </Typography>
               <Typography variant="caption" color={colors.textSecondary} numberOfLines={2} style={{ marginTop: 2 }}>

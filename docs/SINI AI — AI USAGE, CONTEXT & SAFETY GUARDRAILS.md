@@ -1,6 +1,6 @@
-# SINI AI — AI USAGE, CONTEXT & SAFETY GUARDRAILS
+# Sini — AI USAGE, CONTEXT & SAFETY GUARDRAILS
 
-The existing Sini AI AI functionality is already working correctly.
+The existing Sini AI functionality is already working correctly.
 
 **Do NOT rebuild or redesign the AI system.**
 
@@ -140,7 +140,7 @@ Do NOT blindly send the complete user database or all historical logs with every
 Instead create a compact context builder:
 
 ```typescript
-buildAIContext()
+buildAIContext();
 ```
 
 It should select the minimum relevant information needed for the request.
@@ -568,7 +568,7 @@ Coach chat
 The desired behavior is:
 
 ```text
-                    SINI AI
+                    Sini
                        │
               ┌────────┴────────┐
               │                 │

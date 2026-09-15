@@ -1,7 +1,7 @@
 import { APP_LINKS } from './links';
 
 export const APP_CONFIG = {
-  name: 'Sini AI',
+  name: 'Sini',
   tagline: 'Fitness that understands your cycle.',
   storeDescriptor: 'Cycle & Fitness',
   version: '1.0.0',

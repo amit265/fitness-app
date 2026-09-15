@@ -27,11 +27,11 @@ const IAPContext = createContext<IAPContextType>({
   isPremium: false,
   premiumProduct: null,
   isLoading: false,
-  requestPurchase: async () => {},
+  requestPurchase: async () => { },
   restorePurchases: async () => ({ success: false, message: '' }),
 });
 
-export const PREMIUM_PRODUCT_ID = 'com.destyastudio.siniai.remove_ads';
+export const PREMIUM_PRODUCT_ID = 'com.destyastudio.sini.premium';
 const LOCAL_PREMIUM_KEY = 'isPremium';
 
 export const IAPProvider = ({ children }: { children: ReactNode }) => {

@@ -144,7 +144,7 @@ export function SplashScreenComponent({
               }}
             >
               <Text style={[styles.appNameText, { color: colors.textPrimary }]}>
-                Sini AI
+                Sini
               </Text>
               <Text style={[styles.appTaglineText, { color: colors.primary }]}>
                 {t('common.tagline')}
@@ -215,14 +215,14 @@ const styles = StyleSheet.create({
   appNameText: {
     marginTop: 22,
     fontSize: 28,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Urbanist-Bold',
     letterSpacing: -0.5,
     textAlign: 'center',
   },
   appTaglineText: {
     marginTop: 4,
     fontSize: 13,
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Urbanist-Medium',
     letterSpacing: 0.2,
     textAlign: 'center',
   },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   brandingText: {
     fontSize: 11,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Urbanist-Bold',
     letterSpacing: 1.5,
     textAlign: 'center',
   },

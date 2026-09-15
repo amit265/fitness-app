@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Tabs, useFocusEffect } from 'expo-router';
+import { Tabs, useFocusEffect, useRouter } from 'expo-router';
 import { useColorScheme, Platform, Linking, Pressable, View, StyleSheet, BackHandler } from 'react-native';
 import { AppModal as Modal } from '../../components/AppModal';
 import { Sparkles, PlusCircle, TrendingUp, Calendar, User } from 'lucide-react-native';
@@ -37,28 +37,7 @@ export default function TabsLayout() {
     );
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      const onBackPress = () => {
-        useAppStore.getState().showAlert(
-          t('common.exitApp') === 'common.exitApp' ? 'Exit App' : t('common.exitApp'),
-          t('common.exitConfirm') === 'common.exitConfirm' ? 'Are you sure you want to exit?' : t('common.exitConfirm'),
-          [
-            { text: t('common.cancel'), style: 'cancel' },
-            { 
-              text: t('common.exit') === 'common.exit' ? 'Exit' : t('common.exit'), 
-              style: 'destructive', 
-              onPress: () => BackHandler.exitApp() 
-            }
-          ]
-        );
-        return true; // prevent default behavior (app close)
-      };
-
-      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      return () => subscription.remove();
-    }, [])
-  );
+  const router = useRouter();
 
   return (
     <>
@@ -86,8 +65,7 @@ export default function TabsLayout() {
           },
           tabBarLabelStyle: {
             fontSize: 11,
-            fontFamily: 'Outfit-Medium',
-          },
+            },
         }}
       >
         <Tabs.Screen
@@ -127,7 +105,7 @@ export default function TabsLayout() {
       <Modal visible={downloadModalVisible} transparent animationType="fade" onRequestClose={() => setDownloadModalVisible(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setDownloadModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginBottom: 4 }}>
+            <Typography variant="h2" style={{ marginBottom: 4 }}>
               {t('webModal.title')}
             </Typography>
             <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 16, lineHeight: 18 }}>

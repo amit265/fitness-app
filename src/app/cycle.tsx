@@ -19,7 +19,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
-import { BannerAdComponent } from '../services/AdManager';
 import { Alert } from '../utils/alertUtils';
 
 import {
@@ -387,7 +386,7 @@ export default function DedicatedCyclePage() {
           </Pressable>
           <View style={{ flex: 1, marginLeft: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 Cycle Guide
               </Typography>
               <Pressable
@@ -399,7 +398,7 @@ export default function DedicatedCyclePage() {
                 onPress={() => setTutorialModalVisible(true)}
               >
                 <HelpCircle color={colors.primary} size={14} />
-                <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', fontSize: 11 }}>
+                <Typography variant="caption" color={colors.primary} style={{ fontSize: 11 }}>
                   {t('cycle.howItWorks')}
                 </Typography>
               </Pressable>
@@ -415,12 +414,12 @@ export default function DedicatedCyclePage() {
           <View style={styles.statusHeaderRow}>
             <View style={styles.statusTitleCol}>
               <Heart color={JEWEL_COLORS.period} size={22} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', flexShrink: 1 }}>
+              <Typography variant="h3" style={{ flexShrink: 1 }}>
                 {userProfile?.pauseCycleTracking ? t('cycle.notLogged') : `${t('cycle.currentDay', { day: todayCycleState.cycleDay })} • ${t('cycle.phase.' + todayCycleState.phase)}`}
               </Typography>
             </View>
             <View style={[styles.confidenceBadge, { backgroundColor: stats.confidence === 'high' ? colors.successBg : colors.warningBg }]}>
-              <Typography variant="caption" color={stats.confidence === 'high' ? colors.success : colors.warning} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={stats.confidence === 'high' ? colors.success : colors.warning} >
                 {t('cycle.confidenceLabel')}: {stats.confidence.toUpperCase()}
               </Typography>
             </View>
@@ -480,12 +479,12 @@ export default function DedicatedCyclePage() {
             </Pressable>
             
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
               </Typography>
               {!isCurrentMonthView && (
                 <Pressable style={[styles.todaySnapBtn, { backgroundColor: colors.surface }]} onPress={handleResetToToday}>
-                  <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', fontSize: 10 }}>
+                  <Typography variant="caption" color={colors.primary} style={{ fontSize: 10 }}>
                     Today
                   </Typography>
                 </Pressable>
@@ -617,7 +616,7 @@ export default function DedicatedCyclePage() {
         <Card style={styles.selectedDayCard}>
           <View style={styles.selectedDayHeader}>
             <View>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 {new Date(selectedDateStr + 'T00:00:00').toLocaleDateString('default', {
                   weekday: 'short',
                   month: 'short',
@@ -645,7 +644,7 @@ export default function DedicatedCyclePage() {
               <Typography
                 variant="caption"
                 color={confirmedPeriodForSelectedDate ? '#FFFFFF' : selectedDayCellData.isFertile ? JEWEL_COLORS.fertileText : PALETTE.charcoal.default}
-                style={{ fontFamily: 'Outfit-Bold' }}
+                
               >
                 {confirmedPeriodForSelectedDate
                   ? `PERIOD (${(confirmedPeriodForSelectedDate.flowIntensity || 'medium').toUpperCase()})`
@@ -665,7 +664,7 @@ export default function DedicatedCyclePage() {
                   <View style={styles.symptomsChipWrap}>
                     {selectedSymptoms.map((sym) => (
                       <View key={sym} style={styles.symptomChip}>
-                        <Typography variant="caption" color={PALETTE.rose.dark} style={{ fontFamily: 'Outfit-Bold' }}>
+                        <Typography variant="caption" color={PALETTE.rose.dark} >
                           • {sym}
                         </Typography>
                       </View>
@@ -682,7 +681,7 @@ export default function DedicatedCyclePage() {
               {selectedSymptoms.includes('cramps') && (
                 <View style={styles.symptomImpactNotice}>
                   <Info color="#D97706" size={14} />
-                  <Typography variant="caption" color="#D97706" style={{ fontFamily: 'Outfit-Bold', flex: 1, fontSize: 11 }}>
+                  <Typography variant="caption" color="#D97706" style={{ flex: 1, fontSize: 11 }}>
                     Cramps Logged • Daily readiness recommends restorative mobility & light stretching today.
                   </Typography>
                 </View>
@@ -728,20 +727,20 @@ export default function DedicatedCyclePage() {
               <View style={[styles.futurePreviewCard, { backgroundColor: targetGuide.bgColor }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <targetGuide.icon color={targetGuide.color} size={18} />
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold', color: targetGuide.color }}>
+                  <Typography variant="bodyMedium" style={{ color: targetGuide.color }}>
                     {targetGuide.name} (Predicted)
                   </Typography>
                 </View>
                 <View style={{ gap: 6 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Zap color={targetGuide.color} size={14} />
-                    <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold', color: targetGuide.color, flex: 1 }}>
+                    <Typography variant="caption" style={{ color: targetGuide.color, flex: 1 }}>
                       {targetGuide.mindEnergy}
                     </Typography>
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Dumbbell color={targetGuide.color} size={14} />
-                    <Typography variant="caption" style={{ fontFamily: 'Outfit-Medium', flex: 1 }}>
+                    <Typography variant="caption" style={{ flex: 1 }}>
                       {targetGuide.workouts}
                     </Typography>
                   </View>
@@ -761,7 +760,7 @@ export default function DedicatedCyclePage() {
         <Card style={styles.guideContainerCard}>
           <View style={styles.guideHeaderRow}>
             <BookOpen color={PALETTE.sage.default} size={20} />
-            <Typography variant="h3" style={{ fontFamily: 'PlayfairDisplay-Bold', marginLeft: 6 }}>
+            <Typography variant="h3" style={{ marginLeft: 6 }}>
               {t('cycle.hormonalGuideTitle', { defaultValue: 'Hormonal Phases Guide' })}
             </Typography>
           </View>
@@ -802,10 +801,10 @@ export default function DedicatedCyclePage() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <selectedGuide.icon color={selectedGuide.color} size={26} />
                 <View>
-                  <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="h3" >
                     {selectedGuide.name}
                   </Typography>
-                  <Typography variant="caption" color={selectedGuide.color} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="caption" color={selectedGuide.color} >
                     {selectedGuide.days}
                   </Typography>
                 </View>
@@ -816,7 +815,7 @@ export default function DedicatedCyclePage() {
             <View style={styles.detailBlock}>
               <View style={styles.detailBlockTitleRow}>
                 <ActivityIcon color={selectedGuide.color} size={16} />
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                <Typography variant="bodySmall" style={{ marginLeft: 4 }}>
                   {t('cycle.hormonalLandscape', { defaultValue: 'Hormonal Landscape' })}
                 </Typography>
               </View>
@@ -828,7 +827,7 @@ export default function DedicatedCyclePage() {
             <View style={styles.detailBlock}>
               <View style={styles.detailBlockTitleRow}>
                 <Smile color={selectedGuide.color} size={16} />
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                <Typography variant="bodySmall" style={{ marginLeft: 4 }}>
                   {t('cycle.mindEnergyExperience', { defaultValue: 'Mind & Energy Experience' })}
                 </Typography>
               </View>
@@ -840,7 +839,7 @@ export default function DedicatedCyclePage() {
             <View style={styles.detailBlock}>
               <View style={styles.detailBlockTitleRow}>
                 <Dumbbell color={selectedGuide.color} size={16} />
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                <Typography variant="bodySmall" style={{ marginLeft: 4 }}>
                   {t('cycle.recommendedWorkouts', { defaultValue: 'Recommended Workouts' })}
                 </Typography>
               </View>
@@ -852,7 +851,7 @@ export default function DedicatedCyclePage() {
             <View style={styles.detailBlock}>
               <View style={styles.detailBlockTitleRow}>
                 <Utensils color={selectedGuide.color} size={16} />
-                <Typography variant="bodySmall" style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                <Typography variant="bodySmall" style={{ marginLeft: 4 }}>
                   Nutritional Strategy
                 </Typography>
               </View>
@@ -966,7 +965,7 @@ export default function DedicatedCyclePage() {
             <View style={styles.stickyModalHeader}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
                 <BookOpen color={colors.primary} size={22} />
-                <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
+                <Typography variant="h2">
                   {t('cycle.howCycleTrackingWorks')}
                 </Typography>
               </View>
@@ -981,7 +980,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.tutorialItemBox}>
                 <View style={styles.tutorialItemHeader}>
                   <Droplet color={JEWEL_COLORS.period} size={18} />
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" >
                     {t('cycle.tut1Title')}
                   </Typography>
                 </View>
@@ -994,7 +993,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.tutorialItemBox}>
                 <View style={styles.tutorialItemHeader}>
                   <Sparkles color="#D97706" size={18} />
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" >
                     {t('cycle.tut2Title')}
                   </Typography>
                 </View>
@@ -1007,7 +1006,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.tutorialItemBox}>
                 <View style={styles.tutorialItemHeader}>
                   <Zap color={PALETTE.sage.default} size={18} />
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" >
                     {t('cycle.tut3Title')}
                   </Typography>
                 </View>
@@ -1020,12 +1019,12 @@ export default function DedicatedCyclePage() {
               <View style={styles.tutorialItemBox}>
                 <View style={styles.tutorialItemHeader}>
                   <Heart color={JEWEL_COLORS.period} size={18} />
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" >
                     {t('cycle.tut4Title')}
                   </Typography>
                 </View>
                 <Typography variant="caption" color={PALETTE.charcoal.light} style={{ marginTop: 2, lineHeight: 16 }}>
-                  {t('cycle.tut4Desc1')}<Typography variant="caption" style={{ fontFamily: 'Outfit-Bold' }}>{t('cycle.tut4Desc2')}</Typography>{t('cycle.tut4Desc3')}
+                  {t('cycle.tut4Desc1')}<Typography variant="caption" >{t('cycle.tut4Desc2')}</Typography>{t('cycle.tut4Desc3')}
                 </Typography>
               </View>
 
@@ -1033,7 +1032,7 @@ export default function DedicatedCyclePage() {
               <View style={styles.tutorialItemBox}>
                 <View style={styles.tutorialItemHeader}>
                   <ActivityIcon color={PALETTE.sage.default} size={18} />
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" >
                     {t('cycle.tut5Title')}
                   </Typography>
                 </View>
@@ -1049,8 +1048,7 @@ export default function DedicatedCyclePage() {
           </View>
         </View>
       </Modal>
-      <BannerAdComponent screen="cycle" />
-    </SafeAreaView>
+          </SafeAreaView>
   );
 }
 
@@ -1152,13 +1150,11 @@ const styles = StyleSheet.create({
   },
   statusLabelText: {
     fontSize: 9.5,
-    fontFamily: 'Outfit-Bold',
     letterSpacing: 0.3,
     textAlign: 'center',
   },
   statusValueText: {
     fontSize: 12,
-    fontFamily: 'Outfit-Bold',
     marginTop: 3,
     textAlign: 'center',
   },
@@ -1198,7 +1194,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   weekdayText: {
-    fontFamily: 'Outfit-Bold',
     width: 36,
     textAlign: 'center',
   },
@@ -1319,8 +1314,7 @@ const styles = StyleSheet.create({
     borderColor: PALETTE.sage.default,
   },
   actionPillText: {
-    fontFamily: 'Outfit-Bold',
-  },
+    },
   deletePillBtn: {
     padding: 10,
     borderRadius: 100,
@@ -1361,7 +1355,6 @@ const styles = StyleSheet.create({
   },
   phaseTabLabel: {
     fontSize: 9.5,
-    fontFamily: 'Outfit-Bold',
     textAlign: 'center',
   },
   activePhaseCard: {

@@ -1,5 +1,5 @@
 /**
- * Sini AI — Brand & Visual Design System Tokens
+ * Sini — Brand & Visual Design System Tokens
  * Core brand promise: "Fitness that understands your cycle."
  * Emotional direction: Warm · Grounded · Feminine · Natural · Modern
  */
@@ -443,58 +443,68 @@ export const SEMANTICS = {
 export const TYPOGRAPHY = {
   display: {
     fontSize: 44,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Urbanist-Bold',
     lineHeight: 52,
     letterSpacing: -0.5,
     fontVariant: ['tabular-nums'] as any,
+    includeFontPadding: false,
   },
   h1: {
     fontSize: 28,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Urbanist-Bold',
     lineHeight: 36,
     letterSpacing: -0.3,
+    includeFontPadding: false,
   },
   h2: {
     fontSize: 22,
-    fontFamily: 'Outfit-SemiBold',
+    fontFamily: 'Urbanist-SemiBold',
     lineHeight: 28,
+    includeFontPadding: false,
   },
   h3: {
     fontSize: 18,
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Urbanist-SemiBold',
     lineHeight: 24,
+    includeFontPadding: false,
   },
   bodyLarge: {
     fontSize: 16,
-    fontFamily: 'Outfit-Regular',
+    fontFamily: 'Urbanist-Regular',
     lineHeight: 24,
+    includeFontPadding: false,
   },
   bodyMedium: {
     fontSize: 14,
-    fontFamily: 'Outfit-Regular',
+    fontFamily: 'Urbanist-Regular',
     lineHeight: 20,
+    includeFontPadding: false,
   },
   bodySmall: {
     fontSize: 12,
-    fontFamily: 'Outfit-Regular',
+    fontFamily: 'Urbanist-Regular',
     lineHeight: 16,
+    includeFontPadding: false,
   },
   caption: {
     fontSize: 11,
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Urbanist-Medium',
     lineHeight: 14,
     letterSpacing: 0.2,
+    includeFontPadding: false,
   },
   dataLabel: {
     fontSize: 14,
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Urbanist-Medium',
     letterSpacing: 0.5,
+    includeFontPadding: false,
   },
   dataValue: {
     fontSize: 32,
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Urbanist-Bold',
     lineHeight: 38,
     fontVariant: ['tabular-nums'] as any,
+    includeFontPadding: false,
   },
 };
 

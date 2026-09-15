@@ -11,7 +11,6 @@ import { ArrowLeft, Key, Sparkles, ExternalLink, ShieldCheck } from 'lucide-reac
 import { useRouter } from 'expo-router';
 import { APP_LINKS } from '../constants/links';
 import { t } from '../i18n';
-import { BannerAdComponent } from '../services/AdManager';
 import { Alert } from '../utils/alertUtils';
 
 
@@ -77,7 +76,7 @@ export default function GroqApiScreen() {
             <ArrowLeft color={colors.textPrimary} size={22} />
           </Pressable>
           <View style={{ alignItems: 'center' }}>
-            <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>{t('groq.setupTitle')}</Typography>
+            <Typography variant="h2" >{t('groq.setupTitle')}</Typography>
             <Typography variant="caption" color={colors.subtext}>{t('groq.setupSubtitle')}</Typography>
           </View>
           <View style={{ width: 36 }} />
@@ -91,7 +90,7 @@ export default function GroqApiScreen() {
               <View style={[styles.iconCircle, { backgroundColor: colors.surface }]}>
                 <Sparkles size={20} color={colors.primary} />
               </View>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
+              <Typography variant="h3" style={{ marginLeft: 10 }}>
                 {t('groq.setupTitle')}
               </Typography>
             </View>
@@ -102,14 +101,14 @@ export default function GroqApiScreen() {
 
           {/* CARD 2: HOW TO GET A FREE KEY */}
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginBottom: 12 }}>
+            <Typography variant="h3" style={{ marginBottom: 12 }}>
               {t('groq.getKeyTitle')}
             </Typography>
 
             {/* Step 1 */}
             <View style={styles.stepRow}>
               <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>
-                <Typography variant="caption" color={colors.primaryText} style={{ fontFamily: 'Outfit-Bold' }}>1</Typography>
+                <Typography variant="caption" color={colors.primaryText} >1</Typography>
               </View>
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium">
@@ -121,7 +120,7 @@ export default function GroqApiScreen() {
             {/* Step 2 */}
             <View style={styles.stepRow}>
               <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>
-                <Typography variant="caption" color={colors.primaryText} style={{ fontFamily: 'Outfit-Bold' }}>2</Typography>
+                <Typography variant="caption" color={colors.primaryText} >2</Typography>
               </View>
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium">
@@ -133,7 +132,7 @@ export default function GroqApiScreen() {
             {/* Step 3 */}
             <View style={styles.stepRow}>
               <View style={[styles.stepBadge, { backgroundColor: colors.primary }]}>
-                <Typography variant="caption" color={colors.primaryText} style={{ fontFamily: 'Outfit-Bold' }}>3</Typography>
+                <Typography variant="caption" color={colors.primaryText} >3</Typography>
               </View>
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium">
@@ -147,7 +146,7 @@ export default function GroqApiScreen() {
               onPress={() => Linking.openURL(APP_LINKS.groqConsole)}
             >
               <ExternalLink size={16} color={colors.primary} />
-              <Typography variant="bodySmall" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+              <Typography variant="bodySmall" color={colors.primary} style={{ marginLeft: 6 }}>
                 console.groq.com
               </Typography>
             </Pressable>
@@ -160,7 +159,7 @@ export default function GroqApiScreen() {
                 <Key size={20} color={colors.primary} />
               </View>
               <View style={{ marginLeft: 10, flex: 1 }}>
-                <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="h3" >
                   {t('settings.groqApiKeySection')}
                 </Typography>
               </View>
@@ -175,7 +174,7 @@ export default function GroqApiScreen() {
             />
 
             {savedSuccess && (
-              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginBottom: 10 }}>
+              <Typography variant="caption" color={colors.primary} style={{ marginBottom: 10 }}>
                 ✓ {t('groq.savedSuccess')}
               </Typography>
             )}
@@ -209,8 +208,7 @@ export default function GroqApiScreen() {
 
         </ScrollView>
       </KeyboardAvoidingView>
-      <BannerAdComponent screen="groq-api" />
-    </SafeAreaView>
+          </SafeAreaView>
   );
 }
 

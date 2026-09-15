@@ -20,7 +20,6 @@ import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import { NativeAdComponent } from '../../services/AdManager';
 import {
   Scale,
   Ruler,
@@ -108,7 +107,7 @@ export default function ProgressScreen() {
 
         {/* Header */}
         <View style={styles.header}>
-          <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>
+          <Typography variant="h1" >
             {t('progress.title')}
           </Typography>
           <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
@@ -121,7 +120,7 @@ export default function ProgressScreen() {
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <TrendingUp color={colors.primary} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+              <Typography variant="h3" style={{ marginLeft: 8 }}>
                 {t('progress.weightTrend')}
               </Typography>
             </View>
@@ -149,19 +148,19 @@ export default function ProgressScreen() {
           <View style={styles.statGrid}>
             <View style={styles.statBox}>
               <Typography variant="caption" color={colors.subtext}>{t('progress.currentWeight')}</Typography>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h2" >
                 {latestWeight ? `${latestWeight} kg` : '--'}
               </Typography>
             </View>
             <View style={styles.statBox}>
               <Typography variant="caption" color={colors.subtext}>{t('progress.weightChange')}</Typography>
-              <Typography variant="h2" color={weightChange && weightChange <= 0 ? colors.activity : colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h2" color={weightChange && weightChange <= 0 ? colors.activity : colors.nutrition} >
                 {weightChange !== null ? `${weightChange > 0 ? '+' : ''}${weightChange} kg` : '--'}
               </Typography>
             </View>
             <View style={styles.statBox}>
               <Typography variant="caption" color={colors.subtext}>{t('profile.bmiLabel')}</Typography>
-              <Typography variant="h3" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" color={colors.primary} >
                 {bmiCategoryTranslated}
               </Typography>
             </View>
@@ -178,12 +177,12 @@ export default function ProgressScreen() {
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ruler color={colors.period} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+              <Typography variant="h3" style={{ marginLeft: 8 }}>
                 {t('progress.logMeasurement')}
               </Typography>
             </View>
             <Pressable onPress={() => setMeasureModalVisible(true)}>
-              <Typography variant="caption" color={colors.period} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.period} >
                 + {t('common.edit')}
               </Typography>
             </Pressable>
@@ -192,25 +191,25 @@ export default function ProgressScreen() {
           <View style={styles.measurementsGrid}>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>{t('progress.waist')}</Typography>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
+              <Typography variant="h2" style={{ marginTop: 4 }}>
                 {latestWaist ? `${latestWaist} cm` : '--'}
               </Typography>
             </View>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>{t('progress.hips')}</Typography>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
+              <Typography variant="h2" style={{ marginTop: 4 }}>
                 {latestHips ? `${latestHips} cm` : '--'}
               </Typography>
             </View>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>{t('progress.chest')}</Typography>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
+              <Typography variant="h2" style={{ marginTop: 4 }}>
                 {latestChest ? `${latestChest} cm` : '--'}
               </Typography>
             </View>
             <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
               <Typography variant="caption" color={colors.subtext}>{t('progress.thigh')}</Typography>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold', marginTop: 4 }}>
+              <Typography variant="h2" style={{ marginTop: 4 }}>
                 {latestThigh ? `${latestThigh} cm` : '--'}
               </Typography>
             </View>
@@ -222,7 +221,7 @@ export default function ProgressScreen() {
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Flame color={colors.nutrition} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+              <Typography variant="h3" style={{ marginLeft: 8 }}>
                 {t('nutrition.title')} • {t('activity.title')}
               </Typography>
             </View>
@@ -237,7 +236,7 @@ export default function ProgressScreen() {
           <View style={styles.cardHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
               <CalendarIcon color={colors.activity} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
+              <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
                 {t('cycle.cycleHistory')}
               </Typography>
             </View>
@@ -251,8 +250,7 @@ export default function ProgressScreen() {
         </Card>
 
         {/* Native Ad Card */}
-        <NativeAdComponent screen="progress" style={{ marginVertical: SPACING.md }} />
-
+        
       </ScrollView>
 
       {/* Measurement Modal */}

@@ -69,7 +69,7 @@ export function CalculatorModal({
 
                 {/* Explanation */}
                 <View style={[styles.explanationBox, { backgroundColor: colors.bg, borderColor: colors.border }]}>
-                  <Typography variant="caption" style={{ fontFamily: 'Outfit-Bold', marginBottom: 4 }}>
+                  <Typography variant="caption" style={{ marginBottom: 4 }}>
                     {t('profile.howCalculated')}
                   </Typography>
                   <Typography variant="bodyMedium" color={colors.subtext}>

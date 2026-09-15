@@ -1,10 +1,10 @@
-# SINI AI — ASO & LAUNCH DESIGN MASTER SPEC
+# Sini — ASO & LAUNCH DESIGN MASTER SPEC
 
 ## 1. Brand Lockup
 
-**App name:** Sini AI: Cycle & Fitness
+**App name:** Sini: Cycle & Fitness
 
-**Brand:** Sini AI
+**Brand:** Sini
 
 **Category descriptor:** Cycle & Fitness
 
@@ -124,7 +124,7 @@ Use the primary tagline consistently in major launch assets.
 
 ## Overall design direction
 
-Sini AI should look:
+Sini should look:
 
 **Warm · Intelligent · Premium · Grounded · Feminine · Modern**
 
@@ -249,19 +249,19 @@ Error:
 
 Use the colors consistently across the entire product.
 
-| Meaning | Color |
-|---|---|
-| Brand / primary | Deep Plum |
-| Background | Warm Oat |
-| Calories / nutrition | Terracotta |
-| Activity / fitness | Sage |
-| Menstrual / period | Soft Rose |
-| Follicular | Sage |
-| Ovulation | Warm Gold |
-| Luteal | Deep Plum / Muted Lavender |
-| Recovery | Muted Lavender |
-| Errors | Muted Red |
-| Success | Sage |
+| Meaning              | Color                      |
+| -------------------- | -------------------------- |
+| Brand / primary      | Deep Plum                  |
+| Background           | Warm Oat                   |
+| Calories / nutrition | Terracotta                 |
+| Activity / fitness   | Sage                       |
+| Menstrual / period   | Soft Rose                  |
+| Follicular           | Sage                       |
+| Ovulation            | Warm Gold                  |
+| Luteal               | Deep Plum / Muted Lavender |
+| Recovery             | Muted Lavender             |
+| Errors               | Muted Red                  |
+| Success              | Sage                       |
 
 Do not randomly use colors.
 
@@ -365,7 +365,7 @@ Optional tiny Warm Gold or Soft Rose accent.
 ## Do NOT include
 
 - Text
-- "SINI AI"
+- "Sini"
 - Calendar
 - Dumbbell
 - Woman silhouette
@@ -404,7 +404,7 @@ Sell the product promise, not every feature.
 
 ### Left side
 
-**SINI AI**
+**Sini**
 
 **Cycle & Fitness**
 
@@ -651,13 +651,13 @@ Avoid:
 
 ## App title
 
-**Sini AI: Cycle & Fitness**
+**Sini: Cycle & Fitness**
 
 This is the recommended working title.
 
 It communicates:
 
-- Brand: Sini AI
+- Brand: Sini
 - Category: Cycle & Fitness
 
 Do not stuff the title with every feature.
@@ -733,7 +733,7 @@ Use this structure rather than one giant paragraph.
 
 ## Opening
 
-**Meet Sini AI — your cycle-aware fitness and wellness companion.**
+**Meet Sini — your cycle-aware fitness and wellness companion.**
 
 Track calories, food, workouts, activity, your menstrual cycle, body measurements and daily wellness — all in one place.
 
@@ -839,7 +839,7 @@ BMI is a screening measure and does not directly measure body fat or overall hea
 
 **Eat well. Move smart. Feel in sync.**
 
-Download Sini AI and build a fitness routine that works with your life — and your cycle.
+Download Sini and build a fitness routine that works with your life — and your cycle.
 
 ---
 
@@ -873,7 +873,7 @@ Do not make medical claims without appropriate evidence and product support.
 
 The Play Store listing should communicate these concepts in order:
 
-1. **Sini AI**
+1. **Sini**
 2. **Women's fitness**
 3. **Calories**
 4. **Activity**
@@ -917,7 +917,7 @@ Supporting copy:
 
 Primary CTA:
 
-**Download Sini AI**
+**Download Sini**
 
 Sections:
 
@@ -1026,7 +1026,7 @@ Always explain that activity expenditure is estimated and varies by person.
 
 Use this prompt for image generation/design:
 
-> Create a premium minimalist mobile app icon for "Sini AI", a women's cycle-aware fitness and calorie tracking app.
+> Create a premium minimalist mobile app icon for "Sini", a women's cycle-aware fitness and calorie tracking app.
 >
 > Square 1:1 composition, no text.
 >
@@ -1052,7 +1052,7 @@ Use this prompt for image generation/design:
 
 # 26. Feature Graphic Production Prompt
 
-> Create a premium Google Play feature graphic for "Sini AI: Cycle & Fitness".
+> Create a premium Google Play feature graphic for "Sini: Cycle & Fitness".
 >
 > Canvas 1024×500 px, wide landscape.
 >
@@ -1068,7 +1068,7 @@ Use this prompt for image generation/design:
 >
 > Left side: elegant brand lockup:
 >
-> SINI AI
+> Sini
 >
 > Cycle & Fitness
 >
@@ -1135,35 +1135,35 @@ Maintain:
 
 ## Screenshot 1
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Know your day at a glance." Show the actual Sini AI Home screen with a prominent calorie dashboard, 1,420 / 1,850 kcal, 430 kcal remaining, cycle phase, readiness, activity and Sini recommendation. Warm Oat background, Deep Plum typography, Terracotta nutrition accents, Sage activity accents, Soft Rose cycle accents. Minimal, premium, modern women's fitness aesthetic.
+> Premium Google Play promotional screenshot for Sini, headline "Know your day at a glance." Show the actual Sini Home screen with a prominent calorie dashboard, 1,420 / 1,850 kcal, 430 kcal remaining, cycle phase, readiness, activity and Sini recommendation. Warm Oat background, Deep Plum typography, Terracotta nutrition accents, Sage activity accents, Soft Rose cycle accents. Minimal, premium, modern women's fitness aesthetic.
 
 ## Screenshot 2
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Know what you have left." Show a beautiful calorie dashboard with 1,420 / 1,850 kcal and 430 kcal remaining, elegant circular progress indicator, food and activity breakdown. Warm Oat, Deep Plum, Terracotta, subtle Sage. Clean and highly readable.
+> Premium Google Play promotional screenshot for Sini, headline "Know what you have left." Show a beautiful calorie dashboard with 1,420 / 1,850 kcal and 430 kcal remaining, elegant circular progress indicator, food and activity breakdown. Warm Oat, Deep Plum, Terracotta, subtle Sage. Clean and highly readable.
 
 ## Screenshot 3
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Log food in your own words." Show natural-language food input and resulting estimated meal breakdown: approximately 640 kcal and 42g protein. Warm premium wellness aesthetic, Deep Plum and Terracotta accents.
+> Premium Google Play promotional screenshot for Sini, headline "Log food in your own words." Show natural-language food input and resulting estimated meal breakdown: approximately 640 kcal and 42g protein. Warm premium wellness aesthetic, Deep Plum and Terracotta accents.
 
 ## Screenshot 4
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Turn movement into progress." Show activity tracking for walking, swimming, strength and steps, with approximately 220 kcal estimated activity expenditure. Sage fitness accents, Deep Plum typography, Warm Oat background.
+> Premium Google Play promotional screenshot for Sini, headline "Turn movement into progress." Show activity tracking for walking, swimming, strength and steps, with approximately 220 kcal estimated activity expenditure. Sage fitness accents, Deep Plum typography, Warm Oat background.
 
 ## Screenshot 5
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Fitness that understands your cycle." Show the interactive monthly menstrual cycle calendar with elegant phase visualization, period indicators, current day and estimated fertile window. Warm Oat background, Soft Rose menstrual accents, Sage follicular accents, Warm Gold ovulation accent, Deep Plum luteal accents.
+> Premium Google Play promotional screenshot for Sini, headline "Fitness that understands your cycle." Show the interactive monthly menstrual cycle calendar with elegant phase visualization, period indicators, current day and estimated fertile window. Warm Oat background, Soft Rose menstrual accents, Sage follicular accents, Warm Gold ovulation accent, Deep Plum luteal accents.
 
 ## Screenshot 6
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Meet your cycle-aware coach." Show a polished conversational AI interface with a short supportive conversation about low energy during a menstrual phase, while honestly displaying remaining calories. Warm, intelligent, empathetic, premium wellness aesthetic.
+> Premium Google Play promotional screenshot for Sini, headline "Meet your cycle-aware coach." Show a polished conversational AI interface with a short supportive conversation about low energy during a menstrual phase, while honestly displaying remaining calories. Warm, intelligent, empathetic, premium wellness aesthetic.
 
 ## Screenshot 7
 
-> Premium Google Play promotional screenshot for Sini AI, headline "See your progress over time." Show polished trend graphs for weight, body measurements, calories, sleep, activity and readiness. Warm Oat background, Deep Plum typography, subtle Sage, Terracotta and Rose accents. Clean analytics without dashboard clutter.
+> Premium Google Play promotional screenshot for Sini, headline "See your progress over time." Show polished trend graphs for weight, body measurements, calories, sleep, activity and readiness. Warm Oat background, Deep Plum typography, subtle Sage, Terracotta and Rose accents. Clean analytics without dashboard clutter.
 
 ## Screenshot 8
 
-> Premium Google Play promotional screenshot for Sini AI, headline "Track more than the scale." Show body measurements, BMI, weight and trend information in a clean premium health metrics interface. Warm Oat, Deep Plum, Sage and Soft Rose palette.
+> Premium Google Play promotional screenshot for Sini, headline "Track more than the scale." Show body measurements, BMI, weight and trend information in a clean premium health metrics interface. Warm Oat, Deep Plum, Sage and Soft Rose palette.
 
 ---
 
@@ -1228,7 +1228,7 @@ Maintain:
 
 # 30. Final Brand Rule
 
-Sini AI should always feel like:
+Sini should always feel like:
 
 **A warm person sitting on top of trustworthy data.**
 
@@ -1258,4 +1258,4 @@ Never:
 
 The product should be compassionate about the user without becoming dishonest about the data.
 
-**Sini AI = objective numbers + cycle context + practical choices + human coaching.**
+**Sini = objective numbers + cycle context + practical choices + human coaching.**

@@ -415,7 +415,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   stepText: {
-    fontFamily: 'Outfit-Bold',
     letterSpacing: 1,
     marginBottom: SPACING.xs,
   },
@@ -467,7 +466,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   toggleLabel: {
-    fontFamily: 'Outfit-Medium',
     marginBottom: SPACING.xs,
   },
   toggleRow: {

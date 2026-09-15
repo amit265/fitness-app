@@ -211,7 +211,7 @@ export default function LogScreen() {
 
           {/* Header */}
           <View style={styles.header}>
-            <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold' }}>{t('log.title')}</Typography>
+            <Typography variant="h1" >{t('log.title')}</Typography>
             <Typography variant="bodyMedium" color={colors.subtext}>
               {t('log.subtitle')}
             </Typography>
@@ -221,7 +221,7 @@ export default function LogScreen() {
           <Card style={styles.aiInputCard}>
             <View style={styles.aiHeaderRow}>
               <Sparkles color={colors.primary} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+              <Typography variant="h3" style={{ marginLeft: 8 }}>
                 {t('log.tellSini')}
               </Typography>
             </View>
@@ -256,6 +256,21 @@ export default function LogScreen() {
             </Typography>
           </Card>
 
+          {/* Optimistic "Analyzing…" pill — shows immediately on Log tap */}
+          {loading && (
+            <View
+              style={[
+                styles.analyzingPill,
+                { backgroundColor: colors.primary + '22', borderColor: colors.primary + '55' },
+              ]}
+            >
+              <ActivityIndicator size="small" color={colors.primary} style={{ marginRight: 8 }} />
+              <Typography variant="bodySmall" color={colors.primary}>
+                {t('log.analyzing')}
+              </Typography>
+            </View>
+          )}
+
           {/* Draft Results Preview */}
           {draftLogs.length > 0 && (
             <Card style={[styles.draftsCard, { borderColor: colors.primary }]}>
@@ -263,7 +278,7 @@ export default function LogScreen() {
               {draftLogs.map((item, idx) => (
                 <View key={idx} style={styles.draftItemRow}>
                   <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                    <Typography variant="bodyMedium" >
                       {item.type === 'meal' ? `🥗 ${item.payload.name}` : item.type === 'activity' ? `🏃 ${item.payload.type}` : `⚖️ ${item.payload.weight} kg`}
                     </Typography>
                     <Typography variant="caption" color={colors.subtext}>
@@ -330,8 +345,8 @@ export default function LogScreen() {
             <Card key={meal.id} style={styles.entryCard}>
               <View style={styles.entryHeaderRow}>
                 <View style={{ flex: 1 }}>
-                  <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold' }}>{meal.name}</Typography>
-                  <Typography variant="caption" color={colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyLarge" >{meal.name}</Typography>
+                  <Typography variant="caption" color={colors.nutrition} >
                     {meal.calories} kcal • P: {meal.protein}g | C: {meal.carbs}g | F: {meal.fat}g
                   </Typography>
                 </View>
@@ -346,10 +361,10 @@ export default function LogScreen() {
             <Card key={act.id} style={styles.entryCard}>
               <View style={styles.entryHeaderRow}>
                 <View style={{ flex: 1 }}>
-                  <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', textTransform: 'capitalize' }}>
+                  <Typography variant="bodyLarge" style={{ textTransform: 'capitalize' }}>
                     {act.type} ({act.durationMinutes} min)
                   </Typography>
-                  <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="caption" color={colors.activity} >
                     ~{act.caloriesBurned} kcal burned • {act.intensity} intensity
                   </Typography>
                 </View>
@@ -433,10 +448,20 @@ const styles = StyleSheet.create({
   aiInputCard: { padding: SPACING.md },
   aiHeaderRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm },
   inputBoxRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  nlpInput: { flex: 1, height: 46, borderWidth: 1, borderRadius: 23, paddingHorizontal: SPACING.md, fontSize: 13, fontFamily: 'Outfit-Regular' },
+  nlpInput: { flex: 1, height: 46, borderWidth: 1, borderRadius: 23, paddingHorizontal: SPACING.md, fontSize: 13, },
   sendBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   draftsCard: { padding: SPACING.md, borderWidth: 1 },
   draftItemRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)' },
+  analyzingPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 100,
+    borderWidth: 1,
+    marginVertical: 4,
+  },
   quickButtonsGrid: { flexDirection: 'row', gap: 10, marginTop: SPACING.sm },
   quickBtnCard: { flex: 1, padding: SPACING.md, borderRadius: 16, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   entryCard: { padding: SPACING.md },

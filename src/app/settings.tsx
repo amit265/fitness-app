@@ -28,9 +28,7 @@ import {
   Check,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { useAdContext } from '../context/AdContext';
 import { useIAP } from '../context/IAPContext';
-import { showRewardedAdWithConsent, BannerAdComponent } from '../services/AdManager';
 import { getCurrentLanguage, setAppLanguage, t, LANGUAGE_NAMES } from '../i18n';
 import { useAppTheme } from '../context/ThemeContext';
 import { DestyaStudioFooter } from '../components/DestyaStudioFooter';
@@ -40,10 +38,11 @@ import { APP_LINKS } from '../constants/links';
 import { Alert } from '../utils/alertUtils';
 
 
+
+
 export default function SettingsScreen() {
   const router = useRouter();
-  const { isAdFree, grantAdFreeMinutes, adFreeExpiresAt } = useAdContext();
-  const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
+    const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
   const { themeMode, activeThemeName, isDark, setThemeMode, colors } = useAppTheme();
 
   // Store bindings
@@ -125,13 +124,7 @@ export default function SettingsScreen() {
     Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
   };
 
-  const handleWatchAdReward = () => {
-    showRewardedAdWithConsent(() => {
-      grantAdFreeMinutes(15);
-      Alert.alert(t('settings.rewardUnlocked'), t('settings.earnedAdFree'));
-    });
-  };
-
+  
   const handleShareApp = async () => {
     try {
       const shareUrl = Platform.OS === 'ios' ? APP_LINKS.appStore : APP_LINKS.googlePlay;
@@ -162,7 +155,7 @@ export default function SettingsScreen() {
         <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={12}>
           <ArrowLeft size={24} color={colors.textPrimary} />
         </Pressable>
-        <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+        <Typography variant="h3" >
           {t('settings.title')}
         </Typography>
         <View style={{ width: 24 }} />
@@ -185,7 +178,7 @@ export default function SettingsScreen() {
               <Typography variant="bodyMedium" style={styles.rowTitle}>
                 {t('settings.language')}
               </Typography>
-              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.primary} >
                 {LANGUAGE_NAMES[currentLang] || 'English'}
               </Typography>
             </View>
@@ -204,11 +197,11 @@ export default function SettingsScreen() {
                 <Palette size={18} color={colors.primary} />
               </View>
               <View style={{ marginLeft: 10, flex: 1 }}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="bodyMedium" >
                   {t('settings.theme')}
                 </Typography>
                 <Typography variant="caption" color={colors.subtext}>
-                  {t('settings.selectTheme')}: <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>{activeThemeName}</Typography>
+                  {t('settings.selectTheme')}: <Typography variant="caption" color={colors.primary} >{activeThemeName}</Typography>
                 </Typography>
               </View>
             </View>
@@ -268,7 +261,7 @@ export default function SettingsScreen() {
                   <Bell size={18} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>{t('settings.dailyRemindersTitle')}</Typography>
+                  <Typography variant="bodyMedium" >{t('settings.dailyRemindersTitle')}</Typography>
                   <Typography variant="caption" color={colors.subtext}>{t('settings.dailyRemindersDesc')}</Typography>
                 </View>
               </View>
@@ -287,7 +280,7 @@ export default function SettingsScreen() {
                   <Sparkles size={18} color={colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>{t('settings.cycleAlertsTitle')}</Typography>
+                  <Typography variant="bodyMedium" >{t('settings.cycleAlertsTitle')}</Typography>
                   <Typography variant="caption" color={colors.subtext}>{t('settings.cycleAlertsDesc')}</Typography>
                 </View>
               </View>
@@ -402,7 +395,7 @@ export default function SettingsScreen() {
                 <Database size={18} color={PALETTE.sage.default} />
               </View>
               <View style={{ marginLeft: 10, flex: 1 }}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>{t('settings.localStorageTitle')}</Typography>
+                <Typography variant="bodyMedium" >{t('settings.localStorageTitle')}</Typography>
                 <Typography variant="caption" color={colors.subtext}>
                   {t('settings.storageSummary', { meals: meals.length, workouts: activities.length, periods: periods.length })}
                 </Typography>
@@ -468,11 +461,11 @@ export default function SettingsScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setLangModalVisible(false)}>
           <Pressable style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 {t('settings.selectLanguage')}
               </Typography>
               <Pressable onPress={() => setLangModalVisible(false)} hitSlop={12}>
-                <Typography variant="bodyMedium" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="bodyMedium" color={colors.primary} >
                   {t('common.done')}
                 </Typography>
               </Pressable>
@@ -515,7 +508,7 @@ export default function SettingsScreen() {
         <View style={styles.loadingOverlay}>
           <View style={[styles.loadingCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <ActivityIndicator size="large" color={colors.primary} />
-            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginTop: 16 }}>
+            <Typography variant="h3" style={{ marginTop: 16 }}>
               {t('common.loading')}
             </Typography>
             <Typography variant="bodySmall" color={colors.subtext} style={{ marginTop: 6, textAlign: 'center' }}>
@@ -524,8 +517,7 @@ export default function SettingsScreen() {
           </View>
         </View>
       </Modal>
-      <BannerAdComponent screen="settings" />
-    </SafeAreaView>
+          </SafeAreaView>
   );
 }
 
@@ -548,7 +540,6 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   sectionHeaderTitle: {
-    fontFamily: 'Outfit-Bold',
     fontSize: 11,
     letterSpacing: 0.8,
     marginTop: SPACING.xs,
@@ -593,8 +584,7 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.sm,
   },
   rowTitle: {
-    fontFamily: 'Outfit-Bold',
-  },
+    },
   rowSeparator: {
     height: 1,
     backgroundColor: 'rgba(0,0,0,0.05)',

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:327995826064:android:6201107387689f3dfe9d15",
+        "mobilesdk_app_id": "1:327995826064:android:e6011fd68fd69832fe9d15",
         "android_client_info": {
-          "package_name": "com.destyastudio.siniai"
+          "package_name": "com.destyastudio.sini"
         }
       },
       "oauth_client": [],

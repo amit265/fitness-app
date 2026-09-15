@@ -1,27 +1,22 @@
 {
   "expo": {
-    "name": "Sini AI",
-    "slug": "siniai",
+    "name": "Sini",
+    "slug": "sini",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "siniai",
+    "scheme": "sini",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#F5EEE6"
-    },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.destyastudio.siniai",
+      "bundleIdentifier": "com.destyastudio.sini",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads and cycle-awareness recommendations."
       }
     },
     "android": {
-      "package": "com.destyastudio.siniai",
+      "package": "com.destyastudio.sini",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#3B2938",
@@ -40,7 +35,7 @@
             {
               "scheme": "https",
               "host": "destyastudio.com",
-              "pathPrefix": "/sini-ai"
+              "pathPrefix": "/sini"
             }
           ],
           "category": [
@@ -49,13 +44,21 @@
           ]
         }
       ],
-      "predictiveBackGestureEnabled": true
+      "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/icon.png",
       "bundler": "metro"
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#F5EEE6"
+        }
+      ],
       "expo-router",
       "expo-font",
       "expo-updates",
@@ -102,7 +105,8 @@
       "./plugins/withAndroidResolutionStrategy",
       "@react-native-firebase/app",
       "@react-native-firebase/analytics",
-      "@react-native-firebase/messaging"
+      "@react-native-firebase/messaging",
+      "expo-localization"
     ],
     "updates": {
       "enabled": true,

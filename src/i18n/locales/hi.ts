@@ -483,6 +483,7 @@ export const hi: TranslationSchema = {
     addWeight: '+ वजन लॉग',
     todaysEntries: "आज की प्रविष्टियां ({{count}})",
     parseError: "सिनी इसे समझ नहीं पाई। नीचे मैन्युअल रूप से विवरण दर्ज करें!",
+    analyzing: 'आपका लॉग विश्लेषण हो रहा है…',
     logMealHeader: 'भोजन दर्ज करें',
     logActivityHeader: 'वर्कआउट दर्ज करें',
     logPeriodHeader: 'पीरियड प्रारंभ दर्ज करें',

@@ -8,8 +8,6 @@ import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
-import { NativeAdComponent, showRewardedAdWithConsent } from '../../services/AdManager';
-import { useAdContext } from '../../context/AdContext';
 import { useIAP } from '../../context/IAPContext';
 import {
   Settings,
@@ -54,8 +52,7 @@ export default function ProfileScreen() {
   const measurements = useAppStore((state) => state.measurements);
   const streak = useAppStore((state) => state.streak);
   const resetStore = useAppStore((state) => state.resetStore);
-  const { isAdFree, grantAdFreeMinutes, adFreeExpiresAt } = useAdContext();
-  const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
+    const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
   const [timeRemainingStr, setTimeRemainingStr] = useState('');
 
   useEffect(() => {
@@ -82,13 +79,7 @@ export default function ProfileScreen() {
     return () => clearInterval(interval);
   }, [adFreeExpiresAt]);
 
-  const handleWatchAdReward = () => {
-    showRewardedAdWithConsent(() => {
-      grantAdFreeMinutes(15);
-      Alert.alert(t('settings.rewardUnlocked'), t('settings.earnedAdFree'));
-    });
-  };
-
+  
   const handleRestorePurchases = async () => {
     const res = await restorePurchases();
     Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
@@ -142,7 +133,7 @@ export default function ProfileScreen() {
         
         {/* Header Bar with Settings Gear Button */}
         <View style={[styles.headerBar, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
-          <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>{t('profile.title')}</Typography>
+          <Typography variant="h2" >{t('profile.title')}</Typography>
           <Pressable
             style={({ pressed }) => [styles.settingsGearBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.7 }]}
             onPress={() => router.push('/settings')}
@@ -159,7 +150,7 @@ export default function ProfileScreen() {
               <SiniAvatar size={76} variant="plum" />
               <View style={styles.streakBadgeOverlay}>
                 <Flame size={14} color={colors.ovulation} />
-                <Typography variant="caption" color={colors.ovulation} style={{ fontFamily: 'Outfit-Bold', marginLeft: 2 }}>
+                <Typography variant="caption" color={colors.ovulation} style={{ marginLeft: 2 }}>
                   {streak?.currentStreak || 1}d
                 </Typography>
               </View>
@@ -170,7 +161,7 @@ export default function ProfileScreen() {
             </Typography>
             <View style={styles.memberTagPill}>
               <Sparkles size={13} color={colors.primary} />
-              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+              <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
                 {t('common.appName')} · {t('common.tagline')}
               </Typography>
             </View>
@@ -213,7 +204,7 @@ export default function ProfileScreen() {
               <Crown size={18} color={PALETTE.gold.default} />
             </View>
             <View style={styles.rowTextCol}>
-              <Typography variant="bodyMedium" color={PALETTE.gold.default} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="bodyMedium" color={PALETTE.gold.default} >
                 {t('settings.removeAdsTitle')}
               </Typography>
               <Typography variant="caption" color={colors.subtext}>
@@ -221,7 +212,7 @@ export default function ProfileScreen() {
               </Typography>
             </View>
             <View style={styles.priceTagBadge}>
-              <Typography variant="caption" color={PALETTE.white} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={PALETTE.white} >
                 {premiumProduct?.displayPrice || '$2.99'}
               </Typography>
             </View>
@@ -433,8 +424,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Native Ad Card */}
-          <NativeAdComponent screen="settings" style={{ marginVertical: SPACING.sm }} />
-
+          
           {/* Destya Studio Footer */}
           <DestyaStudioFooter />
 
@@ -532,7 +522,6 @@ const styles = StyleSheet.create({
     borderColor: PALETTE.gold.default,
   },
   userNameText: {
-    fontFamily: 'Outfit-Bold',
     fontSize: 26,
     lineHeight: 30,
   },
@@ -559,7 +548,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bioValue: {
-    fontFamily: 'Outfit-Bold',
     marginTop: 2,
   },
   bioDivider: {
@@ -568,7 +556,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.08)',
   },
   sectionHeaderTitle: {
-    fontFamily: 'Outfit-Bold',
     fontSize: 11,
     letterSpacing: 0.8,
     marginTop: SPACING.xs,
@@ -598,7 +585,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: SPACING.sm,
   },
-  rowTitle: { fontFamily: 'Outfit-Bold' },
+  rowTitle: { },
   priceTagBadge: { backgroundColor: PALETTE.gold.default, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, overflow: 'hidden' },
   rowSeparator: {
     height: 1,

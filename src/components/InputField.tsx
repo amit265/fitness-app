@@ -59,16 +59,14 @@ const styles = StyleSheet.create({
   },
   label: {
     marginBottom: SPACING.xs,
-    fontFamily: 'Outfit-Medium',
-  },
+    },
   input: {
     height: 48,
     borderWidth: 1.5,
     borderRadius: 12,
     paddingHorizontal: SPACING.md,
     fontSize: 14,
-    fontFamily: 'Outfit-Regular',
-  },
+    },
   errorText: {
     marginTop: SPACING.xs,
   },

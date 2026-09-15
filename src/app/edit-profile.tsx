@@ -12,9 +12,7 @@ import { ArrowLeft, User, Heart, Utensils, Target, Check } from 'lucide-react-na
 import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
-import { BannerAdComponent, showInterstitialAd } from '../services/AdManager';
 import { Alert } from '../utils/alertUtils';
-
 
 export default function EditProfileScreen() {
   const { colors, isDark } = useAppTheme();
@@ -73,8 +71,7 @@ export default function EditProfileScreen() {
         {
           text: t('common.ok'),
           onPress: () => {
-            showInterstitialAd({ screen: 'settings', isPremium: userProfile?.isPremium || false });
-            router.back();
+                        router.back();
           },
         },
       ]);
@@ -97,7 +94,7 @@ export default function EditProfileScreen() {
             <Pressable style={styles.backBtn} onPress={() => router.back()}>
               <ArrowLeft color={colors.primary} size={24} />
             </Pressable>
-            <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold' }}>
+            <Typography variant="h2">
               {t('editProfile.title')}
             </Typography>
             <View style={{ width: 40 }} />
@@ -152,7 +149,7 @@ export default function EditProfileScreen() {
               style={[styles.dropdownBtn, { backgroundColor: isDark ? '#1C1A18' : '#FAF8F5' }]}
               onPress={() => setGoalModalVisible(true)}
             >
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="bodyMedium" >
                 {weightGoal.toUpperCase()}
               </Typography>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>▼</Typography>
@@ -164,7 +161,7 @@ export default function EditProfileScreen() {
               style={[styles.dropdownBtn, { backgroundColor: isDark ? '#1C1A18' : '#FAF8F5' }]}
               onPress={() => setCuisineModalVisible(true)}
             >
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="bodyMedium" >
                 {regionalCuisine.replace('_', ' ').toUpperCase()}
               </Typography>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>▼</Typography>
@@ -176,7 +173,7 @@ export default function EditProfileScreen() {
               style={[styles.dropdownBtn, { backgroundColor: isDark ? '#1C1A18' : '#FAF8F5' }]}
               onPress={() => setDietModalVisible(true)}
             >
-              <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="bodyMedium" >
                 {dietaryPreference.replace('_', ' ').toUpperCase()}
               </Typography>
               <Typography variant="bodyMedium" color={PALETTE.charcoal.light}>▼</Typography>
@@ -214,7 +211,7 @@ export default function EditProfileScreen() {
             {/* Pause Cycle Predictions Toggle */}
             <View style={styles.toggleRow}>
               <View style={styles.toggleLeft}>
-                <Typography variant="bodyMedium" style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="bodyMedium" >
                   {t('profile.pauseCycle')}
                 </Typography>
                 <Typography variant="caption" color={PALETTE.charcoal.light}>
@@ -339,8 +336,7 @@ export default function EditProfileScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-      <BannerAdComponent screen="settings" />
-    </SafeAreaView>
+          </SafeAreaView>
   );
 }
 

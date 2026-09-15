@@ -1,7 +1,7 @@
 export const APP_LINKS = {
   website: 'https://destyastudio.com',
-  privacyPolicy: 'https://destyastudio.com/products/sini-ai/privacy',
-  termsOfService: 'https://destyastudio.com/products/sini-ai/privacy',
+  privacyPolicy: 'https://destyastudio.com/products/sini/privacy',
+  termsOfService: 'https://destyastudio.com/products/sini/privacy',
   supportEmail: 'mailto:support@destyastudio.com',
   groqConsole: 'https://console.groq.com/keys',
   githubRepo: 'https://github.com/destya-studio/destya-fitness-app',

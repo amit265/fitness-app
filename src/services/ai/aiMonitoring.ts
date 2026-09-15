@@ -61,3 +61,31 @@ export function trackAIUsage(
     console.warn('[AI Guardrail] Failed to log AI usage metric:', e);
   }
 }
+
+/**
+ * Checks how many AI requests the user has made today.
+ */
+export function getDailyAIUsageCount(): number {
+  try {
+    const logs = useAppStore.getState().aiLogs || [];
+    const today = new Date().toISOString().split('T')[0];
+    return logs.filter(l => l.timestamp.startsWith(today)).length;
+  } catch (e) {
+    return 0;
+  }
+}
+
+/**
+ * Validates if the user can make another AI request.
+ * Allows infinite requests if using a custom key, otherwise enforces a free tier limit.
+ */
+export function hasExceededDailyLimit(apiKey?: string, dailyLimit: number = 20): boolean {
+  // If they provided a custom key that starts with gsk_, no limit.
+  if (apiKey && apiKey.trim().startsWith('gsk_')) {
+    return false;
+  }
+  
+  // Otherwise, they are using the system default key, enforce limit.
+  const todayCount = getDailyAIUsageCount();
+  return todayCount >= dailyLimit;
+}

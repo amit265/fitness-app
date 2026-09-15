@@ -13,8 +13,9 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft, Info, HelpCircle } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
-import { BannerAdComponent } from '../services/AdManager';
 import { Alert } from '../utils/alertUtils';
+
+
 
 
 export default function BMICalculatorScreen() {
@@ -184,7 +185,7 @@ export default function BMICalculatorScreen() {
                 {bmiResult.toFixed(1)}
               </Typography>
               <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(currentCategoryKey) + '15' }]}>
-                <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', color: getCategoryColor(currentCategoryKey) }}>
+                <Typography variant="bodyLarge" style={{ color: getCategoryColor(currentCategoryKey) }}>
                   {currentCategoryTranslated.toUpperCase()}
                 </Typography>
               </View>
@@ -235,8 +236,7 @@ export default function BMICalculatorScreen() {
         </ScrollView>
 
       </KeyboardAvoidingView>
-      <BannerAdComponent screen="bmi" />
-    </SafeAreaView>
+          </SafeAreaView>
   );
 }
 
@@ -314,8 +314,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#FAF8F5',
   },
   boldText: {
-    fontFamily: 'Outfit-Bold',
-  },
+    },
   divider: {
     height: 1,
     backgroundColor: '#ECE9E4',

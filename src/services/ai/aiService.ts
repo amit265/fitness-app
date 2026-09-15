@@ -9,12 +9,13 @@ import {
   generateLocalChatFallback,
 } from './coachingPrompts';
 import { buildAIContext, AIQueryType } from './aiContextBuilder';
-import { withRequestLock, trackAIUsage } from './aiMonitoring';
+import { withRequestLock, trackAIUsage, hasExceededDailyLimit } from './aiMonitoring';
 
 const PARSER_SYSTEM_PROMPT = `
-You are a precise, empathetic health and fitness parser for the Sini AI: Cycle & Fitness mobile application.
+You are a precise, empathetic health and fitness parser for the Sini: Cycle & Fitness mobile application.
 Your goal is to parse raw user statements into structured JSON array of items representing Meals, Activities (Workouts), or Weight measurements.
-If the statement mentions BOTH food and a workout (e.g. "ate 2 eggs and walked 30 min"), parse BOTH into separate items in the array!
+CRITICAL INSTRUCTION: If the statement mentions multiple distinct foods (e.g. "ate 2 eggs and a banana and toast"), you MUST parse EACH food into its own separate 'meal' object in the array! DO NOT combine them into one meal.
+Similarly, if they mention multiple workouts, parse each into a separate 'activity' object.
 
 Analyze the user statement and return a JSON object with this exact schema:
 {
@@ -63,6 +64,10 @@ export async function parseUserInput(
     if (!resolvedApiKey || !resolvedApiKey.startsWith('gsk_')) {
       return parseLocalInput(input);
     }
+    if (hasExceededDailyLimit(apiKey, 20)) {
+      console.warn('[AI Guardrail] Daily limit exceeded. Falling back to local parser.');
+      return parseLocalInput(input);
+    }
 
     try {
       const userPrompt = `Parse this statement: "${input}"`;
@@ -109,6 +114,10 @@ export async function generateDailyInsight(
     if (!resolvedApiKey || !resolvedApiKey.startsWith('gsk_')) {
       return generateLocalFallbackInsight(context);
     }
+    if (hasExceededDailyLimit(apiKey, 20)) {
+      console.warn('[AI Guardrail] Daily limit exceeded. Falling back to local insight.');
+      return generateLocalFallbackInsight(context);
+    }
 
     const compactContext = buildAIContext('insight', context);
 
@@ -137,7 +146,7 @@ export async function generateDailyInsight(
 }
 
 /**
- * Conversational completions for Sini AI coach screen & overlay.
+ * Conversational completions for Sini coach screen & overlay.
  */
 export async function answerCoachQuestion(
   question: string,
@@ -152,6 +161,10 @@ export async function answerCoachQuestion(
     if (!resolvedApiKey || !resolvedApiKey.startsWith('gsk_')) {
       return generateLocalChatFallback(question, context);
     }
+    if (hasExceededDailyLimit(apiKey, 20)) {
+      console.warn('[AI Guardrail] Daily limit exceeded. Falling back to local chat.');
+      return generateLocalChatFallback(question, context);
+    }
 
     const compactContext = buildAIContext('chat', context);
 
@@ -160,16 +173,21 @@ export async function answerCoachQuestion(
       const langName = LANGUAGE_NAMES[activeLang] || 'English';
       const langInstruction = `CRITICAL LANGUAGE INSTRUCTION: The user's preferred language is ${langName} (${activeLang}). You MUST answer 100% in ${langName}. All advice and explanations must be translated to ${langName}.`;
 
-      // Enforce rolling context window (max 10 recent messages)
-      const recentHistory = history.slice(-10);
+      // Enforce rolling context window (max 10 recent messages).
+      // Trim long assistant replies to keep the context window lean — biological context
+      // stays anchored at the system prompt level, so full history isn't needed.
+      const recentHistory = history.slice(-10).map((m) => ({
+        role: m.role,
+        content:
+          m.role === 'assistant' && m.content.length > 300
+            ? m.content.slice(0, 300) + '…'
+            : m.content,
+      }));
       const systemPrompt = `${CHAT_SYSTEM_PROMPT}\n\n${langInstruction}\n\nToday's Context:\n${JSON.stringify(compactContext)}`;
       
       const messages = [
         { role: 'system', content: systemPrompt },
-        ...recentHistory.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
+        ...recentHistory,
         { role: 'user', content: question },
       ];
 

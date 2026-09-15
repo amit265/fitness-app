@@ -58,7 +58,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
               return (
                 <Text
                   key={idx}
-                  style={isBold ? { fontFamily: 'Outfit-Bold' } : undefined}
+                  style={isBold ? { fontFamily: 'Urbanist-Bold' } : undefined}
                 >
                   {part}
                 </Text>

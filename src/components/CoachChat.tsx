@@ -413,7 +413,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerTitle: {
-    fontFamily: 'Outfit-Bold',
     fontSize: 20,
     lineHeight: 24,
   },
@@ -503,8 +502,7 @@ const styles = StyleSheet.create({
     borderRadius: 23,
     paddingHorizontal: SPACING.md,
     fontSize: 14,
-    fontFamily: 'Outfit-Regular',
-  },
+    },
   sendBtn: {
     width: 44,
     height: 44,

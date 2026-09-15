@@ -1,12 +1,12 @@
-# SINI AI — COMPLETE AD MONETIZATION & USER EXPERIENCE SYSTEM
+# Sini — COMPLETE AD MONETIZATION & USER EXPERIENCE SYSTEM
 
-The existing Sini AI application is already built, functional, and has an established design system.
+The existing Sini application is already built, functional, and has an established design system.
 
 This task is to implement a **professional, user-friendly advertising system** without redesigning the existing app.
 
 ## CORE MONETIZATION MODEL
 
-Sini AI has three levels of experience:
+Sini has three levels of experience:
 
 ### Free
 
@@ -48,7 +48,7 @@ Do not put banners:
 - Directly underneath important calorie information
 - As a persistent element on every screen
 
-Sini AI should feel like a premium wellness product, not a banner-heavy utility app.
+Sini should feel like a premium wellness product, not a banner-heavy utility app.
 
 **Native ads should be the primary everyday advertising format.**
 
@@ -186,11 +186,11 @@ Example:
 
 ```typescript
 export const AD_UNIT_IDS = {
-  native: '...',
-  banner: '...',
-  interstitial: '...',
-  rewarded: '...',
-  appOpen: '...',
+  native: "...",
+  banner: "...",
+  interstitial: "...",
+  rewarded: "...",
+  appOpen: "...",
 };
 ```
 
@@ -226,7 +226,7 @@ NO rewarded-ad prompt
 Create one centralized eligibility check:
 
 ```typescript
-canShowAds()
+canShowAds();
 ```
 
 Conceptually:
@@ -566,7 +566,7 @@ that gets inserted into every tab.
 For the initial implementation:
 
 ```typescript
-banner.enabled = false
+banner.enabled = false;
 ```
 
 unless there is a specific secondary screen where a banner genuinely improves monetization without harming UX.
@@ -741,7 +741,7 @@ Also consider an action/session threshold so a user cannot trigger an interstiti
 Use a centralized function:
 
 ```typescript
-shouldShowInterstitial(context)
+shouldShowInterstitial(context);
 ```
 
 It should consider:
@@ -836,10 +836,10 @@ Interstitial and App Open ads share a global fullscreen-ad protection system.
 Track:
 
 ```typescript
-lastInterstitialShownAt
-lastAppOpenShownAt
-lastFullscreenAdAt
-rewardedAdSilenceUntil
+lastInterstitialShownAt;
+lastAppOpenShownAt;
+lastFullscreenAdAt;
+rewardedAdSilenceUntil;
 ```
 
 Avoid:
@@ -1557,7 +1557,7 @@ Do not optimize prematurely.
 
 # FINAL PRODUCT PRINCIPLE
 
-Sini AI is a **women's fitness, nutrition, cycle and wellness product**, not an advertising application.
+Sini is a **women's fitness, nutrition, cycle and wellness product**, not an advertising application.
 
 The monetization should therefore feel like this:
 

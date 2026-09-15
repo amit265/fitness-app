@@ -79,7 +79,7 @@ export async function callGroqAPI(
 }
 
 /**
- * Dynamic chat helper for Sini AI Coach conversation with 5-tier fallback chain.
+ * Dynamic chat helper for Sini Coach conversation with 5-tier fallback chain.
  */
 export async function callGroqChatAPI(
   messages: GroqMessage[],

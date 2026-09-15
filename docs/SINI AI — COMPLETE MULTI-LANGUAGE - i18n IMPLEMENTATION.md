@@ -1,6 +1,6 @@
-# SINI AI — COMPLETE MULTI-LANGUAGE / i18n IMPLEMENTATION
+# Sini — COMPLETE MULTI-LANGUAGE / i18n IMPLEMENTATION
 
-The existing Sini AI application is already built and functional.
+The existing Sini application is already built and functional.
 
 This task is to add a **production-ready internationalization (i18n) system** throughout the existing application.
 
@@ -140,7 +140,7 @@ Bad:
 Good:
 
 ```tsx
-<Text>{t('nutrition.caloriesRemaining')}</Text>
+<Text>{t("nutrition.caloriesRemaining")}</Text>
 ```
 
 Bad:
@@ -152,7 +152,7 @@ Bad:
 Good:
 
 ```tsx
-<Button title={t('nutrition.logFood')} />
+<Button title={t("nutrition.logFood")} />
 ```
 
 Bad:
@@ -164,9 +164,7 @@ Bad:
 Good:
 
 ```tsx
-<Text>
-  {t('cycle.currentDay', { day: cycleDay })}
-</Text>
+<Text>{t("cycle.currentDay", { day: cycleDay })}</Text>
 ```
 
 Do NOT leave hidden hardcoded English strings in the application.
@@ -252,25 +250,25 @@ Do NOT use English text as translation keys.
 Bad:
 
 ```typescript
-t("Calories remaining")
+t("Calories remaining");
 ```
 
 Good:
 
 ```typescript
-t("nutrition.caloriesRemaining")
+t("nutrition.caloriesRemaining");
 ```
 
 Bad:
 
 ```typescript
-t("Log Food")
+t("Log Food");
 ```
 
 Good:
 
 ```typescript
-t("nutrition.logFood")
+t("nutrition.logFood");
 ```
 
 This makes the code independent of the English language.
@@ -386,13 +384,13 @@ For example, Sini should sound like a natural wellness application in each langu
 
 Always preserve:
 
-**Sini AI**
+**Sini**
 
 Do not translate or localize:
 
 ```text
 Sini
-Sini AI
+Sini
 ```
 
 The tagline can be translated.
@@ -480,9 +478,9 @@ Do not store translated strings inside the database.
 Store stable identifiers:
 
 ```typescript
-"cramps"
-"bloating"
-"tenderBreasts"
+"cramps";
+"bloating";
+"tenderBreasts";
 ```
 
 and translate them at render time.
@@ -502,16 +500,16 @@ as the underlying cycle-phase value.
 Keep:
 
 ```typescript
-"menstrual"
-"follicular"
-"ovulatory"
-"luteal"
+"menstrual";
+"follicular";
+"ovulatory";
+"luteal";
 ```
 
 Then render:
 
 ```typescript
-t(`cycle.phase.${phase}`)
+t(`cycle.phase.${phase}`);
 ```
 
 This is essential because the same data must work across all languages.
@@ -533,7 +531,7 @@ as a database string.
 Store:
 
 ```typescript
-caloriesRemaining: 430
+caloriesRemaining: 430;
 ```
 
 Then format it according to locale.
@@ -563,7 +561,7 @@ may format differently depending on locale.
 Use:
 
 ```typescript
-Intl.NumberFormat
+Intl.NumberFormat;
 ```
 
 or the appropriate i18n/formatting utility.
@@ -684,13 +682,13 @@ Do not hardcode English plurals.
 Bad:
 
 ```typescript
-`${days} days`
+`${days} days`;
 ```
 
 Good:
 
 ```typescript
-t('cycle.days', { count: days })
+t("cycle.days", { count: days });
 ```
 
 Support proper plural rules for every language.
@@ -728,13 +726,13 @@ Avoid constructing sentences by concatenating translated fragments.
 Bad:
 
 ```typescript
-t('youHave') + ' ' + count + ' ' + t('calories')
+t("youHave") + " " + count + " " + t("calories");
 ```
 
 Prefer:
 
 ```typescript
-t('nutrition.caloriesRemainingMessage', { count })
+t("nutrition.caloriesRemainingMessage", { count });
 ```
 
 where the entire sentence can be translated naturally.
@@ -837,7 +835,7 @@ Native labels make the selector easier to understand.
 Store:
 
 ```typescript
-language
+language;
 ```
 
 in the existing persistent user/settings store.
@@ -974,13 +972,13 @@ The AI coach must eventually support generation in the user's selected language.
 Create an abstraction such as:
 
 ```typescript
-coachLanguage
+coachLanguage;
 ```
 
 or:
 
 ```typescript
-getCoachLanguage()
+getCoachLanguage();
 ```
 
 Do not hardcode:
@@ -1151,10 +1149,10 @@ Example:
 
 ```typescript
 export const APP_LINKS = {
-  privacyPolicy: '...',
-  termsOfService: '...',
-  support: '...',
-  website: '...',
+  privacyPolicy: "...",
+  termsOfService: "...",
+  support: "...",
+  website: "...",
 };
 ```
 
@@ -1647,7 +1645,7 @@ The implementation is complete only when:
 The desired architecture is:
 
 ```text
-                         SINI AI
+                         Sini
                             │
              ┌──────────────┴──────────────┐
              │                             │
@@ -1683,7 +1681,7 @@ Business logic remains independent of all three.
 
 Do not treat localization as simply translating English strings.
 
-Build Sini AI so that:
+Build Sini so that:
 
 > **The application is language-independent at the data and business-logic level, while the presentation layer adapts naturally to the user's language and locale.**
 
@@ -1695,4 +1693,4 @@ The same calorie calculations must work identically in every language.
 
 Only the presentation changes.
 
-The result should feel like Sini AI was **designed for each language**, not mechanically translated into it.
+The result should feel like Sini was **designed for each language**, not mechanically translated into it.

@@ -1,8 +1,8 @@
-# SINI AI — GLOBAL CYCLE-ADAPTIVE THEME SYSTEM
+# Sini — GLOBAL CYCLE-ADAPTIVE THEME SYSTEM
 
 ## 🚨 CRITICAL IMPLEMENTATION RULE — READ THIS FIRST
 
-The existing Sini AI application is **already built, functional, and visually designed**.
+The existing Sini application is **already built, functional, and visually designed**.
 
 This task is **NOT a redesign**.
 
@@ -87,13 +87,13 @@ Create an internal audit table before making changes.
 
 Example:
 
-| Existing color | Where used | Approx. purpose | Proposed semantic token |
-|---|---|---|---|
-| `#FFFFFF` | Cards | Surface | `surface` |
-| `#3B2938` | Buttons/headings | Primary | `primary` |
-| `#29252A` | Text | Primary text | `textPrimary` |
-| `#E6D9CE` | Borders | Border | `border` |
-| `#8FA89A` | Activity | Activity | `activity` |
+| Existing color | Where used       | Approx. purpose | Proposed semantic token |
+| -------------- | ---------------- | --------------- | ----------------------- |
+| `#FFFFFF`      | Cards            | Surface         | `surface`               |
+| `#3B2938`      | Buttons/headings | Primary         | `primary`               |
+| `#29252A`      | Text             | Primary text    | `textPrimary`           |
+| `#E6D9CE`      | Borders          | Border          | `border`                |
+| `#8FA89A`      | Activity         | Activity        | `activity`              |
 
 The exact values above are examples only.
 
@@ -299,21 +299,25 @@ Every component should consume semantic tokens from the active theme.
 Create four cycle themes:
 
 ### Menstrual
+
 **Rose Dawn**
 
 Quiet · Soft · Restorative
 
 ### Follicular
+
 **Sage Bloom**
 
 Fresh · Light · Renewing
 
 ### Ovulatory
+
 **Golden Glow**
 
 Bright · Energetic · Vibrant
 
 ### Luteal
+
 **Plum Dusk**
 
 Grounded · Warm · Reflective
@@ -399,40 +403,37 @@ After migration, reusable UI components should not contain arbitrary brand color
 Bad:
 
 ```typescript
-backgroundColor: '#F5EEE6'
+backgroundColor: "#F5EEE6";
 ```
 
 Good:
 
 ```typescript
-backgroundColor: theme.colors.background
+backgroundColor: theme.colors.background;
 ```
 
 Bad:
 
 ```typescript
-color: '#3B2938'
+color: "#3B2938";
 ```
 
 Good:
 
 ```typescript
-color: theme.colors.textPrimary
+color: theme.colors.textPrimary;
 ```
 
 Bad:
 
 ```typescript
-backgroundColor:
-  cyclePhase === 'menstrual'
-    ? '#D9939E'
-    : '#8FA89A'
+backgroundColor: cyclePhase === "menstrual" ? "#D9939E" : "#8FA89A";
 ```
 
 Good:
 
 ```typescript
-backgroundColor: theme.colors.cycle
+backgroundColor: theme.colors.cycle;
 ```
 
 The component should not know which cycle theme is active.
@@ -494,4 +495,4 @@ The objective is:
 
 > **Preserve what already looks good, turn its colors into a proper semantic design system, and then make that system dynamically adapt to the user's cycle.**
 
-The final result should feel like the same Sini AI application throughout the entire cycle — simply changing its visual atmosphere naturally as the user's cycle changes.
+The final result should feel like the same Sini application throughout the entire cycle — simply changing its visual atmosphere naturally as the user's cycle changes.

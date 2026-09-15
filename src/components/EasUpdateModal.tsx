@@ -54,7 +54,7 @@ export const EasUpdateModal: React.FC = () => {
             <Sparkles color={colors.primary} size={28} />
           </View>
 
-          <Typography variant="h2" style={{ fontFamily: 'PlayfairDisplay-Bold', textAlign: 'center', marginBottom: 4 }}>
+          <Typography variant="h2" style={{ textAlign: 'center', marginBottom: 4 }}>
             {t('eas.updateReady')}
           </Typography>
           <Typography variant="caption" color={colors.subtext} style={{ textAlign: 'center', lineHeight: 18, marginBottom: SPACING.lg }}>

@@ -1,6 +1,6 @@
-# SINI AI — CORE FOOD, ACTIVITY & CALORIE SYSTEM UPGRADE
+# Sini — CORE FOOD, ACTIVITY & CALORIE SYSTEM UPGRADE
 
-You are working on an existing, functional Sini AI mobile application.
+You are working on an existing, functional Sini mobile application.
 
 The app already contains:
 
@@ -24,7 +24,7 @@ This is an architectural and product upgrade focused on making:
 
 > **Food + Activity + Calorie Balance**
 
-the strongest daily-use loop inside Sini AI.
+the strongest daily-use loop inside Sini.
 
 ---
 
@@ -61,7 +61,7 @@ The final implementation should feel like an evolution of the existing Sini app.
 The primary daily loop should become:
 
 ```text
-             SINI AI
+             Sini
                 │
         ┌───────┴────────┐
         ↓                ↓
@@ -616,21 +616,21 @@ Create one centralized calorie-balance service.
 Conceptually:
 
 ```typescript
-calculateDailyNutritionSummary()
+calculateDailyNutritionSummary();
 ```
 
 It should produce something similar to:
 
 ```typescript
 {
-  calorieTarget,
-  caloriesConsumed,
-  activityCalories,
-  remainingCalories,
-  proteinConsumed,
-  proteinTarget,
-  carbsConsumed,
-  fatsConsumed
+  (calorieTarget,
+    caloriesConsumed,
+    activityCalories,
+    remainingCalories,
+    proteinConsumed,
+    proteinTarget,
+    carbsConsumed,
+    fatsConsumed);
 }
 ```
 
@@ -1188,7 +1188,7 @@ and:
 The final system should conceptually be:
 
 ```text
-                 SINI AI
+                 Sini
                     │
           ┌─────────┴─────────┐
           ↓                   ↓
@@ -1234,4 +1234,4 @@ The end result should not feel like a different application.
 
 It should feel like:
 
-> **The same Sini AI you already built, but now food, activity, and calorie balance are dramatically more powerful, accurate, flexible, and useful every day.**
+> **The same Sini you already built, but now food, activity, and calorie balance are dramatically more powerful, accurate, flexible, and useful every day.**

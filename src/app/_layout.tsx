@@ -2,17 +2,11 @@ import '@react-native-firebase/app';
 import React, { useEffect, useState } from 'react';
 import { useFonts } from 'expo-font';
 import {
-  PlayfairDisplay_400Regular,
-  PlayfairDisplay_500Medium,
-  PlayfairDisplay_600SemiBold,
-  PlayfairDisplay_700Bold,
-} from '@expo-google-fonts/playfair-display';
-import {
-  Outfit_300Light,
-  Outfit_400Regular,
-  Outfit_500Medium,
-  Outfit_700Bold,
-} from '@expo-google-fonts/outfit';
+  Urbanist_400Regular,
+  Urbanist_500Medium,
+  Urbanist_600SemiBold,
+  Urbanist_700Bold,
+} from '@expo-google-fonts/urbanist';
 import { Stack, useSegments, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -23,8 +17,6 @@ import { useAppStore } from '../store/useAppStore';
 import { setupDailyEngagementNotifications } from '../services/notificationService';
 import { EasUpdateModal } from '../components/EasUpdateModal';
 import { useDeepLinkHandler } from '../hooks/useDeepLinkHandler';
-import { AdProvider } from '../context/AdContext';
-import { fetchRemoteConfig } from '../services/ads/adConfig';
 import { requestUserPermission, initializeMessaging } from '../services/firebase/messagingService';
 import { ThemeCustomProvider, useAppTheme } from '../context/ThemeContext';
 import { IAPProvider } from '../context/IAPContext';
@@ -117,14 +109,10 @@ export default function RootLayout() {
   const [webFrameMode, setWebFrameMode] = useState<'phone' | 'ipad'>('phone');
 
   const [fontsLoaded, fontError] = useFonts({
-    'PlayfairDisplay-Regular': PlayfairDisplay_400Regular,
-    'PlayfairDisplay-Medium': PlayfairDisplay_500Medium,
-    'PlayfairDisplay-SemiBold': PlayfairDisplay_600SemiBold,
-    'PlayfairDisplay-Bold': PlayfairDisplay_700Bold,
-    'Outfit-Light': Outfit_300Light,
-    'Outfit-Regular': Outfit_400Regular,
-    'Outfit-Medium': Outfit_500Medium,
-    'Outfit-Bold': Outfit_700Bold,
+    'Urbanist-Regular': Urbanist_400Regular,
+    'Urbanist-Medium': Urbanist_500Medium,
+    'Urbanist-SemiBold': Urbanist_600SemiBold,
+    'Urbanist-Bold': Urbanist_700Bold,
   });
 
   const isAppReady = (fontsLoaded || Boolean(fontError)) && hydrated;
@@ -170,28 +158,26 @@ export default function RootLayout() {
     <ThemeCustomProvider>
       <AppSystemUI />
       <IAPProvider>
-        <AdProvider>
-          <NavigationGuard onHydrated={() => setHydrated(true)}>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
-              <Stack.Screen name="settings" options={{ headerShown: false }} />
-              <Stack.Screen name="bmi" options={{ headerShown: false }} />
-              <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
-              <Stack.Screen name="cycle" options={{ headerShown: false }} />
-            </Stack>
+        <NavigationGuard onHydrated={() => setHydrated(true)}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+            <Stack.Screen name="settings" options={{ headerShown: false }} />
+            <Stack.Screen name="bmi" options={{ headerShown: false }} />
+            <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
+            <Stack.Screen name="cycle" options={{ headerShown: false }} />
+          </Stack>
 
-            {/* Custom Animated Splash Screen Overlay */}
-            {showAppSplash && (
-              <Animated.View style={[StyleSheet.absoluteFill, { opacity: splashOpacity, zIndex: 99999 }]}>
-                <SplashScreenComponent showBranding={true} startAnimation={hasHiddenNativeSplash} />
-              </Animated.View>
-            )}
-            
-            {/* Global Themed Alert */}
-            <ThemedAlert />
-          </NavigationGuard>
-        </AdProvider>
+          {/* Custom Animated Splash Screen Overlay */}
+          {showAppSplash && (
+            <Animated.View style={[StyleSheet.absoluteFill, { opacity: splashOpacity, zIndex: 99999 }]}>
+              <SplashScreenComponent showBranding={true} startAnimation={hasHiddenNativeSplash} />
+            </Animated.View>
+          )}
+          
+          {/* Global Themed Alert */}
+          <ThemedAlert />
+        </NavigationGuard>
       </IAPProvider>
     </ThemeCustomProvider>
   );
@@ -271,11 +257,11 @@ const styles = StyleSheet.create({
   },
   webToggleText: {
     color: '#rgba(255,255,255,0.6)',
-    fontFamily: 'Outfit-Medium',
+    fontFamily: 'Urbanist-Medium',
     fontSize: 14,
   },
   webToggleTextActive: {
     color: '#fff',
-    fontFamily: 'Outfit-Bold',
+    fontFamily: 'Urbanist-Bold',
   },
 });

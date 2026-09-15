@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -33,7 +33,6 @@ import { getDailyCalorieBalance, calculateMacroTargets } from '../../domain/calo
 import { getRecommendedMealsForToday } from '../../domain/calories/mealRecommendationEngine';
 import { triggerStoreReviewIfAppropriate } from '../../utils/storeReview';
 import { logAnalyticsEvent } from '../../services/analyticsService';
-import { NativeAdComponent, showInterstitialAd } from '../../services/AdManager';
 import {
   Sparkles,
   Droplet,
@@ -52,6 +51,7 @@ import {
 } from 'lucide-react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { t, formatNumber } from '../../i18n';
+import { useFocusEffect } from 'expo-router';
 
 export default function TodayScreen() {
   const { colors, isDark } = useAppTheme();
@@ -235,8 +235,7 @@ export default function TodayScreen() {
     });
     setCheckInModalVisible(false);
     fetchDailyInsight(true);
-    showInterstitialAd({ screen: 'home', isPremium: userProfile?.isPremium || false });
-  };
+      };
 
   // Calorie Circular Arc Math
   const calStrokeWidth = 14;
@@ -341,7 +340,7 @@ export default function TodayScreen() {
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Typography variant="caption" color={colors.subtext} style={{ letterSpacing: 0.5, textTransform: 'uppercase' }}>
-              Sini AI: Cycle & Fitness • 🔥 {streak?.currentStreak || 1}d Streak
+              Sini: Cycle Syncing & Fitness • 🔥 {streak?.currentStreak || 1}d Streak
             </Typography>
             <Typography variant="h1" style={styles.userName}>
               {userProfile?.name ? t('home.greeting', { name: userProfile.name }) : t('home.greetingDefault')}
@@ -383,7 +382,7 @@ export default function TodayScreen() {
                 <Typography
                   variant="caption"
                   color={colors.primary}
-                  style={{ fontFamily: 'Outfit-Bold', textTransform: 'uppercase' }}
+                  style={{ textTransform: 'uppercase' }}
                 >
                   {t('cycle.phase.' + cycleState.phase.toLowerCase(), { defaultValue: cycleState.phase }).toUpperCase()} · {t('cycle.currentDay', { day: cycleState.cycleDay }).toUpperCase()}
                 </Typography>
@@ -391,7 +390,7 @@ export default function TodayScreen() {
 
               <View style={[styles.energyPill, { backgroundColor: colors.surface }]}>
                 <Zap size={14} color={colors.ovulation} />
-                <Typography variant="caption" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 4 }}>
+                <Typography variant="caption" color={colors.textPrimary} style={{ marginLeft: 4 }}>
                   {t('home.energyLabel')} {todayCheckIn ? todayCheckIn.energy : 3}/5
                 </Typography>
               </View>
@@ -401,7 +400,7 @@ export default function TodayScreen() {
               style={styles.checkInBtn}
               onPress={() => setCheckInModalVisible(true)}
             >
-              <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.primary} >
                 {todayCheckIn ? t('home.editCheckIn') : t('home.logFeeling')}
               </Typography>
             </Pressable>
@@ -410,21 +409,21 @@ export default function TodayScreen() {
           <View style={styles.feelingSummaryRow}>
             <View style={styles.feelingStat}>
               <Typography variant="caption" color={colors.subtext}>{t('home.readiness')}</Typography>
-              <Typography variant="h2" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h2" color={colors.activity} >
                 {readiness.score}/100
               </Typography>
             </View>
             <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
             <View style={styles.feelingStat}>
               <Typography variant="caption" color={colors.subtext}>{t('home.sleep')}</Typography>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 {todayCheckIn ? `${todayCheckIn.sleepDuration}h` : '8.0h'}
               </Typography>
             </View>
             <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
             <View style={styles.feelingStat}>
               <Typography variant="caption" color={colors.subtext}>{t('home.hydration')}</Typography>
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 {todayCheckIn ? `${todayCheckIn.hydration}L` : '1.5L'}
               </Typography>
             </View>
@@ -436,7 +435,7 @@ export default function TodayScreen() {
           <View style={styles.calorieHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Flame color={colors.nutrition} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+              <Typography variant="h3" style={{ marginLeft: 6 }}>
                 {t('home.todaysCalories')}
               </Typography>
             </View>
@@ -444,7 +443,7 @@ export default function TodayScreen() {
               <Typography
                 variant="caption"
                 color={calorieBalance.isOverTarget ? colors.error : colors.success}
-                style={{ fontFamily: 'Outfit-Bold' }}
+                
               >
                 {calorieBalance.percentageUsed}% {t('home.target').toUpperCase()}
               </Typography>
@@ -477,7 +476,7 @@ export default function TodayScreen() {
                 />
               </Svg>
               <View style={styles.calRingLabelContainer}>
-                <Typography variant="h1" style={{ fontFamily: 'Outfit-Bold', fontSize: 26 }}>
+                <Typography variant="h1" style={{ fontSize: 26 }}>
                   {calorieBalance.consumedCalories.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" color={colors.subtext}>
@@ -493,20 +492,20 @@ export default function TodayScreen() {
                   ? `${calorieBalance.overAmount}`
                   : `${calorieBalance.remainingCalories}`}
               </Typography>
-              <Typography variant="bodyMedium" color={colors.subtext} style={{ fontFamily: 'Outfit-Medium' }}>
+              <Typography variant="bodyMedium" color={colors.subtext} >
                 {calorieBalance.isOverTarget ? t('home.kcalOver') : t('home.kcalRemaining')}
               </Typography>
 
               <View style={styles.macroMiniRow}>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>{t('home.food')}</Typography>
-                  <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" color={colors.nutrition} >
                     {calorieBalance.consumedCalories} kcal
                   </Typography>
                 </View>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>{t('home.activity')}</Typography>
-                  <Typography variant="bodyMedium" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodyMedium" color={colors.activity} >
                     ~{calorieBalance.activityCalories} kcal
                   </Typography>
                 </View>
@@ -515,19 +514,19 @@ export default function TodayScreen() {
               <View style={[styles.macroMiniRow, { marginTop: 8 }]}>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>Protein</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodySmall" color={colors.textPrimary} >
                     {Math.round(calorieBalance.proteinConsumed)} / {macroTargets.proteinG}g
                   </Typography>
                 </View>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>Carbs</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodySmall" color={colors.textPrimary} >
                     {Math.round(calorieBalance.carbsConsumed)} / {macroTargets.carbsG}g
                   </Typography>
                 </View>
                 <View style={styles.macroMiniItem}>
                   <Typography variant="caption" color={colors.subtext}>Fat</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                  <Typography variant="bodySmall" color={colors.textPrimary} >
                     {Math.round(calorieBalance.fatConsumed)} / {macroTargets.fatG}g
                   </Typography>
                 </View>
@@ -556,7 +555,7 @@ export default function TodayScreen() {
         <Card style={[styles.siniSuggestionCard, { backgroundColor: colors.surface }]}>
           <View style={styles.siniHeaderRow}>
             <SiniAvatar size={30} variant="plum" />
-            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 10 }}>
+            <Typography variant="h3" style={{ marginLeft: 10 }}>
               {t('home.dailyInsightTitle')}
             </Typography>
           </View>
@@ -574,40 +573,39 @@ export default function TodayScreen() {
             onPress={() => openSiniWithQuery('Explain my remaining calories for today')}
           >
             <Sparkles size={14} color={colors.primary} />
-            <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+            <Typography variant="caption" color={colors.primary} style={{ marginLeft: 6 }}>
               {t('home.askSiniAction')}
             </Typography>
           </Pressable>
         </Card>
 
         {/* SPONSORED NATIVE AD */}
-        <NativeAdComponent screen="home" />
-
+        
         {/* 4. ACTIVITY & RECOVERY PLAN */}
         <Card style={styles.activityPlanCard}>
           <View style={styles.cardTitleRow}>
             <ActivityIcon color={colors.activity} size={20} />
-            <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold', marginLeft: 8 }}>
+            <Typography variant="h3" style={{ marginLeft: 8 }}>
               {t('home.activityMovement')}
             </Typography>
           </View>
 
           <View style={styles.activityBadgeRow}>
             <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.activity} >
                 {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
               </Typography>
             </View>
             {readiness.recommendation.durationMinutes && (
               <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                <Typography variant="caption" color={colors.textPrimary} style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="caption" color={colors.textPrimary} >
                   ⏱ {readiness.recommendation.durationMinutes} mins
                 </Typography>
               </View>
             )}
           </View>
 
-          <Typography variant="bodyLarge" style={{ fontFamily: 'Outfit-Bold', marginTop: 8 }}>
+          <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
             {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
           </Typography>
           <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
@@ -618,12 +616,12 @@ export default function TodayScreen() {
           <View style={styles.hydrationBox}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
               <Droplet color={colors.activity} size={18} />
-              <Typography variant="bodyMedium" style={{ marginLeft: 8, fontFamily: 'Outfit-Medium' }}>
+              <Typography variant="bodyMedium" style={{ marginLeft: 8, }}>
                 {t('home.hydrationTarget', { litres: recommendedWaterL.toString() })}
               </Typography>
             </View>
             <Pressable onPress={openWaterModal} style={styles.quickAddWaterBtn}>
-              <Typography variant="caption" color={colors.activity} style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="caption" color={colors.activity} >
                 {t('home.addWater')}
               </Typography>
             </Pressable>
@@ -635,13 +633,13 @@ export default function TodayScreen() {
           <Pressable onPress={() => setIsTargetsFolded(!isTargetsFolded)} style={styles.targetsHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Award color={colors.ovulation} size={20} />
-              <Typography variant="h3" style={{ fontFamily: 'Outfit-Bold' }}>
+              <Typography variant="h3" >
                 {t('home.todaysTargets')}
               </Typography>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? colors.successBg : colors.warningBg }]}>
-                <Typography variant="caption" color={completedTargetsCount >= 2 ? colors.success : colors.warning} style={{ fontFamily: 'Outfit-Bold' }}>
+                <Typography variant="caption" color={completedTargetsCount >= 2 ? colors.success : colors.warning} >
                   {completedTargetsCount}/4 {t('common.done')}
                 </Typography>
               </View>
@@ -672,11 +670,10 @@ export default function TodayScreen() {
         </Card>
 
         {/* Native Ad Card */}
-        <NativeAdComponent screen="home" style={{ marginVertical: SPACING.md }} />
-
+        
       </ScrollView>
 
-      {/* FLOATING ACTION BUTTON (FAB) FOR SINI AI CHAT */}
+      {/* FLOATING ACTION BUTTON (FAB) FOR SINI CHAT */}
       <Pressable
         style={({ pressed }) => [
           styles.siniFloatingFab,
@@ -686,12 +683,12 @@ export default function TodayScreen() {
         onPress={() => openSiniWithQuery()}
       >
         <SiniAvatar size={34} variant="plum" />
-        <Typography variant="caption" color={colors.primaryText} style={{ fontFamily: 'Outfit-Bold', marginLeft: 6 }}>
+        <Typography variant="caption" color={colors.primaryText} style={{ marginLeft: 6 }}>
           {t('home.askSini')}
         </Typography>
       </Pressable>
 
-      {/* Sini AI Coach Chat Modal */}
+      {/* Sini Coach Chat Modal */}
       <CoachChat
         visible={coachChatVisible}
         onClose={() => setCoachChatVisible(false)}
@@ -703,7 +700,7 @@ export default function TodayScreen() {
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={styles.modalScroll}>
             <View style={styles.modalHeader}>
-              <Typography variant="h2" style={{ fontFamily: 'Outfit-Bold' }}>{t('home.dailyCheckInTitle')}</Typography>
+              <Typography variant="h2" >{t('home.dailyCheckInTitle')}</Typography>
               <Pressable onPress={() => setCheckInModalVisible(false)}>
                 <Typography variant="bodyMedium" color={colors.primary}>{t('common.done')}</Typography>
               </Pressable>
@@ -803,7 +800,6 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xs,
   },
   userName: {
-    fontFamily: 'Outfit-Bold',
     fontSize: 26,
     lineHeight: 32,
     marginTop: 2,
@@ -921,7 +917,6 @@ const styles = StyleSheet.create({
   },
   remainingHeroNumber: {
     fontSize: 42,
-    fontFamily: 'Outfit-Bold',
     lineHeight: 46,
   },
   macroMiniRow: {
@@ -956,7 +951,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   insightBlockTag: {
-    fontFamily: 'Outfit-Bold',
     fontSize: 11,
     letterSpacing: 0.5,
   },
@@ -1026,8 +1020,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   targetLabel: {
-    fontFamily: 'Outfit-Regular',
-  },
+    },
   // Check-In Modal
   modalContainer: {
     flex: 1,

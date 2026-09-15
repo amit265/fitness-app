@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.destyastudio.siniai</string>
+	<string>com.destyastudio.sini</string>
 	<key>PROJECT_ID</key>
 	<string>destya-studio</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:327995826064:ios:4fc4f1a79d4303d5fe9d15</string>
+	<string>1:327995826064:ios:fd19c021a7dfe468fe9d15</string>
 </dict>
 </plist>
