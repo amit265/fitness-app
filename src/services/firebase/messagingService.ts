@@ -1,3 +1,4 @@
+import { useAppStore } from "../../store/useAppStore";
 import { getMessaging, getToken, requestPermission, onMessage, AuthorizationStatus } from '@react-native-firebase/messaging';
 import { Platform } from 'react-native';
 import { Alert } from '../../utils/alertUtils';
@@ -37,7 +38,7 @@ export const initializeMessaging = () => {
   const msg = getMessaging();
   // Handle messages when app is in foreground
   const unsubscribe = onMessage(msg, async remoteMessage => {
-    Alert.alert(
+    useAppStore.getState().showAlert(
       remoteMessage.notification?.title || 'New Message',
       remoteMessage.notification?.body || 'You have received a new notification!'
     );

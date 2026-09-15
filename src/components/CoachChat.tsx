@@ -174,7 +174,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
   };
 
   const handleClearChat = () => {
-    Alert.alert(
+    useAppStore.getState().showAlert(
       t('coach.clearChat'),
       t('coach.confirmClear'),
       [

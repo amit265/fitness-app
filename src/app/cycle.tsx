@@ -217,7 +217,7 @@ export default function DedicatedCyclePage() {
 
   const handleOpenAddPeriod = () => {
     if (selectedDateStr > todayStr) {
-      Alert.alert(t('cycle.futureDateRestriction'), '');
+      useAppStore.getState().showAlert(t('cycle.futureDateRestriction'), '');
       return;
     }
 
@@ -239,12 +239,12 @@ export default function DedicatedCyclePage() {
 
   const handleSavePeriod = () => {
     if (!periodStartDate) {
-      Alert.alert(t('common.error'), t('cycle.selectValidStartDate'));
+      useAppStore.getState().showAlert(t('common.error'), t('cycle.selectValidStartDate'));
       return;
     }
 
     if (periodStartDate > todayStr) {
-      Alert.alert(t('cycle.futureDateStart'), '');
+      useAppStore.getState().showAlert(t('cycle.futureDateStart'), '');
       return;
     }
 
@@ -266,7 +266,7 @@ export default function DedicatedCyclePage() {
   };
 
   const handleDeletePeriod = (id: string) => {
-    Alert.alert(t('common.delete'), t('cycle.deleteLogConfirm'), [
+    useAppStore.getState().showAlert(t('common.delete'), t('cycle.deleteLogConfirm'), [
       { text: t('common.cancel'), style: 'cancel' },
       {
         text: t('common.delete'),
@@ -286,7 +286,7 @@ export default function DedicatedCyclePage() {
 
   const handleSaveSymptoms = () => {
     if (selectedDateStr > todayStr) {
-      Alert.alert(t('cycle.futureDateSymptoms'), '');
+      useAppStore.getState().showAlert(t('cycle.futureDateSymptoms'), '');
       return;
     }
 

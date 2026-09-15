@@ -58,7 +58,7 @@ export default function ProfileScreen() {
 
   const handleRestorePurchases = async () => {
     const res = await restorePurchases();
-    Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
+    useAppStore.getState().showAlert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
   };
 
 
@@ -81,13 +81,13 @@ export default function ProfileScreen() {
   const handleUseForSini = (goalOverride: 'lose' | 'gain' | 'maintain' | 'wellness') => {
     if (userProfile) {
       setUserProfile({ ...userProfile, weightGoal: goalOverride });
-      Alert.alert(t('common.done'), 'Sini calorie target updated based on your goal.');
+      useAppStore.getState().showAlert(t('common.done'), 'Sini calorie target updated based on your goal.');
       setActiveModal(null);
     }
   };
 
   const handleResetData = () => {
-    Alert.alert(
+    useAppStore.getState().showAlert(
       t('settings.resetData'),
       t('settings.resetDataConfirm'),
       [

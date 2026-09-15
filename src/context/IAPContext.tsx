@@ -1,3 +1,4 @@
+import { useAppStore } from "../store/useAppStore";
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -84,7 +85,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
               // Save premium status locally
               await AsyncStorage.setItem(LOCAL_PREMIUM_KEY, 'true');
               setIsPremium(true);
-              Alert.alert('Thank You!', 'Your purchase was successful! Ads have been permanently removed.');
+              useAppStore.getState().showAlert('Thank You!', 'Your purchase was successful! Ads have been permanently removed.');
             } catch (err) {
               console.warn('[IAP] Error acknowledging purchase:', err);
             }
@@ -94,7 +95,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
         purchaseErrorSubscription = RNIap.purchaseErrorListener((error: any) => {
           console.warn('[IAP] Purchase error:', error);
           if (error?.code !== 'E_USER_CANCELLED') {
-            Alert.alert('Purchase Error', error?.message || 'Something went wrong during the purchase.');
+            useAppStore.getState().showAlert('Purchase Error', error?.message || 'Something went wrong during the purchase.');
           }
         });
       } catch (err) {
@@ -118,7 +119,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
   // Pre-Purchase Network Guard & Purchase Handler
   const requestPurchase = async () => {
     if (Platform.OS === 'web') {
-      Alert.alert('Unavailable', 'Purchases are not supported in the web preview.');
+      useAppStore.getState().showAlert('Unavailable', 'Purchases are not supported in the web preview.');
       return;
     }
 
@@ -126,7 +127,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
     try {
       const netState = await Network.getNetworkStateAsync();
       if (!netState.isConnected) {
-        Alert.alert('Internet Connection Required', 'Please connect to the internet to complete this purchase.');
+        useAppStore.getState().showAlert('Internet Connection Required', 'Please connect to the internet to complete this purchase.');
         setIsLoading(false);
         return;
       }
@@ -136,7 +137,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
         if (products && products.length > 0) {
           setPremiumProduct(products[0]);
         } else {
-          Alert.alert(
+          useAppStore.getState().showAlert(
             'Billing Error',
             'Unable to contact the Google Play Store / App Store. Please check your store account connection.'
           );
@@ -153,7 +154,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (e: any) {
       console.warn('[IAP] Request purchase failed:', e);
-      Alert.alert('Purchase Failed', e?.message || 'Unable to process purchase.');
+      useAppStore.getState().showAlert('Purchase Failed', e?.message || 'Unable to process purchase.');
     } finally {
       setIsLoading(false);
     }

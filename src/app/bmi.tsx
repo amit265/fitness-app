@@ -85,7 +85,7 @@ export default function BMICalculatorScreen() {
     const w = parseFloat(weightInput);
 
     if (isNaN(h) || h <= 0 || isNaN(w) || w <= 0) {
-      Alert.alert(t('common.error'), t('validation.required'));
+      useAppStore.getState().showAlert(t('common.error'), t('validation.required'));
       return;
     }
 
@@ -103,7 +103,7 @@ export default function BMICalculatorScreen() {
       date: getTodayStr(),
     });
 
-    Alert.alert(t('common.done'), t('profile.saveProfile'), [
+    useAppStore.getState().showAlert(t('common.done'), t('profile.saveProfile'), [
       { text: t('common.done'), onPress: () => router.back() }
     ]);
   };

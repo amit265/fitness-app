@@ -601,13 +601,13 @@ export default function TodayScreen() {
             <Button
               title={`+ ${t('nutrition.logFood')}`}
               variant="nutrition"
-              onPress={() => router.push('/(tabs)/log')}
+              onPress={() => router.push('/logModal?tab=food')}
               style={styles.heroActionBtn}
             />
             <Button
               title={`+ ${t('activity.logWorkout')}`}
               variant="positive"
-              onPress={() => router.push('/(tabs)/log')}
+              onPress={() => router.push('/logModal?tab=activity')}
               style={styles.heroActionBtn}
             />
           </View>

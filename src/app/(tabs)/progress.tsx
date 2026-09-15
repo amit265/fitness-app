@@ -77,7 +77,7 @@ export default function ProgressScreen() {
     }
 
     if (shouldPrompt) {
-      Alert.alert(
+      useAppStore.getState().showAlert(
         t('progress.weeklyReminderTitle', { defaultValue: 'Weekly Check-in!' }),
         t('progress.weeklyReminderBody', { defaultValue: "It's time to log your latest body measurements to keep your progress on track. Want to do it now?" }),
         [
@@ -85,7 +85,7 @@ export default function ProgressScreen() {
             text: t('common.cancel', { defaultValue: 'Not Now' }),
             style: 'cancel',
             onPress: () => {
-              Alert.alert(
+              useAppStore.getState().showAlert(
                 t('progress.reminderWarningTitle', { defaultValue: 'Are you sure?' }),
                 t('progress.reminderWarningBody', { defaultValue: 'Tracking measurements consistently is the best way to see real progress. We will remind you again next week.' }),
               );

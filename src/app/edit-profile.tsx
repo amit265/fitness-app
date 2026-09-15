@@ -69,7 +69,7 @@ export default function EditProfileScreen() {
 
     setTimeout(() => {
       setSaving(false);
-      Alert.alert(t('editProfile.savedTitle'), t('editProfile.savedDesc'), [
+      useAppStore.getState().showAlert(t('editProfile.savedTitle'), t('editProfile.savedDesc'), [
         {
           text: t('common.ok'),
           onPress: () => {

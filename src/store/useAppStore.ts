@@ -59,6 +59,7 @@ interface AppState {
   // Setters/Actions
   setUiLanguage: (lang: string) => void;
   setUserProfile: (profile: UserProfile | null) => void;
+  updateUserProfile: (profile: Partial<UserProfile>) => void;
   setCyclePreferences: (prefs: CyclePreferences | null) => void;
   recordActivityStreak: (todayStr: string) => void;
   
@@ -124,6 +125,9 @@ export const useAppStore = create<AppState>()(
       // Actions
       setUiLanguage: (lang) => set({ uiLanguage: lang }),
       setUserProfile: (profile) => set({ userProfile: profile }),
+      updateUserProfile: (profile) => set((state) => ({ 
+        userProfile: state.userProfile ? { ...state.userProfile, ...profile } : null 
+      })),
       
       setCyclePreferences: (prefs) => set({ cyclePreferences: prefs }),
 

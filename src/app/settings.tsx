@@ -95,7 +95,7 @@ export default function SettingsScreen() {
 
   const handleRestorePurchases = async () => {
     const res = await restorePurchases();
-    Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
+    useAppStore.getState().showAlert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
   };
 
   
@@ -119,7 +119,7 @@ export default function SettingsScreen() {
 
   const handleContactUs = () => {
     Linking.openURL(APP_LINKS.supportEmail).catch(() => {
-      Alert.alert(t('settings.supportEmailTitle'), APP_CONFIG.supportEmail);
+      useAppStore.getState().showAlert(t('settings.supportEmailTitle'), APP_CONFIG.supportEmail);
     });
   };
 
@@ -382,7 +382,7 @@ export default function SettingsScreen() {
                 variant="outline"
                 onPress={() => {
                   seedMockData();
-                  Alert.alert(t('settings.demoDataLoaded'), t('settings.demoDataLoadedDesc'));
+                  useAppStore.getState().showAlert(t('settings.demoDataLoaded'), t('settings.demoDataLoadedDesc'));
                 }}
               />
 
@@ -390,7 +390,7 @@ export default function SettingsScreen() {
                 title={t('settings.resetData')}
                 variant="secondary"
                 onPress={() => {
-                  Alert.alert(
+                  useAppStore.getState().showAlert(
                     t('settings.resetData'),
                     t('settings.resetDataConfirm'),
                     [
@@ -400,7 +400,7 @@ export default function SettingsScreen() {
                         style: 'destructive',
                         onPress: () => {
                           resetStore();
-                          Alert.alert(t('settings.dataCleared'), t('settings.dataClearedDesc'));
+                          useAppStore.getState().showAlert(t('settings.dataCleared'), t('settings.dataClearedDesc'));
                         },
                       },
                     ]

@@ -46,7 +46,7 @@ export default function GroqApiScreen() {
   };
 
   const handleClearKey = () => {
-    Alert.alert(
+    useAppStore.getState().showAlert(
       t('settings.groqApiKeySection'),
       t('settings.resetDataConfirm'),
       [

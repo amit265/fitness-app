@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, ScrollView, Pressable, Platform, useWindowDimensions } from 'react-native';
+import { View, StyleSheet, Image, ScrollView, Pressable, Platform, useWindowDimensions, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Typography } from '../components/Typography';
@@ -9,11 +9,13 @@ import { getRecipeById } from '../domain/nutrition/nutritionLibrary';
 import { X, Clock, Flame, Utensils, Tag } from 'lucide-react-native';
 import { Button } from '../components/Button';
 import Markdown from 'react-native-markdown-display';
+import { useAppStore } from '../store/useAppStore';
 
 export default function NutritionDetailModal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { colors, isDark } = useAppTheme();
+  const addMeal = useAppStore(state => state.addMeal);
 
   const { width } = useWindowDimensions();
 
@@ -158,8 +160,27 @@ ${recipe.coachTip ? `## Coach's Tip\n> ${recipe.coachTip}` : ''}
         <Button 
           title="Log Meal"
           onPress={() => {
-            // Here we would dispatch to store
-            router.back();
+            useAppStore.getState().showAlert(
+              "Log This Meal",
+              "Did you really eat this?",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Yes, Log It",
+                  onPress: () => {
+                    addMeal({
+                      name: recipe.title,
+                      calories: recipe.estimatedCalories,
+                      protein: recipe.proteinGrams,
+                      carbs: 0,
+                      fat: 0,
+                      source: 'database'
+                    });
+                    router.back();
+                  }
+                }
+              ]
+            );
           }}
         />
       </View>

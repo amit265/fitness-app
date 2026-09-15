@@ -19,6 +19,7 @@ export interface UserProfile {
   groqApiKey?: string;
   hasCompletedOnboarding: boolean;
   pauseCycleTracking?: boolean;
+  lastMeasurementPromptDate?: string;
 }
 
 export interface PeriodLog {

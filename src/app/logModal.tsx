@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TextInput, Pressable, Keyboard, Platform, KeyboardAvoidingView, ActivityIndicator,  } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { AppModal as Modal } from '../components/AppModal';
 import { Typography } from '../components/Typography';
 import { Card } from '../components/Card';
@@ -36,6 +36,7 @@ export default function LogScreen() {
   const { colors, isDark } = useAppTheme();
   const uiLanguage = useAppStore((state) => state.uiLanguage);
   const router = useRouter();
+  const { tab } = useLocalSearchParams<{ tab: string }>();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -62,10 +63,8 @@ export default function LogScreen() {
   const [draftLogs, setDraftLogs] = useState<ParsedLogResult[]>([]);
   const [draftError, setDraftError] = useState<string | null>(null);
 
-  // Manual input modal states
   const [mealModalVisible, setMealModalVisible] = useState(false);
   const [workoutModalVisible, setWorkoutModalVisible] = useState(false);
-  const [weightModalVisible, setWeightModalVisible] = useState(false);
 
   // Manual Form States
   const [manualMealName, setManualMealName] = useState('');
@@ -78,8 +77,6 @@ export default function LogScreen() {
   const [manualWorkDur, setManualWorkDur] = useState('');
   const [manualWorkInt, setManualWorkInt] = useState<any>('moderate');
   const [manualWorkCal, setManualWorkCal] = useState('');
-
-  const [manualWeight, setManualWeight] = useState('');
 
   // Submit Text Input Parsing
   const handleParseInput = async () => {
@@ -121,17 +118,13 @@ export default function LogScreen() {
         caloriesBurned: Number(item.payload.caloriesBurned) || 0,
         notes: item.payload.notes,
       });
-    } else if (item.type === 'weight') {
-      addMeasurement({
-        weight: Number(item.payload.weight),
-      });
     }
   };
 
   const handleConfirmAllDrafts = () => {
     if (draftLogs.length === 0) return;
     draftLogs.forEach((item) => saveItemToStore(item));
-    Alert.alert(t('log.loggedSuccess'), t('log.addedItems', { count: draftLogs.length }));
+    useAppStore.getState().showAlert(t('log.loggedSuccess'), t('log.addedItems', { count: draftLogs.length }));
     setDraftLogs([]);
     setInputText('');
   };
@@ -155,7 +148,7 @@ export default function LogScreen() {
 
   const handleManualMealSubmit = () => {
     if (!manualMealName.trim()) {
-      Alert.alert(t('common.error'), t('log.missingName'));
+      useAppStore.getState().showAlert(t('common.error'), t('log.missingName'));
       return;
     }
     addMeal({
@@ -166,7 +159,7 @@ export default function LogScreen() {
       fat: parseFloat(manualMealFat) || 0,
       source: 'database',
     });
-    Alert.alert(t('log.mealLogged'), t('log.mealSaved', { name: manualMealName.trim() }));
+    useAppStore.getState().showAlert(t('log.mealLogged'), t('log.mealSaved', { name: manualMealName.trim() }));
     setManualMealName('');
     setManualMealCal('');
     setManualMealProt('');
@@ -177,7 +170,7 @@ export default function LogScreen() {
 
   const handleManualWorkoutSubmit = () => {
     if (!manualWorkDur || isNaN(Number(manualWorkDur))) {
-      Alert.alert(t('common.error'), t('log.missingDuration'));
+      useAppStore.getState().showAlert(t('common.error'), t('log.missingDuration'));
       return;
     }
     const dur = parseInt(manualWorkDur) || 30;
@@ -190,23 +183,10 @@ export default function LogScreen() {
       caloriesBurned: cal,
       notes: 'Manual log',
     });
-    Alert.alert(t('log.workoutLogged'), t('log.workoutSaved', { type: manualWorkType.toUpperCase() }));
+    useAppStore.getState().showAlert(t('log.workoutLogged'), t('log.workoutSaved', { type: manualWorkType.toUpperCase() }));
     setManualWorkDur('');
     setManualWorkCal('');
     setWorkoutModalVisible(false);
-  };
-
-  const handleManualWeightSubmit = () => {
-    if (!manualWeight || isNaN(Number(manualWeight))) {
-      Alert.alert(t('common.error'), t('log.missingWeight'));
-      return;
-    }
-    addMeasurement({
-      weight: parseFloat(manualWeight),
-    });
-    Alert.alert(t('log.weightLogged'), t('log.weightSaved', { weight: manualWeight }));
-    setManualWeight('');
-    setWeightModalVisible(false);
   };
 
   return (
@@ -289,14 +269,12 @@ export default function LogScreen() {
                 <View key={idx} style={styles.draftItemRow}>
                   <View style={{ flex: 1 }}>
                     <Typography variant="bodyMedium" >
-                      {item.type === 'meal' ? `🥗 ${item.payload.name}` : item.type === 'activity' ? `🏃 ${item.payload.type}` : `⚖️ ${item.payload.weight} kg`}
+                      {item.type === 'meal' ? `🥗 ${item.payload.name}` : `🏃 ${item.payload.type}`}
                     </Typography>
                     <Typography variant="caption" color={colors.subtext}>
                       {item.type === 'meal'
                         ? `${item.payload.calories} kcal • P:${item.payload.protein}g C:${item.payload.carbs}g F:${item.payload.fat}g`
-                        : item.type === 'activity'
-                        ? `${item.payload.durationMinutes}m • ~${item.payload.caloriesBurned} kcal`
-                        : t('log.weightMeasurement')}
+                        : `${item.payload.durationMinutes}m • ~${item.payload.caloriesBurned} kcal`}
                     </Typography>
                   </View>
                   <Pressable onPress={() => handleRemoveDraftIndex(idx)} style={{ padding: 4 }}>
@@ -336,16 +314,6 @@ export default function LogScreen() {
                 {t('log.addWorkout')}
               </Typography>
             </Pressable>
-
-            <Pressable
-              style={[styles.quickBtnCard, { backgroundColor: colors.surface, borderColor: colors.period }]}
-              onPress={() => setWeightModalVisible(true)}
-            >
-              <Scale color={colors.period} size={22} />
-              <Typography variant="caption" color={colors.period} style={{ marginTop: 6, textAlign: 'center' }}>
-                {t('log.addWeight')}
-              </Typography>
-            </Pressable>
           </View>
 
           {/* Today's Logged Items */}
@@ -360,7 +328,7 @@ export default function LogScreen() {
                     {meal.calories} kcal • P: {meal.protein}g | C: {meal.carbs}g | F: {meal.fat}g
                   </Typography>
                 </View>
-                <Pressable onPress={() => Alert.alert('Delete', 'Are you sure you want to delete this log?', [{ text: t('common.cancel'), style: 'cancel' }, { text: t('common.delete'), style: 'destructive', onPress: () => deleteMeal(meal.id) }])} style={{ padding: 4 }}>
+                <Pressable onPress={() => useAppStore.getState().showAlert('Delete', 'Are you sure you want to delete this log?', [{ text: t('common.cancel'), style: 'cancel' }, { text: t('common.delete'), style: 'destructive', onPress: () => deleteMeal(meal.id) }])} style={{ padding: 4 }}>
                   <Trash2 color={colors.subtext} size={18} />
                 </Pressable>
               </View>
@@ -378,7 +346,7 @@ export default function LogScreen() {
                     ~{act.caloriesBurned} kcal burned • {act.intensity} intensity
                   </Typography>
                 </View>
-                <Pressable onPress={() => Alert.alert('Delete', 'Are you sure you want to delete this log?', [{ text: t('common.cancel'), style: 'cancel' }, { text: t('common.delete'), style: 'destructive', onPress: () => deleteActivity(act.id) }])} style={{ padding: 4 }}>
+                <Pressable onPress={() => useAppStore.getState().showAlert('Delete', 'Are you sure you want to delete this log?', [{ text: t('common.cancel'), style: 'cancel' }, { text: t('common.delete'), style: 'destructive', onPress: () => deleteActivity(act.id) }])} style={{ padding: 4 }}>
                   <Trash2 color={colors.subtext} size={18} />
                 </Pressable>
               </View>
@@ -441,32 +409,6 @@ export default function LogScreen() {
               <View style={{ flexDirection: 'row', gap: 12, marginTop: SPACING.lg }}>
                 <Button title={t('common.cancel')} variant="outline" onPress={() => setWorkoutModalVisible(false)} style={{ flex: 1 }} />
                 <Button title={t('common.save')} variant="positive" onPress={handleManualWorkoutSubmit} style={{ flex: 1 }} />
-              </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </View>
-      </Modal>
-
-      {/* Weight Manual Modal */}
-      <Modal visible={weightModalVisible} animationType="slide" transparent={true} onRequestClose={() => setWeightModalVisible(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '90%', backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
-            {/* Drag Handle */}
-            <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 4 }}>
-              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border }} />
-            </View>
-            {/* Header */}
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm }}>
-              <Typography variant="h2" color={colors.textPrimary}>{t('log.logWeightHeader')}</Typography>
-              <Pressable onPress={() => setWeightModalVisible(false)} style={{ padding: 6, borderRadius: 20, backgroundColor: colors.surface }}>
-                <X size={18} color={colors.subtext} />
-              </Pressable>
-            </View>
-            <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.xl }}>
-              <InputField label={t('progress.currentWeight')} value={manualWeight} onChangeText={setManualWeight} keyboardType="decimal-pad" placeholder={t('log.weightPlaceholder')} />
-              <View style={{ flexDirection: 'row', gap: 12, marginTop: SPACING.lg }}>
-                <Button title={t('common.cancel')} variant="outline" onPress={() => setWeightModalVisible(false)} style={{ flex: 1 }} />
-                <Button title={t('common.save')} variant="primary" onPress={handleManualWeightSubmit} style={{ flex: 1 }} />
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
