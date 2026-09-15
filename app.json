@@ -82,7 +82,7 @@
             "enableShrinkResourcesInReleaseBuilds": true,
             "enableHermes": true,
             "extraGradleProps": {
-              "org.gradle.jvmargs": "-Xmx4096m -XX:MaxMetaspaceSize=1024m -XX:+HeapDumpOnOutOfMemoryError"
+              "org.gradle.jvmargs": "-Xmx6144m -XX:MaxMetaspaceSize=2048m -XX:+HeapDumpOnOutOfMemoryError"
             }
           },
           "ios": {
