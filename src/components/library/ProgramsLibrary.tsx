@@ -33,7 +33,7 @@ export function ProgramsLibrary() {
           <View style={styles.badge}>
             <Sparkles size={14} color={colors.subtext} />
             <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 4 }}>
-              CYCLE-SYNCED
+              ADAPTIVE
             </Typography>
           </View>
         </View>

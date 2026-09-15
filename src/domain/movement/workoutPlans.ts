@@ -26,8 +26,8 @@ export interface WorkoutPlan {
 export const WORKOUT_PLANS: WorkoutPlan[] = [
   {
     id: 'plan_gym_sync',
-    title: 'Cycle-Synced Gym Builder',
-    description: 'An adaptive gym program that periodizes your strength training to match your hormonal fluctuations. Heavy lifting during high-energy phases, and active recovery when you need it most.',
+    title: 'Adaptive Gym Builder',
+    description: 'A gym program that periodizes your strength training to match your hormonal fluctuations. Heavy lifting during high-energy phases, and active recovery when you need it most.',
     environment: 'gym',
     level: 'intermediate',
     phaseWorkouts: {
@@ -64,8 +64,8 @@ export const WORKOUT_PLANS: WorkoutPlan[] = [
   },
   {
     id: 'plan_home_sync',
-    title: 'Cycle-Synced Home Burn',
-    description: 'Torch calories and build functional strength from your living room. This adaptive program scales the intensity to your cycle, preventing burnout while maximizing results.',
+    title: 'Adaptive Home Burn',
+    description: 'Torch calories and build functional strength from your living room. This program scales the intensity to your cycle, preventing burnout while maximizing results.',
     environment: 'home',
     level: 'beginner',
     phaseWorkouts: {

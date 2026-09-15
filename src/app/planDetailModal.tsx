@@ -110,7 +110,7 @@ export default function PlanDetailModal() {
             <View style={[styles.tag, { backgroundColor: colors.surface }]}>
               <Sparkles size={14} color={colors.primary} />
               <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
-                CYCLE-SYNCED
+                PHASE-ADAPTIVE
               </Typography>
             </View>
             <View style={[styles.tag, { backgroundColor: colors.surface }]}>
