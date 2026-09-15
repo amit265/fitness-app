@@ -367,11 +367,14 @@ export default function TodayScreen() {
         {/* Top Branding Header */}
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
-            <Typography variant="caption" color={colors.subtext} style={{ letterSpacing: 0.5, textTransform: 'uppercase' }}>
-              🔥 {streak?.currentStreak || 1} Day Streak
+            <Typography variant="caption" color={colors.primary} style={{ letterSpacing: 0.5, textTransform: 'uppercase', fontWeight: '700' }}>
+              {t('cycle.phase.' + cycleState.phase.toLowerCase(), { defaultValue: cycleState.phase }).toUpperCase()} · {t('cycle.currentDay', { day: cycleState.cycleDay }).toUpperCase()}
             </Typography>
             <Typography variant="h1" style={styles.userName}>
               {userProfile?.name ? t('home.greeting', { name: userProfile.name }) : t('home.greetingDefault')}
+            </Typography>
+            <Typography variant="caption" color={colors.subtext} style={{ letterSpacing: 0.5, textTransform: 'uppercase', marginTop: 2 }}>
+              🔥 {streak?.currentStreak || 1} Day Streak
             </Typography>
           </View>
 
@@ -394,101 +397,7 @@ export default function TodayScreen() {
           </View>
         </View>
 
-        {/* 1. CURRENT CYCLE & READINESS (HERO REDESIGN) */}
-        <Card style={styles.cycleStatusCard}>
-          <Pressable onPress={() => router.push('/cycle')} style={{ alignSelf: 'flex-start' }}>
-            <Typography variant="caption" color={colors.primary} style={{ letterSpacing: 1, fontWeight: '700' }}>
-              {t('cycle.phase.' + cycleState.phase.toLowerCase(), { defaultValue: cycleState.phase }).toUpperCase()} · {t('cycle.currentDay', { day: cycleState.cycleDay }).toUpperCase()}
-            </Typography>
-          </Pressable>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: SPACING.md }}>
-            <View style={{ flex: 1 }}>
-              <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 4 }}>
-                {t('home.readiness', { defaultValue: 'Daily Readiness' })}
-              </Typography>
-              <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
-                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 28, lineHeight: 32 }} adjustsFontSizeToFit={true} numberOfLines={2}>
-                  {readiness.score >= 80 
-                    ? "Prime for Movement" 
-                    : readiness.score >= 50 
-                      ? "Holding Steady" 
-                      : "Prioritize Recovery"}
-                </Typography>
-              </View>
-            </View>
-            
-            <View style={[styles.readinessIconCircle, { backgroundColor: colors.surface }]}>
-              <Zap 
-                size={32} 
-                color={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning} 
-                fill={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning}
-              />
-            </View>
-          </View>
-
-          <Button
-            title={todayCheckIn ? t('home.editCheckIn', { defaultValue: 'Edit Check-In' }) : t('home.logFeeling', { defaultValue: 'Log Daily Check-In' })}
-            variant={todayCheckIn ? 'secondary' : 'primary'}
-            onPress={() => setCheckInModalVisible(true)}
-            style={{ marginTop: SPACING.lg }}
-            adjustsFontSizeToFit={true}
-          />
-        </Card>
-
-        {/* DAILY MILESTONES (NEW HORIZONTAL REDESIGN) */}
-        <Card style={styles.targetsCard}>
-          <Pressable style={styles.targetsHeaderRow} onPress={() => setTargetsExpanded(!targetsExpanded)}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1, paddingRight: 8 }}>
-              <Award color={colors.ovulation} size={20} />
-              <Typography variant="h3" numberOfLines={1} adjustsFontSizeToFit={true}>
-                {t('home.dailyMilestones', { defaultValue: "Daily Milestones" })}
-              </Typography>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 4 ? colors.successBg : colors.warningBg }]}>
-                <Typography variant="caption" color={completedTargetsCount >= 4 ? colors.success : colors.warning} >
-                  {completedTargetsCount}/4 {t('common.done')}
-                </Typography>
-              </View>
-              {targetsExpanded ? <ChevronUp size={20} color={colors.subtext} /> : <ChevronDown size={20} color={colors.subtext} />}
-            </View>
-          </Pressable>
-          
-          {targetsExpanded && (
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: SPACING.md }}>
-              <Pressable onPress={() => openTargetModal('checkin')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
-              <View style={[styles.targetIconCircle, { backgroundColor: isCheckInMet ? colors.successBg : colors.surface }]}>
-                {isCheckInMet ? <CheckCircle2 color={colors.success} size={22} /> : <Smile color={colors.subtext} size={22} />}
-              </View>
-              <Typography variant="caption" color={isCheckInMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Check-In</Typography>
-            </Pressable>
-
-            <Pressable onPress={() => openTargetModal('water')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
-              <View style={[styles.targetIconCircle, { backgroundColor: isWaterMet ? colors.successBg : colors.surface }]}>
-                {isWaterMet ? <CheckCircle2 color={colors.success} size={22} /> : <Droplet color={colors.subtext} size={22} />}
-              </View>
-              <Typography variant="caption" color={isWaterMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Water</Typography>
-            </Pressable>
-
-            <Pressable onPress={() => openTargetModal('move')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
-              <View style={[styles.targetIconCircle, { backgroundColor: isExerciseMet ? colors.successBg : colors.surface }]}>
-                {isExerciseMet ? <CheckCircle2 color={colors.success} size={22} /> : <ActivityIcon color={colors.subtext} size={22} />}
-              </View>
-              <Typography variant="caption" color={isExerciseMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Move</Typography>
-            </Pressable>
-
-            <Pressable onPress={() => openTargetModal('food')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
-              <View style={[styles.targetIconCircle, { backgroundColor: isNutritionMet ? colors.successBg : colors.surface }]}>
-                {isNutritionMet ? <CheckCircle2 color={colors.success} size={22} /> : <Utensils color={colors.subtext} size={22} />}
-              </View>
-              <Typography variant="caption" color={isNutritionMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Food</Typography>
-            </Pressable>
-          </View>
-          )}
-        </Card>
-
-        {/* 2. TODAY'S CALORIES HERO VISUAL (PRIORITY 2) */}
+        {/* 1. ENERGY BALANCE */}
         <Card style={styles.heroCalorieCard}>
           <View style={styles.calorieHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1, paddingRight: 8 }}>
@@ -621,40 +530,20 @@ export default function TodayScreen() {
               style={styles.heroActionBtn}
             />
           </View>
-        </Card>
-
-        {/* 4. NUTRITION & FUEL CARD */}
-        <Card style={[styles.nutritionPlanCard, { padding: 0, overflow: 'hidden' }]}>
-          <Image 
-            source={require('../../../assets/images/nutrition_placeholder.jpg')}
-            style={{ width: '100%', height: 140 }}
-            resizeMode="cover"
+          
+          <Button
+            title={todayCheckIn ? t('home.editCheckIn', { defaultValue: 'Edit Check-In' }) : t('home.logFeeling', { defaultValue: 'Log Daily Check-In' })}
+            variant={todayCheckIn ? 'secondary' : 'primary'}
+            onPress={() => setCheckInModalVisible(true)}
+            style={{ marginTop: SPACING.md }}
+            adjustsFontSizeToFit={true}
           />
-          <View style={{ padding: SPACING.md }}>
-            <View style={styles.cardTitleRow}>
-              <Utensils color={colors.nutrition} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 8 }}>
-                Recommended Diet
-              </Typography>
-            </View>
-            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20, marginBottom: SPACING.md }}>
-              Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
-            </Typography>
-            <Pressable 
-              style={[styles.libraryLinkBtn, { backgroundColor: colors.surface }]}
-              onPress={() => router.push('/explore')}
-            >
-              <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontWeight: '600' }}>
-                Explore Phase Nutrition Guides →
-              </Typography>
-            </Pressable>
-          </View>
         </Card>
 
-        {/* 5. ACTIVITY & RECOVERY PLAN */}
+        {/* 2. ACTIVITY & RECOVERY PLAN */}
         <Card style={[styles.activityPlanCard, { padding: 0, overflow: 'hidden' }]}>
           <Image 
-            source={require('../../../assets/images/workouts/follicular_power_dance.jpg')}
+            source={require('../../../assets/images/workouts/ovulatory_strength_pr.jpg')}
             style={{ width: '100%', height: 160 }}
             resizeMode="cover"
           />
@@ -741,7 +630,87 @@ export default function TodayScreen() {
           </View>
         </Card>
 
-        {/* 3. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) MOVED TO BOTTOM */}
+        {/* 3. NUTRITION & FUEL CARD */}
+        <Card style={[styles.nutritionPlanCard, { padding: 0, overflow: 'hidden' }]}>
+          <Image 
+            source={require('../../../assets/images/nutrition_placeholder.jpg')}
+            style={{ width: '100%', height: 140 }}
+            resizeMode="cover"
+          />
+          <View style={{ padding: SPACING.md }}>
+            <View style={styles.cardTitleRow}>
+              <Utensils color={colors.nutrition} size={20} />
+              <Typography variant="h3" style={{ marginLeft: 8 }}>
+                Recommended Diet
+              </Typography>
+            </View>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20, marginBottom: SPACING.md }}>
+              Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
+            </Typography>
+            <Pressable 
+              style={[styles.libraryLinkBtn, { backgroundColor: colors.surface }]}
+              onPress={() => router.push('/explore')}
+            >
+              <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontWeight: '600' }}>
+                Explore Phase Nutrition Guides →
+              </Typography>
+            </Pressable>
+          </View>
+        </Card>
+
+        {/* 4. DAILY MILESTONES (NEW HORIZONTAL REDESIGN) */}
+        <Card style={styles.targetsCard}>
+          <Pressable style={styles.targetsHeaderRow} onPress={() => setTargetsExpanded(!targetsExpanded)}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1, paddingRight: 8 }}>
+              <Award color={colors.ovulation} size={20} />
+              <Typography variant="h3" numberOfLines={1} adjustsFontSizeToFit={true}>
+                {t('home.dailyMilestones', { defaultValue: "Daily Milestones" })}
+              </Typography>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 4 ? colors.successBg : colors.warningBg }]}>
+                <Typography variant="caption" color={completedTargetsCount >= 4 ? colors.success : colors.warning} >
+                  {completedTargetsCount}/4 {t('common.done')}
+                </Typography>
+              </View>
+              {targetsExpanded ? <ChevronUp size={20} color={colors.subtext} /> : <ChevronDown size={20} color={colors.subtext} />}
+            </View>
+          </Pressable>
+          
+          {targetsExpanded && (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: SPACING.md }}>
+              <Pressable onPress={() => openTargetModal('checkin')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isCheckInMet ? colors.successBg : colors.surface }]}>
+                {isCheckInMet ? <CheckCircle2 color={colors.success} size={22} /> : <Smile color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isCheckInMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Check-In</Typography>
+            </Pressable>
+
+            <Pressable onPress={() => openTargetModal('water')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isWaterMet ? colors.successBg : colors.surface }]}>
+                {isWaterMet ? <CheckCircle2 color={colors.success} size={22} /> : <Droplet color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isWaterMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Water</Typography>
+            </Pressable>
+
+            <Pressable onPress={() => openTargetModal('move')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isExerciseMet ? colors.successBg : colors.surface }]}>
+                {isExerciseMet ? <CheckCircle2 color={colors.success} size={22} /> : <ActivityIcon color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isExerciseMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Move</Typography>
+            </Pressable>
+
+            <Pressable onPress={() => openTargetModal('food')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isNutritionMet ? colors.successBg : colors.surface }]}>
+                {isNutritionMet ? <CheckCircle2 color={colors.success} size={22} /> : <Utensils color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isNutritionMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Food</Typography>
+            </Pressable>
+          </View>
+          )}
+        </Card>
+
+        {/* 5. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) MOVED TO BOTTOM */}
         <Card style={[styles.siniSuggestionCard, { backgroundColor: colors.surface }]}>
           <View style={styles.siniHeaderRow}>
             <SiniAvatar size={30} variant="plum" />
