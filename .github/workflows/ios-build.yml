@@ -62,13 +62,11 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: 📤 Submit to TestFlight via API Key
+      - name: 🚀 Submit to TestFlight via Fastlane (Zero Queue Time)
         run: |
-          eas submit \
-            --platform ios \
-            --path ${{ github.workspace }}/build/app.ipa \
-            --non-interactive
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-
+          fastlane run upload_to_testflight \
+            ipa:"${{ github.workspace }}/build/app.ipa" \
+            api_key_path:"/tmp/asc/AuthKey.p8" \
+            api_key_issuer_id:"${{ secrets.ASC_API_ISSUER_ID }}" \
+            api_key_id:"${{ secrets.ASC_API_KEY_ID }}" \
+            skip_waiting_for_build_processing:true
