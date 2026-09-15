@@ -3,22 +3,21 @@ import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { Typography } from '../components/Typography';
-import { ScreenContainer } from '../components/ScreenContainer';
-import { SPACING, PALETTE } from '../constants/theme';
-import { ArrowLeft, CheckCircle2, PlayCircle, Calendar, Dumbbell, Home } from 'lucide-react-native';
+import { SPACING, PALETTE, CYCLE_PHASE_COLORS } from '../constants/theme';
+import { ArrowLeft, PlayCircle, Dumbbell, Home, Sparkles } from 'lucide-react-native';
 import { getWorkoutPlanById, WorkoutPlan } from '../domain/movement/workoutPlans';
 import { useAppStore } from '../store/useAppStore';
 
 export default function PlanDetailModal() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
+  const phaseColors = CYCLE_PHASE_COLORS[isDark ? 'dark' : 'light'];
   
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
   
   const enrollInPlan = useAppStore(state => state.enrollInPlan);
   const activePlanId = useAppStore(state => state.activePlanId);
-  const currentPlanDayIndex = useAppStore(state => state.currentPlanDayIndex);
   
   useEffect(() => {
     if (id) {
@@ -38,6 +37,50 @@ export default function PlanDetailModal() {
     enrollInPlan(plan.id);
     useAppStore.getState().showAlert('Plan Started!', `You are now enrolled in ${plan.title}.`);
     router.dismissAll();
+  };
+
+  const renderPhaseSection = (phaseName: string, phaseKey: keyof WorkoutPlan['phaseWorkouts'], accentColor: string) => {
+    const workouts = plan.phaseWorkouts[phaseKey];
+    if (!workouts || workouts.length === 0) return null;
+
+    return (
+      <View style={styles.phaseSection}>
+        <View style={styles.phaseHeaderRow}>
+          <View style={[styles.phaseDot, { backgroundColor: accentColor }]} />
+          <Typography variant="h3">{phaseName}</Typography>
+        </View>
+        
+        {workouts.map((item, index) => {
+          const isRest = item.workoutId === 'rest';
+          return (
+            <View key={index} style={[
+              styles.workoutCard, 
+              { backgroundColor: colors.card, borderColor: colors.border },
+              isRest && { opacity: 0.7 }
+            ]}>
+              <View style={{ flex: 1 }}>
+                <Typography variant="bodyMedium" style={{ fontWeight: '600' }}>
+                  {item.label || (isRest ? 'Rest Day' : 'Workout')}
+                </Typography>
+                {!isRest && (
+                  <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
+                    Included in pool
+                  </Typography>
+                )}
+              </View>
+              {!isRest && (
+                <Pressable 
+                  style={({ pressed }) => [styles.playBtn, pressed && { opacity: 0.7 }]}
+                  onPress={() => router.push(`/workoutDetailModal?id=${item.workoutId}`)}
+                >
+                  <PlayCircle size={24} color={colors.primary} />
+                </Pressable>
+              )}
+            </View>
+          );
+        })}
+      </View>
+    );
   };
 
   return (
@@ -65,9 +108,9 @@ export default function PlanDetailModal() {
               </Typography>
             </View>
             <View style={[styles.tag, { backgroundColor: colors.surface }]}>
-              <Calendar size={14} color={colors.primary} />
+              <Sparkles size={14} color={colors.primary} />
               <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
-                {plan.durationWeeks} WEEKS
+                CYCLE-SYNCED
               </Typography>
             </View>
             <View style={[styles.tag, { backgroundColor: colors.surface }]}>
@@ -76,62 +119,22 @@ export default function PlanDetailModal() {
               </Typography>
             </View>
           </View>
+          
+          <View style={[styles.explainerCard, { backgroundColor: colors.surface }]}>
+            <Typography variant="bodyMedium" style={{ fontWeight: '600', marginBottom: 4 }}>How this works</Typography>
+            <Typography variant="caption" color={colors.subtext} style={{ lineHeight: 18 }}>
+              This isn't a rigid Day-by-Day plan. Instead, the app will automatically serve you the perfect workout from this program's pool based on your current menstrual phase. As your hormones shift, so does your daily workout.
+            </Typography>
+          </View>
         </View>
 
         <View style={styles.timelineSection}>
-          <Typography variant="h2" style={styles.timelineTitle}>Plan Schedule</Typography>
+          <Typography variant="h2" style={styles.timelineTitle}>Phase Workouts</Typography>
           
-          {plan.schedule.map((item, index) => {
-            const isRest = item.workoutId === 'rest';
-            const isCompleted = isEnrolled && item.dayIndex < currentPlanDayIndex;
-            const isCurrent = isEnrolled && item.dayIndex === currentPlanDayIndex;
-            
-            return (
-              <View key={index} style={styles.timelineItem}>
-                <View style={styles.timelineLeft}>
-                  <Typography variant="caption" color={isCurrent ? colors.primary : colors.subtext} style={{ width: 40, textAlign: 'right' }}>
-                    Day {item.dayIndex}
-                  </Typography>
-                  <View style={[
-                    styles.timelineDot,
-                    { borderColor: isCurrent ? colors.primary : colors.border },
-                    isCompleted && { backgroundColor: colors.primary, borderColor: colors.primary },
-                    isRest && !isCompleted && !isCurrent && { borderColor: 'transparent', backgroundColor: colors.surface }
-                  ]}>
-                    {isCompleted && <CheckCircle2 size={12} color={PALETTE.white} />}
-                  </View>
-                  {index < plan.schedule.length - 1 && (
-                    <View style={[styles.timelineLine, { backgroundColor: colors.border }]} />
-                  )}
-                </View>
-                
-                <View style={[
-                  styles.timelineCard, 
-                  { backgroundColor: colors.card, borderColor: isCurrent ? colors.primary : colors.border },
-                  isRest && { opacity: 0.6 }
-                ]}>
-                  <View style={{ flex: 1 }}>
-                    <Typography variant="bodyMedium" style={{ fontWeight: '600' }}>
-                      {item.label || (isRest ? 'Rest Day' : 'Workout')}
-                    </Typography>
-                    {!isRest && (
-                      <Typography variant="caption" color={colors.subtext} style={{ marginTop: 2 }}>
-                        View details
-                      </Typography>
-                    )}
-                  </View>
-                  {!isRest && (
-                    <Pressable 
-                      style={({ pressed }) => [styles.playBtn, pressed && { opacity: 0.7 }]}
-                      onPress={() => router.push(`/workoutDetailModal?id=${item.workoutId}`)}
-                    >
-                      <PlayCircle size={24} color={colors.primary} />
-                    </Pressable>
-                  )}
-                </View>
-              </View>
-            );
-          })}
+          {renderPhaseSection('Menstrual Phase', 'menstrual', phaseColors.menstrual)}
+          {renderPhaseSection('Follicular Phase', 'follicular', phaseColors.follicular)}
+          {renderPhaseSection('Ovulatory Phase', 'ovulatory', phaseColors.ovulatory)}
+          {renderPhaseSection('Luteal Phase', 'luteal', phaseColors.luteal)}
         </View>
       </ScrollView>
 
@@ -146,7 +149,7 @@ export default function PlanDetailModal() {
           disabled={isEnrolled}
         >
           <Typography variant="h3" color={isEnrolled ? colors.primary : PALETTE.white}>
-            {isEnrolled ? 'Currently Active' : 'Start This Plan'}
+            {isEnrolled ? 'Currently Active' : 'Start Adaptive Plan'}
           </Typography>
         </Pressable>
       </View>
@@ -188,6 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
+    marginBottom: SPACING.lg,
   },
   tag: {
     flexDirection: 'row',
@@ -196,50 +200,38 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 8,
   },
+  explainerCard: {
+    padding: SPACING.md,
+    borderRadius: 12,
+  },
   timelineSection: {
     padding: SPACING.md,
   },
   timelineTitle: {
     marginBottom: SPACING.lg,
   },
-  timelineItem: {
+  phaseSection: {
+    marginBottom: SPACING.xl,
+  },
+  phaseHeaderRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: SPACING.sm,
   },
-  timelineLeft: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginRight: SPACING.md,
-    position: 'relative',
+  phaseDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
   },
-  timelineDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: SPACING.sm,
-    marginTop: 2,
-    zIndex: 2,
-    backgroundColor: '#fff' // Fallback
-  },
-  timelineLine: {
-    position: 'absolute',
-    left: 48 + 10, // width of text (40) + marginLeft (8) + half dot (10)
-    top: 22,
-    bottom: -16,
-    width: 2,
-    zIndex: 1,
-  },
-  timelineCard: {
-    flex: 1,
+  workoutCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: SPACING.md,
     borderRadius: 12,
     borderWidth: 1,
+    marginBottom: SPACING.sm,
   },
   playBtn: {
     padding: 4,

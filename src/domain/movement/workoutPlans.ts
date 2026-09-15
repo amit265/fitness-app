@@ -1,12 +1,12 @@
 import { WorkoutRoutine, getWorkoutById } from './movementLibrary';
+import { CyclePhase } from '../../types';
 
 export type PlanEnvironment = 'gym' | 'home' | 'anywhere';
 export type PlanLevel = 'beginner' | 'intermediate' | 'advanced';
 
-export interface PlanScheduleDay {
-  dayIndex: number; // 1-indexed day of the plan (e.g., 1 to 28 for a 4-week plan)
-  workoutId: string | 'rest'; // 'rest' indicates a rest day
-  label?: string; // e.g. "Upper Body Power", "Active Recovery"
+export interface PhaseWorkoutItem {
+  workoutId: string | 'rest';
+  label: string;
 }
 
 export interface WorkoutPlan {
@@ -15,94 +15,88 @@ export interface WorkoutPlan {
   description: string;
   environment: PlanEnvironment;
   level: PlanLevel;
-  durationWeeks: number;
-  schedule: PlanScheduleDay[];
+  phaseWorkouts: {
+    menstrual: PhaseWorkoutItem[];
+    follicular: PhaseWorkoutItem[];
+    ovulatory: PhaseWorkoutItem[];
+    luteal: PhaseWorkoutItem[];
+  };
 }
 
 export const WORKOUT_PLANS: WorkoutPlan[] = [
   {
-    id: 'plan_gym_foundation_4w',
-    title: '4-Week Gym Foundation',
-    description: 'A comprehensive 4-week gym program designed to build foundational strength and muscle using standard gym equipment.',
+    id: 'plan_gym_sync',
+    title: 'Cycle-Synced Gym Builder',
+    description: 'An adaptive gym program that periodizes your strength training to match your hormonal fluctuations. Heavy lifting during high-energy phases, and active recovery when you need it most.',
     environment: 'gym',
-    level: 'beginner',
-    durationWeeks: 4,
-    schedule: [
-      // Week 1
-      { dayIndex: 1, workoutId: 'g1', label: 'Full Body Push' },
-      { dayIndex: 2, workoutId: 'c1', label: 'Cardio Intervals' },
-      { dayIndex: 3, workoutId: 'g2', label: 'Full Body Pull' },
-      { dayIndex: 4, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 5, workoutId: 'g3', label: 'Lower Body Focus' },
-      { dayIndex: 6, workoutId: 'c2', label: 'LISS Cardio' },
-      { dayIndex: 7, workoutId: 'rest', label: 'Rest' },
-      // Week 2
-      { dayIndex: 8, workoutId: 'g1', label: 'Full Body Push' },
-      { dayIndex: 9, workoutId: 'c3', label: 'HIIT Sprints' },
-      { dayIndex: 10, workoutId: 'g2', label: 'Full Body Pull' },
-      { dayIndex: 11, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 12, workoutId: 'g3', label: 'Lower Body Focus' },
-      { dayIndex: 13, workoutId: 'c1', label: 'Cardio Intervals' },
-      { dayIndex: 14, workoutId: 'rest', label: 'Rest' },
-      // Week 3
-      { dayIndex: 15, workoutId: 'g1', label: 'Full Body Push' },
-      { dayIndex: 16, workoutId: 'c2', label: 'LISS Cardio' },
-      { dayIndex: 17, workoutId: 'g2', label: 'Full Body Pull' },
-      { dayIndex: 18, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 19, workoutId: 'g3', label: 'Lower Body Focus' },
-      { dayIndex: 20, workoutId: 'c4', label: 'Core & Cardio' },
-      { dayIndex: 21, workoutId: 'rest', label: 'Rest' },
-      // Week 4
-      { dayIndex: 22, workoutId: 'g1', label: 'Full Body Push' },
-      { dayIndex: 23, workoutId: 'c1', label: 'Cardio Intervals' },
-      { dayIndex: 24, workoutId: 'g2', label: 'Full Body Pull' },
-      { dayIndex: 25, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 26, workoutId: 'g3', label: 'Lower Body Focus' },
-      { dayIndex: 27, workoutId: 'c3', label: 'HIIT Sprints' },
-      { dayIndex: 28, workoutId: 'rest', label: 'Rest' },
-    ],
+    level: 'intermediate',
+    phaseWorkouts: {
+      menstrual: [
+        { workoutId: 'm1', label: 'Menstrual Relief Flow' },
+        { workoutId: 'm2', label: 'Restorative Stretch' },
+        { workoutId: 'rest', label: 'Deep Rest & Recover' },
+        { workoutId: 'c2', label: 'Light LISS Cardio' },
+      ],
+      follicular: [
+        { workoutId: 'g1', label: 'Heavy Full Body Push' },
+        { workoutId: 'c1', label: 'High Intensity Intervals' },
+        { workoutId: 'g2', label: 'Heavy Full Body Pull' },
+        { workoutId: 'c3', label: 'Speed Sprints' },
+        { workoutId: 'g3', label: 'Heavy Lower Body' },
+        { workoutId: 'rest', label: 'Active Recovery' },
+      ],
+      ovulatory: [
+        { workoutId: 'g1', label: 'Power Full Body Push' },
+        { workoutId: 'g2', label: 'Power Full Body Pull' },
+        { workoutId: 'c1', label: 'Max Effort Cardio' },
+        { workoutId: 'g3', label: 'Power Lower Body' },
+        { workoutId: 'rest', label: 'Active Recovery' },
+      ],
+      luteal: [
+        { workoutId: 'g1', label: 'Moderate Full Body Push' },
+        { workoutId: 'c4', label: 'Core & Steady Cardio' },
+        { workoutId: 'g2', label: 'Moderate Full Body Pull' },
+        { workoutId: 'rest', label: 'Active Recovery' },
+        { workoutId: 'g3', label: 'Moderate Lower Body' },
+        { workoutId: 'm1', label: 'Mobility Flow' },
+      ],
+    },
   },
   {
-    id: 'plan_home_burn_4w',
-    title: '4-Week Home Burn',
-    description: 'High-energy, equipment-free workouts to torch calories and build functional strength right from your living room.',
+    id: 'plan_home_sync',
+    title: 'Cycle-Synced Home Burn',
+    description: 'Torch calories and build functional strength from your living room. This adaptive program scales the intensity to your cycle, preventing burnout while maximizing results.',
     environment: 'home',
-    level: 'intermediate',
-    durationWeeks: 4,
-    schedule: [
-      // Week 1
-      { dayIndex: 1, workoutId: 'h1', label: 'Total Body HIIT' },
-      { dayIndex: 2, workoutId: 'm1', label: 'Mobility Flow' },
-      { dayIndex: 3, workoutId: 'h2', label: 'Core Crusher' },
-      { dayIndex: 4, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 5, workoutId: 'h3', label: 'Lower Body Burn' },
-      { dayIndex: 6, workoutId: 'm2', label: 'Deep Stretch' },
-      { dayIndex: 7, workoutId: 'rest', label: 'Rest' },
-      // Week 2
-      { dayIndex: 8, workoutId: 'h1', label: 'Total Body HIIT' },
-      { dayIndex: 9, workoutId: 'c1', label: 'Cardio Blast' },
-      { dayIndex: 10, workoutId: 'h2', label: 'Core Crusher' },
-      { dayIndex: 11, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 12, workoutId: 'h3', label: 'Lower Body Burn' },
-      { dayIndex: 13, workoutId: 'm1', label: 'Mobility Flow' },
-      { dayIndex: 14, workoutId: 'rest', label: 'Rest' },
-      // Week 3
-      { dayIndex: 15, workoutId: 'h1', label: 'Total Body HIIT' },
-      { dayIndex: 16, workoutId: 'm2', label: 'Deep Stretch' },
-      { dayIndex: 17, workoutId: 'h2', label: 'Core Crusher' },
-      { dayIndex: 18, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 19, workoutId: 'h3', label: 'Lower Body Burn' },
-      { dayIndex: 20, workoutId: 'c2', label: 'LISS Cardio' },
-      { dayIndex: 21, workoutId: 'rest', label: 'Rest' },
-      // Week 4
-      { dayIndex: 22, workoutId: 'h1', label: 'Total Body HIIT' },
-      { dayIndex: 23, workoutId: 'c3', label: 'HIIT Sprints' },
-      { dayIndex: 24, workoutId: 'h2', label: 'Core Crusher' },
-      { dayIndex: 25, workoutId: 'rest', label: 'Rest & Recover' },
-      { dayIndex: 26, workoutId: 'h3', label: 'Lower Body Burn' },
-      { dayIndex: 27, workoutId: 'm1', label: 'Mobility Flow' },
-      { dayIndex: 28, workoutId: 'rest', label: 'Rest' },
-    ],
+    level: 'beginner',
+    phaseWorkouts: {
+      menstrual: [
+        { workoutId: 'm1', label: 'Menstrual Relief Flow' },
+        { workoutId: 'rest', label: 'Deep Rest & Recover' },
+        { workoutId: 'm2', label: 'Restorative Stretch' },
+        { workoutId: 'rest', label: 'Deep Rest & Recover' },
+      ],
+      follicular: [
+        { workoutId: 'h1', label: 'Total Body HIIT' },
+        { workoutId: 'h2', label: 'Core Crusher' },
+        { workoutId: 'c1', label: 'Cardio Blast' },
+        { workoutId: 'h3', label: 'Lower Body Burn' },
+        { workoutId: 'rest', label: 'Active Recovery' },
+      ],
+      ovulatory: [
+        { workoutId: 'h1', label: 'Max Total Body HIIT' },
+        { workoutId: 'h3', label: 'Max Lower Body Burn' },
+        { workoutId: 'c3', label: 'Sprint Intervals' },
+        { workoutId: 'h2', label: 'Core Crusher' },
+        { workoutId: 'rest', label: 'Active Recovery' },
+      ],
+      luteal: [
+        { workoutId: 'h1', label: 'Moderate Total Body' },
+        { workoutId: 'c2', label: 'Steady State Cardio' },
+        { workoutId: 'h3', label: 'Moderate Lower Body' },
+        { workoutId: 'm2', label: 'Deep Stretch' },
+        { workoutId: 'rest', label: 'Active Recovery' },
+      ],
+    },
   },
 ];
 
@@ -110,19 +104,33 @@ export const getWorkoutPlanById = (id: string): WorkoutPlan | undefined => {
   return WORKOUT_PLANS.find(p => p.id === id);
 };
 
-export const getTodayPlanWorkout = (planId: string, currentDayIndex: number): { workout: WorkoutRoutine | null, label: string, isRest: boolean } | null => {
+export const getTodayPlanWorkout = (
+  planId: string, 
+  currentPhase: CyclePhase, 
+  currentPlanDayIndex: number
+): { workout: WorkoutRoutine | null, label: string, isRest: boolean, phaseContext: CyclePhase } | null => {
+  
   const plan = getWorkoutPlanById(planId);
   if (!plan) return null;
   
-  const scheduleItem = plan.schedule.find(s => s.dayIndex === currentDayIndex);
-  if (!scheduleItem) return null;
+  let phaseKey: keyof WorkoutPlan['phaseWorkouts'] = 'follicular'; // Fallback for unknown
+  if (currentPhase === 'menstrual' || currentPhase === 'follicular' || currentPhase === 'ovulatory' || currentPhase === 'luteal') {
+    phaseKey = currentPhase;
+  }
+  
+  const phasePool = plan.phaseWorkouts[phaseKey];
+  if (!phasePool || phasePool.length === 0) return null;
+  
+  // Use modulo arithmetic to endlessly cycle through the phase pool based on the days enrolled in the plan
+  const rotatingIndex = (currentPlanDayIndex - 1) % phasePool.length;
+  const scheduleItem = phasePool[rotatingIndex];
   
   if (scheduleItem.workoutId === 'rest') {
-    return { workout: null, label: scheduleItem.label || 'Rest Day', isRest: true };
+    return { workout: null, label: scheduleItem.label || 'Rest Day', isRest: true, phaseContext: currentPhase };
   }
   
   const workout = getWorkoutById(scheduleItem.workoutId);
   if (!workout) return null;
   
-  return { workout, label: scheduleItem.label || workout.title, isRest: false };
+  return { workout, label: scheduleItem.label || workout.title, isRest: false, phaseContext: currentPhase };
 };

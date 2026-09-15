@@ -5,7 +5,7 @@ import { Typography } from '../Typography';
 import { SPACING } from '../../constants/theme';
 import { useRouter } from 'expo-router';
 import { WORKOUT_PLANS, WorkoutPlan } from '../../domain/movement/workoutPlans';
-import { Dumbbell, Home, ChevronRight, Calendar } from 'lucide-react-native';
+import { Dumbbell, Home, ChevronRight, Sparkles } from 'lucide-react-native';
 
 export function ProgramsLibrary() {
   const { colors } = useAppTheme();
@@ -31,9 +31,9 @@ export function ProgramsLibrary() {
             </Typography>
           </View>
           <View style={styles.badge}>
-            <Calendar size={14} color={colors.subtext} />
+            <Sparkles size={14} color={colors.subtext} />
             <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 4 }}>
-              {plan.durationWeeks} Weeks
+              CYCLE-SYNCED
             </Typography>
           </View>
         </View>

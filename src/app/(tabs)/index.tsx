@@ -126,13 +126,13 @@ export default function TodayScreen() {
   const activePlanId = useAppStore(state => state.activePlanId);
   const currentPlanDayIndex = useAppStore(state => state.currentPlanDayIndex);
   
-  const todayPlanItem = activePlanId ? getTodayPlanWorkout(activePlanId, currentPlanDayIndex) : null;
-  const activePlan = activePlanId ? getWorkoutPlanById(activePlanId) : null;
-
   // Today Date & Math
   const todayStr = getTodayStr();
   const cycleState = getCycleState(periods, cyclePreferences, todayStr);
   const calorieBalance = getDailyCalorieBalance(todayStr, meals, activities, userProfile, measurements);
+
+  const todayPlanItem = activePlanId ? getTodayPlanWorkout(activePlanId, cycleState.phase, currentPlanDayIndex) : null;
+  const activePlan = activePlanId ? getWorkoutPlanById(activePlanId) : null;
 
   // Filter recent activities in past 24 hours
   const recentWorkouts = activities.filter((act) => {
@@ -647,7 +647,7 @@ export default function TodayScreen() {
           <View style={styles.cardTitleRow}>
             <ActivityIcon color={colors.activity} size={20} />
             <Typography variant="h3" style={{ marginLeft: 8 }}>
-              {activePlan ? `Today's Plan: ${activePlan.title}` : 'Recommended Workout'}
+              {activePlan ? `${cycleState.phase.charAt(0).toUpperCase() + cycleState.phase.slice(1)} Phase: ${activePlan.title}` : 'Recommended Workout'}
             </Typography>
           </View>
 
