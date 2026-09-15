@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ImageBackground,
 } from 'react-native';
 import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
@@ -622,107 +623,125 @@ export default function TodayScreen() {
         </Card>
 
         {/* 4. NUTRITION & FUEL CARD */}
-        <Card style={styles.nutritionPlanCard}>
-          <View style={styles.cardTitleRow}>
-            <Utensils color={colors.nutrition} size={20} />
-            <Typography variant="h3" style={{ marginLeft: 8 }}>
-              Recommended Diet
-            </Typography>
-          </View>
-          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20, marginBottom: SPACING.md }}>
-            Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
-          </Typography>
-          <Pressable 
-            style={[styles.libraryLinkBtn, { backgroundColor: colors.surface }]}
-            onPress={() => router.push('/explore')}
+        <Card style={[styles.nutritionPlanCard, { padding: 0, overflow: 'hidden', borderWidth: 0 }]}>
+          <ImageBackground 
+            source={require('../../../assets/images/home_nutrition_bg.jpg')}
+            style={{ width: '100%', height: '100%', padding: SPACING.md, justifyContent: 'space-between' }}
+            imageStyle={{ opacity: 0.6 }}
           >
-            <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontWeight: '600' }}>
-              Explore Phase Nutrition Guides →
-            </Typography>
-          </Pressable>
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.5)' }]} />
+            <View>
+              <View style={styles.cardTitleRow}>
+                <Utensils color={colors.nutrition} size={20} />
+                <Typography variant="h3" style={{ marginLeft: 8, color: '#fff' }}>
+                  Recommended Diet
+                </Typography>
+              </View>
+              <Typography variant="bodyMedium" style={{ marginTop: 4, lineHeight: 20, marginBottom: SPACING.md, color: 'rgba(255,255,255,0.85)' }}>
+                Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
+              </Typography>
+            </View>
+            <Pressable 
+              style={[styles.libraryLinkBtn, { backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }]}
+              onPress={() => router.push('/explore')}
+            >
+              <Typography variant="bodyMedium" style={{ fontWeight: '600', color: '#fff' }}>
+                Explore Phase Nutrition Guides →
+              </Typography>
+            </Pressable>
+          </ImageBackground>
         </Card>
 
         {/* 5. ACTIVITY & RECOVERY PLAN */}
-        <Card style={styles.activityPlanCard}>
-          <View style={styles.cardTitleRow}>
-            <ActivityIcon color={colors.activity} size={20} />
-            <Typography variant="h3" style={{ marginLeft: 8 }}>
-              {activePlan ? `${cycleState.phase.charAt(0).toUpperCase() + cycleState.phase.slice(1)} Phase: ${activePlan.title}` : 'Recommended Workout'}
-            </Typography>
-          </View>
-
-          {activePlan && todayPlanItem ? (
-            <>
-              <View style={styles.activityBadgeRow}>
-                <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                  <Typography variant="caption" color={colors.activity}>
-                    DAY {currentPlanDayIndex}
-                  </Typography>
-                </View>
-                {!todayPlanItem.isRest && todayPlanItem.workout && (
-                  <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                    <Typography variant="caption" color={colors.textPrimary}>
-                      ⏱ {todayPlanItem.workout.durationMinutes} mins
-                    </Typography>
-                  </View>
-                )}
+        <Card style={[styles.activityPlanCard, { padding: 0, overflow: 'hidden', borderWidth: 0 }]}>
+          <ImageBackground 
+            source={require('../../../assets/images/home_activity_bg.jpg')}
+            style={{ width: '100%', height: '100%', padding: SPACING.md, justifyContent: 'space-between' }}
+            imageStyle={{ opacity: 0.6 }}
+          >
+            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.55)' }]} />
+            <View>
+              <View style={styles.cardTitleRow}>
+                <ActivityIcon color={colors.activity} size={20} />
+                <Typography variant="h3" style={{ marginLeft: 8, color: '#fff' }}>
+                  {activePlan ? `${cycleState.phase.charAt(0).toUpperCase() + cycleState.phase.slice(1)} Phase: ${activePlan.title}` : 'Recommended Workout'}
+                </Typography>
               </View>
 
-              <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
-                {todayPlanItem.label}
-              </Typography>
-              <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
-                {todayPlanItem.isRest 
-                  ? 'Take today to recover, hydrate, and prepare for your next session.'
-                  : todayPlanItem.workout?.description}
-              </Typography>
-              
-              {!todayPlanItem.isRest && todayPlanItem.workout && (
+              {activePlan && todayPlanItem ? (
+                <>
+                  <View style={styles.activityBadgeRow}>
+                    <View style={[styles.actBadge, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+                      <Typography variant="caption" style={{ color: '#fff' }}>
+                        DAY {currentPlanDayIndex}
+                      </Typography>
+                    </View>
+                    {!todayPlanItem.isRest && todayPlanItem.workout && (
+                      <View style={[styles.actBadge, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+                        <Typography variant="caption" style={{ color: '#fff' }}>
+                          ⏱ {todayPlanItem.workout.durationMinutes} mins
+                        </Typography>
+                      </View>
+                    )}
+                  </View>
+
+                  <Typography variant="bodyLarge" style={{ marginTop: 8, color: '#fff' }}>
+                    {todayPlanItem.label}
+                  </Typography>
+                  <Typography variant="bodyMedium" style={{ marginTop: 4, lineHeight: 20, color: 'rgba(255,255,255,0.85)' }}>
+                    {todayPlanItem.isRest 
+                      ? 'Take today to recover, hydrate, and prepare for your next session.'
+                      : todayPlanItem.workout?.description}
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <View style={styles.activityBadgeRow}>
+                    <View style={[styles.actBadge, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+                      <Typography variant="caption" style={{ color: '#fff' }} >
+                        {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
+                      </Typography>
+                    </View>
+                    {readiness.recommendation.durationMinutes && (
+                      <View style={[styles.actBadge, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
+                        <Typography variant="caption" style={{ color: '#fff' }} >
+                          ⏱ {readiness.recommendation.durationMinutes} mins
+                        </Typography>
+                      </View>
+                    )}
+                  </View>
+
+                  <Typography variant="bodyLarge" style={{ marginTop: 8, color: '#fff' }}>
+                    {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
+                  </Typography>
+                  <Typography variant="bodyMedium" style={{ marginTop: 4, lineHeight: 20, color: 'rgba(255,255,255,0.85)' }}>
+                    {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
+                  </Typography>
+                </>
+              )}
+            </View>
+
+            <View>
+              {activePlan && todayPlanItem && !todayPlanItem.isRest && todayPlanItem.workout && (
                  <Pressable 
-                   style={[styles.libraryLinkBtn, { backgroundColor: colors.primary, marginTop: SPACING.md, alignItems: 'center' }]}
+                   style={[styles.libraryLinkBtn, { backgroundColor: colors.activity, marginTop: SPACING.md, alignItems: 'center', borderWidth: 0 }]}
                    onPress={() => router.push(`/workoutDetailModal?id=${todayPlanItem.workout?.id}`)}
                  >
-                   <Typography variant="bodyMedium" color={PALETTE.white} style={{ fontWeight: '600' }}>
+                   <Typography variant="bodyMedium" style={{ fontWeight: '700', color: '#fff' }}>
                      View Workout →
                    </Typography>
                  </Pressable>
               )}
-            </>
-          ) : (
-            <>
-              <View style={styles.activityBadgeRow}>
-                <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                  <Typography variant="caption" color={colors.activity} >
-                    {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
-                  </Typography>
-                </View>
-                {readiness.recommendation.durationMinutes && (
-                  <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                    <Typography variant="caption" color={colors.textPrimary} >
-                      ⏱ {readiness.recommendation.durationMinutes} mins
-                    </Typography>
-                  </View>
-                )}
-              </View>
-
-              <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
-                {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
-              </Typography>
-              <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
-                {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
-              </Typography>
-            </>
-          )}
-
-
-          <Pressable 
-            style={[styles.libraryLinkBtn, { backgroundColor: colors.surface, marginTop: SPACING.md }]}
-            onPress={() => router.push('/explore')}
-          >
-            <Typography variant="bodyMedium" color={colors.activity} style={{ fontWeight: '600' }}>
-              Explore Movement Library →
-            </Typography>
-          </Pressable>
+              <Pressable 
+                style={[styles.libraryLinkBtn, { backgroundColor: 'rgba(255,255,255,0.15)', marginTop: SPACING.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' }]}
+                onPress={() => router.push('/explore')}
+              >
+                <Typography variant="bodyMedium" style={{ fontWeight: '600', color: '#fff' }}>
+                  Explore Movement Library →
+                </Typography>
+              </Pressable>
+            </View>
+          </ImageBackground>
         </Card>
 
         {/* 3. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) MOVED TO BOTTOM */}
