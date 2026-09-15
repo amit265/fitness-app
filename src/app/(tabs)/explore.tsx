@@ -13,7 +13,7 @@ import { t } from '../../i18n';
 
 export default function ExploreScreen() {
   const { colors } = useAppTheme();
-  const [activeTab, setActiveTab] = useState<'movement' | 'programs' | 'nutrition'>('movement');
+  const [activeTab, setActiveTab] = useState<'programs' | 'nutrition'>('programs');
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
@@ -25,22 +25,12 @@ export default function ExploreScreen() {
         <View style={styles.segmentedControlWrapper}>
           <View style={[styles.segmentedControl, { backgroundColor: colors.surface }]}>
             <Pressable 
-              style={[styles.segmentBtn, activeTab === 'movement' && { backgroundColor: colors.primary, shadowColor: colors.shadow, elevation: 2, shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } }]}
-              onPress={() => setActiveTab('movement')}
-            >
-              <Activity size={16} color={activeTab === 'movement' ? colors.primaryText : colors.subtext} />
-              <Typography variant="bodyMedium" color={activeTab === 'movement' ? colors.primaryText : colors.subtext} style={{ marginLeft: 6, fontWeight: activeTab === 'movement' ? '600' : '400' }}>
-                Workouts
-              </Typography>
-            </Pressable>
-
-            <Pressable 
               style={[styles.segmentBtn, activeTab === 'programs' && { backgroundColor: colors.primary, shadowColor: colors.shadow, elevation: 2, shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } }]}
               onPress={() => setActiveTab('programs')}
             >
-              <Calendar size={16} color={activeTab === 'programs' ? colors.primaryText : colors.subtext} />
+              <Activity size={16} color={activeTab === 'programs' ? colors.primaryText : colors.subtext} />
               <Typography variant="bodyMedium" color={activeTab === 'programs' ? colors.primaryText : colors.subtext} style={{ marginLeft: 6, fontWeight: activeTab === 'programs' ? '600' : '400' }}>
-                Programs
+                Workouts
               </Typography>
             </Pressable>
             
@@ -57,7 +47,7 @@ export default function ExploreScreen() {
         </View>
 
         <View>
-          {activeTab === 'movement' && <MovementLibrary />}
+
           {activeTab === 'programs' && <ProgramsLibrary />}
           {activeTab === 'nutrition' && <NutritionLibrary />}
         </View>

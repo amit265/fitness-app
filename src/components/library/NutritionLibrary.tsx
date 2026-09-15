@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { Typography } from '../Typography';
 import { SPACING, PALETTE } from '../../constants/theme';
@@ -130,36 +130,53 @@ export function NutritionLibrary() {
         {/* Recommended Recipes */}
         {recommendedRecipes.length > 0 && (
           <View style={styles.sectionContainer}>
-            <Typography variant="h2" style={styles.sectionTitle}>Recommended Recipes</Typography>
-            {recommendedRecipes.map(recipe => (
-              <Pressable
-                key={recipe.id}
-                style={({ pressed }) => [
-                  styles.recipeCard,
-                  { backgroundColor: colors.card, borderColor: colors.border },
-                  pressed && { opacity: 0.8 }
-                ]}
-                onPress={() => router.push(`/nutritionDetailModal?id=${recipe.id}`)}
-              >
-                <View style={styles.recipeHeader}>
-                  <View style={[styles.dietBadge, { backgroundColor: colors.surface }]}>
-                    <Typography variant="caption" color={colors.nutrition}>{recipe.dietaryTags[0]?.toUpperCase()}</Typography>
-                  </View>
-                  <Typography variant="caption" color={colors.subtext}>
-                    {recipe.prepTimeMinutes}m • {recipe.estimatedCalories} kcal
-                  </Typography>
-                </View>
+            <Typography variant="h2" style={styles.sectionTitle}>Recommended for You</Typography>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
+              Curated for your {cycleState.phase} phase and {userProfile?.weightGoal || 'wellness'} goals.
+            </Typography>
 
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <View style={{ flex: 1, paddingRight: SPACING.md }}>
-                    <Typography variant="h3" style={{ marginBottom: SPACING.xs }}>{recipe.title}</Typography>
-                    <Typography variant="bodyMedium" color={colors.subtext} style={{ lineHeight: 20 }}>
-                      {recipe.description}
-                    </Typography>
-                  </View>
+            {['breakfast', 'lunch', 'dinner', 'snack', 'drink'].map(mealType => {
+              const recipesForMeal = recommendedRecipes.filter(r => r.mealType === mealType);
+              if (recipesForMeal.length === 0) return null;
+
+              return (
+                <View key={mealType} style={{ marginBottom: SPACING.lg }}>
+                  <Typography variant="h3" style={{ marginBottom: SPACING.sm, textTransform: 'capitalize' }}>
+                    {mealType}
+                  </Typography>
+                  {recipesForMeal.map(recipe => (
+                    <Pressable
+                      key={recipe.id}
+                      style={({ pressed }) => [
+                        styles.recipeCard,
+                        { backgroundColor: colors.card, borderColor: colors.border },
+                        pressed && { opacity: 0.8 }
+                      ]}
+                      onPress={() => router.push(`/nutritionDetailModal?id=${recipe.id}`)}
+                    >
+                      <View style={styles.recipeHeader}>
+                        <View style={[styles.dietBadge, { backgroundColor: colors.surface }]}>
+                          <Typography variant="caption" color={colors.nutrition}>{recipe.dietaryTags[0]?.toUpperCase()}</Typography>
+                        </View>
+                        <Typography variant="caption" color={colors.subtext}>
+                          {recipe.prepTimeMinutes}m • {recipe.estimatedCalories} kcal
+                        </Typography>
+                      </View>
+
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Image source={require('../../../assets/images/nutrition_placeholder.jpg')} style={styles.recipeImage} />
+                        <View style={{ flex: 1, paddingRight: SPACING.md }}>
+                          <Typography variant="h3" style={{ marginBottom: SPACING.xs }}>{recipe.title}</Typography>
+                          <Typography variant="bodyMedium" color={colors.subtext} style={{ lineHeight: 20 }} numberOfLines={2}>
+                            {recipe.description}
+                          </Typography>
+                        </View>
+                      </View>
+                    </Pressable>
+                  ))}
                 </View>
-              </Pressable>
-            ))}
+              );
+            })}
           </View>
         )}
 
@@ -242,6 +259,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     marginBottom: SPACING.md,
+  },
+  recipeImage: {
+    width: 64,
+    height: 64,
+    borderRadius: 12,
+    marginRight: SPACING.md,
   },
   recipeHeader: {
     flexDirection: 'row',

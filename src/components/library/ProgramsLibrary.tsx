@@ -56,11 +56,42 @@ export function ProgramsLibrary() {
   return (
     <View style={[styles.container, { backgroundColor: colors.bg, paddingBottom: 100 }]}>
       <View style={styles.sectionContainer}>
-        <Typography variant="h2" style={styles.sectionTitle}>Structured Programs</Typography>
+        <Typography variant="h2" style={styles.sectionTitle}>Structured Workouts</Typography>
         <Typography variant="bodyMedium" color={colors.subtext} style={styles.sectionSubtitle}>
-          Follow a guided, multi-week plan tailored for your environment.
+          Adaptive workout plans customized for your menstrual cycle.
         </Typography>
-        {WORKOUT_PLANS.map(p => renderPlanCard(p))}
+        {WORKOUT_PLANS.map(renderPlanCard)}
+      </View>
+      <View style={[styles.sectionContainer, { marginTop: SPACING.xl }]}>
+        <Pressable 
+          style={({ pressed }) => [
+            styles.planCard, 
+            { backgroundColor: colors.surface, borderColor: colors.border },
+            pressed && { opacity: 0.8 }
+          ]}
+          onPress={() => router.push('/movementLibraryModal')}
+        >
+          <View style={styles.planHeader}>
+            <View style={[styles.badge, { backgroundColor: colors.card }]}>
+               <Dumbbell size={14} color={colors.primary} />
+              <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
+                ALL EXERCISES
+              </Typography>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1, paddingRight: SPACING.md }}>
+              <Typography variant="h3" style={styles.planTitle}>Exercise Bank</Typography>
+              <Typography variant="bodyMedium" color={colors.subtext} style={styles.planDesc}>
+                Explore all individual exercises and movements.
+              </Typography>
+            </View>
+            <View style={[styles.chevronBtn, { backgroundColor: colors.card }]}>
+              <ChevronRight size={16} color={colors.primary} />
+            </View>
+          </View>
+        </Pressable>
       </View>
     </View>
   );
