@@ -626,10 +626,11 @@ export default function TodayScreen() {
         <Card style={[styles.nutritionPlanCard, { padding: 0, overflow: 'hidden', borderWidth: 0 }]}>
           <ImageBackground 
             source={require('../../../assets/images/home_nutrition_bg.jpg')}
-            style={{ width: '100%', height: '100%', padding: SPACING.md, justifyContent: 'space-between' }}
+            style={{ padding: SPACING.md, justifyContent: 'space-between', minHeight: 180 }}
             imageStyle={{ opacity: 0.6 }}
+            resizeMode="cover"
           >
-            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.5)' }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.5)' }]} />
             <View>
               <View style={styles.cardTitleRow}>
                 <Utensils color={colors.nutrition} size={20} />
@@ -656,10 +657,11 @@ export default function TodayScreen() {
         <Card style={[styles.activityPlanCard, { padding: 0, overflow: 'hidden', borderWidth: 0 }]}>
           <ImageBackground 
             source={require('../../../assets/images/home_activity_bg.jpg')}
-            style={{ width: '100%', height: '100%', padding: SPACING.md, justifyContent: 'space-between' }}
+            style={{ padding: SPACING.md, justifyContent: 'space-between', minHeight: 180 }}
             imageStyle={{ opacity: 0.6 }}
+            resizeMode="cover"
           >
-            <View style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0,0,0,0.55)' }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.55)' }]} />
             <View>
               <View style={styles.cardTitleRow}>
                 <ActivityIcon color={colors.activity} size={20} />
