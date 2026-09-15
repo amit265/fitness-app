@@ -144,7 +144,7 @@ export default function BMICalculatorScreen() {
           <View style={{ width: 24 }} />
         </View>
 
-        <ScreenContainer>
+        <ScreenContainer contentStyle={styles.scrollContent}>
           
           <Card style={styles.card}>
             <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>

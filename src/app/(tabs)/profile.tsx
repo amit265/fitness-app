@@ -118,7 +118,7 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScreenContainer contentStyle={styles.scrollContent}>
 
           {/* Top Hero User Identity Card */}
           <View style={[styles.heroProfileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -382,7 +382,7 @@ export default function ProfileScreen() {
           {/* Destya Studio Footer */}
           <DestyaStudioFooter />
 
-        </ScrollView>
+        </ScreenContainer>
       </KeyboardAvoidingView>
 
       {/* Calculator Modals */}

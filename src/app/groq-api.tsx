@@ -84,7 +84,7 @@ export default function GroqApiScreen() {
           <View style={{ width: 36 }} />
         </View>
 
-        <ScreenContainer>
+        <ScreenContainer contentStyle={styles.scrollContent}>
 
           {/* CARD 1: WHY CUSTOM AI */}
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>

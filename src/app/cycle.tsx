@@ -372,7 +372,7 @@ export default function DedicatedCyclePage() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
-      <ScreenContainer>
+      <ScreenContainer contentStyle={styles.scrollContent}>
         
         {/* Header */}
         <View style={styles.header}>

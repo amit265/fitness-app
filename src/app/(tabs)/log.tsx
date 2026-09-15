@@ -209,7 +209,7 @@ export default function LogScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScreenContainer>
+        <ScreenContainer contentStyle={styles.scrollContent}>
 
           {/* Header */}
           <View style={styles.header}>

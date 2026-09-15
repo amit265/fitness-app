@@ -135,7 +135,7 @@ export default function SettingsScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScreenContainer>
+      <ScreenContainer contentStyle={styles.scrollContent}>
         {/* SECTION 1: LANGUAGE & REGION */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.language').toUpperCase()}

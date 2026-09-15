@@ -86,7 +86,7 @@ export default function EditProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScreenContainer>
+        <ScreenContainer contentStyle={styles.scrollContent}>
           {/* Header */}
           <View style={styles.header}>
             <Pressable style={styles.backBtn} onPress={() => router.back()}>
