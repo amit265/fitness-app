@@ -85,7 +85,7 @@ export const IAPProvider = ({ children }: { children: ReactNode }) => {
               // Save premium status locally
               await AsyncStorage.setItem(LOCAL_PREMIUM_KEY, 'true');
               setIsPremium(true);
-              useAppStore.getState().showAlert('Thank You!', 'Your purchase was successful! Ads have been permanently removed.');
+              useAppStore.getState().showAlert('Thank You!', 'Your purchase was successful! You are now a Premium Supporter.');
             } catch (err) {
               console.warn('[IAP] Error acknowledging purchase:', err);
             }

@@ -130,9 +130,16 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            <Typography variant="h1" style={styles.userNameText}>
-              {userProfile?.name || 'User'}
-            </Typography>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
+              <Typography variant="h1" style={[styles.userNameText, { marginTop: 0 }]}>
+                {userProfile?.name || 'User'}
+              </Typography>
+              {isIapPremium && (
+                <View style={{ marginLeft: 6, backgroundColor: PALETTE.gold.default, padding: 4, borderRadius: 12 }}>
+                  <Crown size={14} color="#FFF" />
+                </View>
+              )}
+            </View>
             <View style={styles.memberTagPill}>
               <Sparkles size={13} color={colors.primary} />
               <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
@@ -167,7 +174,7 @@ export default function ProfileScreen() {
           {/* MEMBERSHIP SECTION */}
 {/* MEMBERSHIP & AD-FREE UNLOCK */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
-          {t('settings.membershipHeader').toUpperCase()}
+          {t('settings.developerSupport', { defaultValue: 'Developer Support' }).toUpperCase()}
         </Typography>
         <View style={[styles.groupedCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Pressable
@@ -179,10 +186,10 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" color={PALETTE.gold.default} >
-                {t('settings.removeAdsTitle')}
+                {isIapPremium ? 'Premium Supporter' : 'Support the Developer'}
               </Typography>
               <Typography variant="caption" color={colors.subtext}>
-                {isIapPremium ? t('settings.lifetimeActive') : t('settings.lifetimeDesc')}
+                {isIapPremium ? 'Premium badge unlocked' : 'Unlock a premium profile badge'}
               </Typography>
             </View>
             <View style={styles.priceTagBadge}>
