@@ -10,22 +10,23 @@ export interface TrendData {
 /**
  * Filter measurements for a past time window and format for charting.
  */
-export function getWeightTrend(
+export function getMeasurementTrend(
   measurements: BodyMeasurement[],
-  days: number
+  days: number,
+  metric: keyof Omit<BodyMeasurement, 'id' | 'date'> = 'weight'
 ): TrendData {
   const today = getTodayStr();
 
-  // Filter measurements within past N days
+  // Filter measurements within past N days that have the requested metric
   const filtered = measurements
     .filter((m) => {
       const ageInDays = diffInDays(today, m.date);
-      return ageInDays >= 0 && ageInDays <= days;
+      return ageInDays >= 0 && ageInDays <= days && m[metric] !== undefined;
     })
     // Sort oldest first for time-series charts
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  const values = filtered.map((m) => m.weight);
+  const values = filtered.map((m) => m[metric] as number);
   const labels = filtered.map((m) => {
     // Format date string from YYYY-MM-DD to "MM-DD"
     const parts = m.date.split('-');

@@ -16,7 +16,7 @@ import { useAppStore } from '../store/useAppStore';
 import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Sparkles, Calendar, Target, User, ShieldCheck } from 'lucide-react-native';
+import { Sparkles, Calendar, Target, User, ShieldCheck, Scale } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 
@@ -36,6 +36,13 @@ export default function OnboardingScreen() {
   const [age, setAge] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
+  
+  // Optional measurements
+  const [waist, setWaist] = useState('');
+  const [hips, setHips] = useState('');
+  const [chest, setChest] = useState('');
+  const [thigh, setThigh] = useState('');
+
   const [weightGoal, setWeightGoal] = useState<'lose' | 'maintain' | 'gain' | 'wellness'>('wellness');
 
   const [cycleLength, setCycleLength] = useState('28');
@@ -82,9 +89,11 @@ export default function OnboardingScreen() {
     } else if (step === 2) {
       setStep(3);
     } else if (step === 3) {
-      if (validateStep3()) setStep(4);
+      setStep(4);
     } else if (step === 4) {
-      setStep(5);
+      if (validateStep3()) setStep(5);
+    } else if (step === 5) {
+      setStep(6);
     }
   };
 
@@ -116,10 +125,14 @@ export default function OnboardingScreen() {
       flowIntensity: 'medium',
     });
 
-    // 4. Save initial weight measurement
+    // 4. Save initial measurements
     addMeasurement({
-      weight: Number(weight),
       date: new Date().toISOString().split('T')[0],
+      weight: Number(weight),
+      ...(waist ? { waist: Number(waist) } : {}),
+      ...(hips ? { hips: Number(hips) } : {}),
+      ...(chest ? { chest: Number(chest) } : {}),
+      ...(thigh ? { thigh: Number(thigh) } : {}),
     });
 
     // 5. Navigate to Home
@@ -140,7 +153,7 @@ export default function OnboardingScreen() {
               {t('onboarding.stepLabel')} {step} {t('onboarding.stepOf')}
             </Typography>
             <View style={styles.progressContainer}>
-              {[1, 2, 3, 4, 5].map((i) => (
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <View
                   key={i}
                   style={[
@@ -206,8 +219,38 @@ export default function OnboardingScreen() {
             </Card>
           )}
 
-          {/* Step 2: Goal Selection */}
+          {/* Step 2: Optional Measurements */}
           {step === 2 && (
+            <Card style={styles.stepCard}>
+              <View style={styles.titleRow}>
+                <Scale color={PALETTE.sage.default} size={28} />
+                <Typography variant="h2" style={styles.stepTitle}>{t('progress.logMeasurement', { defaultValue: 'Initial Measurements' })}</Typography>
+              </View>
+              <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
+                {t('onboarding.step2Optional', { defaultValue: 'Tracking these allows us to show you real progress over time. (Optional)' })}
+              </Typography>
+
+              <View style={styles.row}>
+                <View style={styles.flexHalf}>
+                  <InputField label={t('progress.waistCm', { defaultValue: 'Waist (cm)' })} value={waist} onChangeText={setWaist} keyboardType="decimal-pad" placeholder="e.g. 75" />
+                </View>
+                <View style={styles.flexHalf}>
+                  <InputField label={t('progress.hipsCm', { defaultValue: 'Hips (cm)' })} value={hips} onChangeText={setHips} keyboardType="decimal-pad" placeholder="e.g. 95" />
+                </View>
+              </View>
+              <View style={styles.row}>
+                <View style={styles.flexHalf}>
+                  <InputField label={t('progress.chestCm', { defaultValue: 'Chest (cm)' })} value={chest} onChangeText={setChest} keyboardType="decimal-pad" placeholder="e.g. 90" />
+                </View>
+                <View style={styles.flexHalf}>
+                  <InputField label={t('progress.thighCm', { defaultValue: 'Thigh (cm)' })} value={thigh} onChangeText={setThigh} keyboardType="decimal-pad" placeholder="e.g. 50" />
+                </View>
+              </View>
+            </Card>
+          )}
+
+          {/* Step 3: Goal Selection */}
+          {step === 3 && (
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Target color={PALETTE.sage.default} size={28} />
@@ -250,8 +293,8 @@ export default function OnboardingScreen() {
             </Card>
           )}
 
-          {/* Step 3: Cycle Tracking */}
-          {step === 3 && (
+          {/* Step 4: Cycle Tracking */}
+          {step === 4 && (
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Calendar color={PALETTE.sage.default} size={28} />
@@ -312,8 +355,8 @@ export default function OnboardingScreen() {
             </Card>
           )}
 
-          {/* Step 4: Groq API Key Setup */}
-          {step === 4 && (
+          {/* Step 5: Groq API Key Setup */}
+          {step === 5 && (
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <ShieldCheck color={PALETTE.sage.default} size={28} />
@@ -340,8 +383,8 @@ export default function OnboardingScreen() {
             </Card>
           )}
 
-          {/* Step 5: Summary */}
-          {step === 5 && (
+          {/* Step 6: Summary */}
+          {step === 6 && (
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Sparkles color={PALETTE.sage.default} size={28} />
@@ -379,7 +422,7 @@ export default function OnboardingScreen() {
                 style={styles.backButton}
               />
             )}
-            {step < 5 ? (
+            {step < 6 ? (
               <Button
                 title={t('common.next')}
                 onPress={handleNext}

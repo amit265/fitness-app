@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
@@ -15,8 +16,9 @@ import { InputField } from '../../components/InputField';
 import { LineChart } from '../../components/LineChart';
 import { useAppStore } from '../../store/useAppStore';
 import { getCycleState } from '../../domain/cycle/cycleEngine';
-import { getWeightTrend } from '../../utils/trends';
+import { getMeasurementTrend } from '../../utils/trends';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
+import { getTodayStr } from '../../utils/date';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -53,10 +55,59 @@ export default function ProgressScreen() {
   const meals = useAppStore((state) => state.meals);
   const userProfile = useAppStore((state) => state.userProfile);
   const addMeasurement = useAppStore((state) => state.addMeasurement);
+  const updateUserProfile = useAppStore((state) => state.updateUserProfile);
+
+  // Weekly Reminder Logic
+  useEffect(() => {
+    if (!userProfile) return;
+    
+    const today = new Date(getTodayStr());
+    const lastPromptStr = userProfile.lastMeasurementPromptDate;
+    
+    let shouldPrompt = false;
+    if (!lastPromptStr) {
+      shouldPrompt = true;
+    } else {
+      const lastPromptDate = new Date(lastPromptStr);
+      const diffTime = Math.abs(today.getTime() - lastPromptDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      if (diffDays >= 7) {
+        shouldPrompt = true;
+      }
+    }
+
+    if (shouldPrompt) {
+      Alert.alert(
+        t('progress.weeklyReminderTitle', { defaultValue: 'Weekly Check-in!' }),
+        t('progress.weeklyReminderBody', { defaultValue: "It's time to log your latest body measurements to keep your progress on track. Want to do it now?" }),
+        [
+          {
+            text: t('common.cancel', { defaultValue: 'Not Now' }),
+            style: 'cancel',
+            onPress: () => {
+              Alert.alert(
+                t('progress.reminderWarningTitle', { defaultValue: 'Are you sure?' }),
+                t('progress.reminderWarningBody', { defaultValue: 'Tracking measurements consistently is the best way to see real progress. We will remind you again next week.' }),
+              );
+              updateUserProfile({ lastMeasurementPromptDate: getTodayStr() });
+            }
+          },
+          {
+            text: t('common.yes', { defaultValue: 'Yes, Let\'s Go' }),
+            onPress: () => {
+              setMeasureModalVisible(true);
+              updateUserProfile({ lastMeasurementPromptDate: getTodayStr() });
+            }
+          }
+        ]
+      );
+    }
+  }, [userProfile?.lastMeasurementPromptDate]);
 
   // States
   const [timeWindow, setTimeWindow] = useState<TimeWindow>(30);
   const [measureModalVisible, setMeasureModalVisible] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState<'weight' | 'waist' | 'hips' | 'chest' | 'thigh'>('weight');
 
   // Manual Measurement Form State
   const [weightInput, setWeightInput] = useState('');
@@ -65,8 +116,8 @@ export default function ProgressScreen() {
   const [chestInput, setChestInput] = useState('');
   const [thighInput, setThighInput] = useState('');
 
-  // Weight Trend Data
-  const trendData = getWeightTrend(measurements, timeWindow);
+  // Trend Data
+  const trendData = getMeasurementTrend(measurements, timeWindow, selectedMetric);
   const latestWeight = measurements[0]?.weight ?? null;
   const sortedByAge = [...measurements].sort((a, b) => a.date.localeCompare(b.date));
   const baselineWeight = sortedByAge[0]?.weight ?? null;
@@ -168,8 +219,27 @@ export default function ProgressScreen() {
             </View>
           </View>
 
+          {/* Metric Chips */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: SPACING.md }}>
+            {['weight', 'waist', 'hips', 'chest', 'thigh'].map((metric) => (
+              <Pressable
+                key={metric}
+                style={[
+                  styles.windowChip,
+                  { marginRight: 8 },
+                  selectedMetric === metric ? { backgroundColor: colors.primary } : { backgroundColor: colors.surface },
+                ]}
+                onPress={() => setSelectedMetric(metric as any)}
+              >
+                <Typography variant="caption" color={selectedMetric === metric ? colors.primaryText : colors.textPrimary} style={{ textTransform: 'capitalize' }}>
+                  {metric}
+                </Typography>
+              </Pressable>
+            ))}
+          </ScrollView>
+
           {/* Line Chart */}
-          <View style={{ marginTop: SPACING.md }}>
+          <View style={{ marginTop: SPACING.sm }}>
             <LineChart data={trendData.values} labels={trendData.labels} height={160} />
           </View>
         </Card>
@@ -260,11 +330,11 @@ export default function ProgressScreen() {
         <SafeAreaView style={[styles.modalContainer, { backgroundColor: colors.bg }]}>
           <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
             <Typography variant="h2" style={{ marginBottom: 16 }}>{t('progress.logMeasurement')}</Typography>
-            <InputField label={t('progress.weightKg')} value={weightInput} onChangeText={setWeightInput} keyboardType="decimal-pad" placeholder={t('progress.egWeight')} />
-            <InputField label={t('progress.waistCm')} value={waistInput} onChangeText={setWaistInput} keyboardType="decimal-pad" placeholder={t('progress.egWaist')} />
-            <InputField label={t('progress.hipsCm')} value={hipsInput} onChangeText={setHipsInput} keyboardType="decimal-pad" placeholder={t('progress.egHips')} />
-            <InputField label={t('progress.chestCm')} value={chestInput} onChangeText={setChestInput} keyboardType="decimal-pad" placeholder={t('progress.egChest')} />
-            <InputField label={t('progress.thighCm')} value={thighInput} onChangeText={setThighInput} keyboardType="decimal-pad" placeholder={t('progress.egThigh')} />
+            <InputField label={t('progress.weightKg')} value={weightInput} onChangeText={setWeightInput} keyboardType="decimal-pad" placeholder="e.g. 65" />
+            <InputField label={t('progress.waistCm')} value={waistInput} onChangeText={setWaistInput} keyboardType="decimal-pad" placeholder="e.g. 75" />
+            <InputField label={t('progress.hipsCm')} value={hipsInput} onChangeText={setHipsInput} keyboardType="decimal-pad" placeholder="e.g. 95" />
+            <InputField label={t('progress.chestCm')} value={chestInput} onChangeText={setChestInput} keyboardType="decimal-pad" placeholder="e.g. 90" />
+            <InputField label={t('progress.thighCm')} value={thighInput} onChangeText={setThighInput} keyboardType="decimal-pad" placeholder="e.g. 50" />
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
               <Button title={t('common.cancel')} variant="outline" onPress={() => setMeasureModalVisible(false)} style={{ flex: 1 }} />
               <Button title={t('progress.saveMeasurements')} variant="primary" onPress={handleSaveMeasurements} style={{ flex: 1 }} />
