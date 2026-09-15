@@ -13,6 +13,11 @@ module.exports = function withIosFmtWorkaround(config) {
         // Remove global use_modular_headers! if present to prevent react_runtime module redefinition
         contents = contents.replace(/^use_modular_headers!\n?/m, '');
 
+        // Disable RN Firebase SPM to fix linkage issues with CocoaPods
+        if (!contents.includes('$RNFirebaseDisableSPM')) {
+          contents = "$RNFirebaseDisableSPM = true\n" + contents;
+        }
+
         // Inject selective modular headers for Firebase/Google pods
         const firebaseModularHeaders = `
   pod 'GoogleUtilities', :modular_headers => true
