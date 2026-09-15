@@ -49,10 +49,6 @@ function NavigationGuard({
 
   useEffect(() => {
     const ensureSeededData = async () => {
-      const state = useAppStore.getState();
-      if (!state.userProfile || state.periods.length < 2 || state.meals.length < 10) {
-        state.seedMockData();
-      }
       await initAppLanguage();
       setHydrated(true);
       onHydrated();
