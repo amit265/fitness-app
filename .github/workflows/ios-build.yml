@@ -34,8 +34,8 @@ jobs:
           ruby-version: '3.3'
           bundler-cache: false
 
-      - name: 🪵 Install CocoaPods
-        run: sudo gem install cocoapods
+      - name: 🪵 Install CocoaPods and Fastlane
+        run: gem install cocoapods fastlane
 
       - name: 📥 Install Node dependencies
         run: npm ci
