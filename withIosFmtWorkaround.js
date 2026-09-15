@@ -28,13 +28,11 @@ module.exports = function withIosFmtWorkaround(config) {
           );
         }
 
-        // Append a new post_install block for the fmt workaround.
-        // CocoaPods supports multiple post_install hooks — they all run.
-        // This is safer than trying to inject inside an existing block via regex.
+        // Inject inside the existing post_install block for the fmt workaround.
+        // CocoaPods does NOT support multiple post_install hooks.
         if (!contents.includes("CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'")) {
           const workaround = `
-# WORKAROUND FOR XCODE 16 / XCODE 26 FMT CONSTEVAL BUG
-post_install do |installer|
+  # WORKAROUND FOR XCODE 16 / XCODE 26 FMT CONSTEVAL BUG
   installer.pods_project.targets.each do |target|
     if target.name == 'fmt'
       target.build_configurations.each do |config|
@@ -42,9 +40,11 @@ post_install do |installer|
       end
     end
   end
-end
 `;
-          contents = contents.trimEnd() + '\n' + workaround;
+          contents = contents.replace(
+            /post_install do \|installer\|/g,
+            `post_install do |installer|\n${workaround}`
+          );
           fs.writeFileSync(file, contents);
         }
       }
