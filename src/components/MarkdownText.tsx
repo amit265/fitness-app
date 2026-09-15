@@ -2,6 +2,8 @@ import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { Typography } from './Typography';
 import { PALETTE } from '../constants/theme';
+import { useAppTheme } from '../context/ThemeContext';
+import { useRouter } from 'expo-router';
 
 interface MarkdownTextProps {
   text: string;
@@ -9,6 +11,8 @@ interface MarkdownTextProps {
 }
 
 export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => {
+  const router = useRouter();
+  const { colors } = useAppTheme();
   // Strip any raw HTML tags and replace <br> tags with clean newlines
   const sanitizedText = (text || '')
     .replace(/<br\s*\/?>/gi, '\n')
@@ -37,8 +41,9 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
           else contentText = trimmed.substring(2);
         }
 
-        // Parse bold markers (**bold**)
-        const parts = contentText.split('**');
+        // Parse bold markers (**bold**) and links ([text](url))
+        const regex = /(\[.*?\]\(.*?\)|\*\*.*?\*\*)/g;
+        const parts = contentText.split(regex);
         
         // If the line is empty and it's not a bullet/heading, render a spacer line
         if (trimmed.length === 0) {
@@ -54,15 +59,28 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
           >
             {bulletPrefix}
             {parts.map((part, idx) => {
-              const isBold = idx % 2 === 1;
-              return (
-                <Text
-                  key={idx}
-                  style={isBold ? { fontFamily: 'Urbanist-Bold' } : undefined}
-                >
-                  {part}
-                </Text>
-              );
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return (
+                  <Text key={idx} style={{ fontFamily: 'Urbanist-Bold' }}>
+                    {part.slice(2, -2)}
+                  </Text>
+                );
+              }
+              if (part.startsWith('[') && part.includes('](') && part.endsWith(')')) {
+                const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
+                if (linkMatch) {
+                  return (
+                    <Text 
+                      key={idx} 
+                      style={{ color: colors.primary, textDecorationLine: 'underline' }}
+                      onPress={() => router.push(linkMatch[2] as any)}
+                    >
+                      {linkMatch[1]}
+                    </Text>
+                  );
+                }
+              }
+              return <Text key={idx}>{part}</Text>;
             })}
           </Typography>
         );
