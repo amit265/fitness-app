@@ -405,152 +405,153 @@ export default function TodayScreen() {
 
         {/* 1. ENERGY BALANCE */}
         <Card style={[styles.heroCalorieCard, { padding: 0, overflow: 'hidden' }]}>
-          <Image 
+          <ImageBackground 
             source={require('../../../assets/images/home_energy_bg.jpg')}
-            style={{ width: '100%', height: 160 }}
-            resizeMode="cover"
-          />
-          <View style={{ padding: SPACING.lg }}>
-            <View style={styles.calorieHeaderRow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1, paddingRight: 8 }}>
-                <Flame color={colors.nutrition} size={20} />
-                <Typography variant="h3" style={{ marginLeft: 6 }} numberOfLines={1} adjustsFontSizeToFit={true}>
-                  {t('home.energyBalance', { defaultValue: "Energy Balance" })}
-                </Typography>
+            style={{ width: '100%' }}
+            imageStyle={{ opacity: 0.15, resizeMode: 'cover' }}
+          >
+            <View style={{ padding: SPACING.md }}>
+              <View style={styles.calorieHeaderRow}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1, paddingRight: 8 }}>
+                  <Flame color={colors.nutrition} size={20} />
+                  <Typography variant="h3" style={{ marginLeft: 6 }} numberOfLines={1} adjustsFontSizeToFit={true}>
+                    {t('home.energyBalance', { defaultValue: "Energy Balance" })}
+                  </Typography>
+                </View>
+                <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? colors.errorBg : colors.successBg }]}>
+                  <Typography
+                    variant="caption"
+                    color={calorieBalance.isOverTarget ? colors.error : colors.success}
+                    
+                  >
+                    {calorieBalance.percentageUsed}% {t('home.target').toUpperCase()}
+                  </Typography>
+                </View>
               </View>
-              <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? colors.errorBg : colors.successBg }]}>
-                <Typography
-                  variant="caption"
-                  color={calorieBalance.isOverTarget ? colors.error : colors.success}
-                  
+
+              {activeWorkoutTimer && activeWorkoutTimer.lastUpdatedDate === getTodayStr() && (
+                <Pressable 
+                  style={[styles.resumeBanner, { backgroundColor: colors.activity }]}
+                  onPress={() => router.push(`/workoutDetailModal?id=${activeWorkoutTimer.workoutId}`)}
                 >
-                  {calorieBalance.percentageUsed}% {t('home.target').toUpperCase()}
-                </Typography>
-              </View>
-            </View>
+                  <ActivityIcon color="#FFF" size={20} />
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Typography variant="bodyMedium" style={{ color: '#FFF', fontWeight: '600' }}>Workout in Progress</Typography>
+                    <Typography variant="caption" style={{ color: 'rgba(255,255,255,0.8)' }}>Tap to resume or finish</Typography>
+                  </View>
+                  <ChevronRight color="#FFF" size={20} />
+                </Pressable>
+              )}
 
-            {activeWorkoutTimer && activeWorkoutTimer.lastUpdatedDate === getTodayStr() && (
-              <Pressable 
-                style={[styles.resumeBanner, { backgroundColor: colors.activity }]}
-                onPress={() => router.push(`/workoutDetailModal?id=${activeWorkoutTimer.workoutId}`)}
-              >
-                <ActivityIcon color="#FFF" size={20} />
-                <View style={{ flex: 1, marginLeft: 12 }}>
-                  <Typography variant="bodyMedium" style={{ color: '#FFF', fontWeight: '600' }}>Workout in Progress</Typography>
-                  <Typography variant="caption" style={{ color: 'rgba(255,255,255,0.8)' }}>Tap to resume or finish</Typography>
+              <View style={styles.heroCalorieContent}>
+                {/* Elegant Circular Progress Indicator */}
+                <View style={styles.calRingContainer}>
+                  <Svg width={(calRadius + calStrokeWidth) * 2} height={(calRadius + calStrokeWidth) * 2}>
+                    <Circle
+                      cx={calRadius + calStrokeWidth}
+                      cy={calRadius + calStrokeWidth}
+                      r={calRadius}
+                      stroke={colors.border}
+                      strokeWidth={calStrokeWidth}
+                      fill="transparent"
+                    />
+                    <Circle
+                      cx={calRadius + calStrokeWidth}
+                      cy={calRadius + calStrokeWidth}
+                      r={calRadius}
+                      stroke={calorieBalance.isOverTarget ? colors.error : colors.nutrition}
+                      strokeWidth={calStrokeWidth}
+                      strokeDasharray={calCircumference}
+                      strokeDashoffset={calStrokeDashoffset}
+                      strokeLinecap="round"
+                      fill="transparent"
+                      transform={`rotate(-90 ${calRadius + calStrokeWidth} ${calRadius + calStrokeWidth})`}
+                    />
+                  </Svg>
+                  <View style={styles.calRingLabelContainer}>
+                    <Typography variant="h1" style={{ fontSize: 26 }}>
+                      {calorieBalance.consumedCalories.toLocaleString()}
+                    </Typography>
+                    <Typography variant="caption" color={colors.subtext}>
+                      / {calorieBalance.targetCalories.toLocaleString()} kcal
+                    </Typography>
+                  </View>
                 </View>
-                <ChevronRight color="#FFF" size={20} />
-              </Pressable>
-            )}
 
-            <View style={styles.heroCalorieContent}>
-              {/* Elegant Circular Progress Indicator */}
-              <View style={styles.calRingContainer}>
-                <Svg width={(calRadius + calStrokeWidth) * 2} height={(calRadius + calStrokeWidth) * 2}>
-                  <Circle
-                    cx={calRadius + calStrokeWidth}
-                    cy={calRadius + calStrokeWidth}
-                    r={calRadius}
-                    stroke={colors.border}
-                    strokeWidth={calStrokeWidth}
-                    fill="transparent"
-                  />
-                  <Circle
-                    cx={calRadius + calStrokeWidth}
-                    cy={calRadius + calStrokeWidth}
-                    r={calRadius}
-                    stroke={calorieBalance.isOverTarget ? colors.error : colors.nutrition}
-                    strokeWidth={calStrokeWidth}
-                    strokeDasharray={calCircumference}
-                    strokeDashoffset={calStrokeDashoffset}
-                    strokeLinecap="round"
-                    fill="transparent"
-                    transform={`rotate(-90 ${calRadius + calStrokeWidth} ${calRadius + calStrokeWidth})`}
-                  />
-                </Svg>
-                <View style={styles.calRingLabelContainer}>
-                  <Typography variant="h1" style={{ fontSize: 26 }}>
-                    {calorieBalance.consumedCalories.toLocaleString()}
+                {/* Calories Hierarchy & Stats */}
+                <View style={styles.heroCalorieStatsCol}>
+                  <Typography variant="display" color={calorieBalance.isOverTarget ? colors.error : colors.primary} style={styles.remainingHeroNumber}>
+                    {calorieBalance.isOverTarget
+                      ? `${calorieBalance.overAmount}`
+                      : `${calorieBalance.remainingCalories}`}
                   </Typography>
-                  <Typography variant="caption" color={colors.subtext}>
-                    / {calorieBalance.targetCalories.toLocaleString()} kcal
+                  <Typography variant="bodyMedium" color={colors.subtext} >
+                    {calorieBalance.isOverTarget ? t('home.kcalOver') : t('home.kcalRemaining')}
                   </Typography>
+
+                  <View style={styles.macroMiniRow}>
+                    <View style={styles.macroMiniItem}>
+                      <Typography variant="caption" color={colors.subtext}>{t('home.food')}</Typography>
+                      <Typography variant="bodyMedium" color={colors.nutrition} >
+                        {calorieBalance.consumedCalories} kcal
+                      </Typography>
+                    </View>
+                    <View style={styles.macroMiniItem}>
+                      <Typography variant="caption" color={colors.subtext}>{t('home.activity')}</Typography>
+                      <Typography variant="bodyMedium" color={colors.activity} >
+                        ~{calorieBalance.activityCalories} kcal
+                      </Typography>
+                    </View>
+                  </View>
+
+                  <View style={[styles.macroMiniRow, { marginTop: 8 }]}>
+                    <View style={styles.macroMiniItem}>
+                      <Typography variant="caption" color={colors.subtext}>Protein</Typography>
+                      <Typography variant="bodySmall" color={colors.textPrimary} >
+                        {Math.round(calorieBalance.proteinConsumed)} / {macroTargets.proteinG}g
+                      </Typography>
+                    </View>
+                    <View style={styles.macroMiniItem}>
+                      <Typography variant="caption" color={colors.subtext}>Carbs</Typography>
+                      <Typography variant="bodySmall" color={colors.textPrimary} >
+                        {Math.round(calorieBalance.carbsConsumed)} / {macroTargets.carbsG}g
+                      </Typography>
+                    </View>
+                    <View style={styles.macroMiniItem}>
+                      <Typography variant="caption" color={colors.subtext}>Fat</Typography>
+                      <Typography variant="bodySmall" color={colors.textPrimary} >
+                        {Math.round(calorieBalance.fatConsumed)} / {macroTargets.fatG}g
+                      </Typography>
+                    </View>
+                  </View>
                 </View>
               </View>
 
-              {/* Calories Hierarchy & Stats */}
-              <View style={styles.heroCalorieStatsCol}>
-                <Typography variant="display" color={calorieBalance.isOverTarget ? colors.error : colors.primary} style={styles.remainingHeroNumber}>
-                  {calorieBalance.isOverTarget
-                    ? `${calorieBalance.overAmount}`
-                    : `${calorieBalance.remainingCalories}`}
-                </Typography>
-                <Typography variant="bodyMedium" color={colors.subtext} >
-                  {calorieBalance.isOverTarget ? t('home.kcalOver') : t('home.kcalRemaining')}
-                </Typography>
-
-                <View style={styles.macroMiniRow}>
-                  <View style={styles.macroMiniItem}>
-                    <Typography variant="caption" color={colors.subtext}>{t('home.food')}</Typography>
-                    <Typography variant="bodyMedium" color={colors.nutrition} >
-                      {calorieBalance.consumedCalories} kcal
-                    </Typography>
-                  </View>
-                  <View style={styles.macroMiniItem}>
-                    <Typography variant="caption" color={colors.subtext}>{t('home.activity')}</Typography>
-                    <Typography variant="bodyMedium" color={colors.activity} >
-                      ~{calorieBalance.activityCalories} kcal
-                    </Typography>
-                  </View>
-                </View>
-
-                <View style={[styles.macroMiniRow, { marginTop: 8 }]}>
-                  <View style={styles.macroMiniItem}>
-                    <Typography variant="caption" color={colors.subtext}>Protein</Typography>
-                    <Typography variant="bodySmall" color={colors.textPrimary} >
-                      {Math.round(calorieBalance.proteinConsumed)} / {macroTargets.proteinG}g
-                    </Typography>
-                  </View>
-                  <View style={styles.macroMiniItem}>
-                    <Typography variant="caption" color={colors.subtext}>Carbs</Typography>
-                    <Typography variant="bodySmall" color={colors.textPrimary} >
-                      {Math.round(calorieBalance.carbsConsumed)} / {macroTargets.carbsG}g
-                    </Typography>
-                  </View>
-                  <View style={styles.macroMiniItem}>
-                    <Typography variant="caption" color={colors.subtext}>Fat</Typography>
-                    <Typography variant="bodySmall" color={colors.textPrimary} >
-                      {Math.round(calorieBalance.fatConsumed)} / {macroTargets.fatG}g
-                    </Typography>
-                  </View>
-                </View>
+              {/* Quick Log Action Buttons Row */}
+              <View style={styles.quickLogButtonsRow}>
+                <Button
+                  title={`+ ${t('nutrition.logFood')}`}
+                  variant="nutrition"
+                  onPress={() => router.push('/logModal?tab=food')}
+                  style={styles.heroActionBtn}
+                />
+                <Button
+                  title={`+ ${t('activity.logWorkout')}`}
+                  variant="positive"
+                  onPress={() => router.push('/logModal?tab=activity')}
+                  style={styles.heroActionBtn}
+                />
               </View>
-            </View>
-
-            {/* Quick Log Action Buttons Row */}
-            <View style={styles.quickLogButtonsRow}>
+              
               <Button
-                title={`+ ${t('nutrition.logFood')}`}
-                variant="nutrition"
-                onPress={() => router.push('/logModal?tab=food')}
-                style={styles.heroActionBtn}
-              />
-              <Button
-                title={`+ ${t('activity.logWorkout')}`}
-                variant="positive"
-                onPress={() => router.push('/logModal?tab=activity')}
-                style={styles.heroActionBtn}
+                title={todayCheckIn ? t('home.editCheckIn', { defaultValue: 'Edit Check-In' }) : t('home.logFeeling', { defaultValue: 'Log Daily Check-In' })}
+                variant={todayCheckIn ? 'secondary' : 'primary'}
+                onPress={() => setCheckInModalVisible(true)}
+                style={{ marginTop: SPACING.md }}
+                adjustsFontSizeToFit={true}
               />
             </View>
-            
-            <Button
-              title={todayCheckIn ? t('home.editCheckIn', { defaultValue: 'Edit Check-In' }) : t('home.logFeeling', { defaultValue: 'Log Daily Check-In' })}
-              variant={todayCheckIn ? 'secondary' : 'primary'}
-              onPress={() => setCheckInModalVisible(true)}
-              style={{ marginTop: SPACING.md }}
-              adjustsFontSizeToFit={true}
-            />
-          </View>
+          </ImageBackground>
         </Card>
 
         {/* 2. ACTIVITY & RECOVERY PLAN */}
