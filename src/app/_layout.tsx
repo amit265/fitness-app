@@ -126,7 +126,6 @@ export default function RootLayout() {
           await SplashScreen.hideAsync();
           
           // Initialize Firebase Services
-          await fetchRemoteConfig();
           await requestUserPermission();
         } catch (e) {
           console.warn('Failed to init app during splash hide:', e);

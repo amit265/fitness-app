@@ -66,38 +66,10 @@ export default function SettingsScreen() {
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [isChangingLanguage, setIsChangingLanguage] = useState(false);
   const [targetLangName, setTargetLangName] = useState('');
-  const [timeRemainingStr, setTimeRemainingStr] = useState('');
 
   useEffect(() => {
     getCurrentLanguage().then(setCurrentLangState);
   }, [uiLanguage]);
-
-  // Countdown timer for 1-Hour Ad-Free Pass
-  useEffect(() => {
-    if (typeof adFreeExpiresAt !== 'number') {
-      setTimeRemainingStr('');
-      return;
-    }
-
-    const updateTimer = () => {
-      const remaining = adFreeExpiresAt - Date.now();
-      if (remaining <= 0) {
-        setTimeRemainingStr('00:00:00');
-      } else {
-        const totalSeconds = Math.floor(remaining / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        setTimeRemainingStr(
-          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-        );
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [adFreeExpiresAt]);
 
   const handleLanguageSelect = async (langCode: string) => {
     if (langCode === currentLang) {

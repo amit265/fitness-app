@@ -52,7 +52,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "tsc --noEmit",
+    "lint": "node --stack-size=65536 node_modules/typescript/bin/tsc --noEmit",
     "test": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/domain/cycle/test-runner.ts",
     "test:i18n": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/i18n/validate-i18n.ts",
     "build:apk": "cd android && ./gradlew assembleRelease",

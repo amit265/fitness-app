@@ -2,5 +2,6 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true
-  }
+  },
+  "exclude": ["node_modules", "missing.ts", "scrub_ads.js", "scrub_fonts.js"]
 }

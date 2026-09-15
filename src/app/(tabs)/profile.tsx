@@ -16,7 +16,6 @@ import {
   Award,
   Calendar as CalendarIcon,
   Crown,
-  Timer,
   Star,
   ChevronRight,
   User,
@@ -53,33 +52,8 @@ export default function ProfileScreen() {
   const streak = useAppStore((state) => state.streak);
   const resetStore = useAppStore((state) => state.resetStore);
     const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
-  const [timeRemainingStr, setTimeRemainingStr] = useState('');
 
-  useEffect(() => {
-    if (typeof adFreeExpiresAt !== 'number') {
-      setTimeRemainingStr('');
-      return;
-    }
-    const updateTimer = () => {
-      const remaining = adFreeExpiresAt - Date.now();
-      if (remaining <= 0) {
-        setTimeRemainingStr('00:00:00');
-      } else {
-        const totalSeconds = Math.floor(remaining / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        setTimeRemainingStr(
-          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-        );
-      }
-    };
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [adFreeExpiresAt]);
 
-  
   const handleRestorePurchases = async () => {
     const res = await restorePurchases();
     Alert.alert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
@@ -218,28 +192,8 @@ export default function ProfileScreen() {
             </View>
           </Pressable>
 
-          {!isIapPremium && (
-            <>
-              <View style={styles.rowSeparator} />
-              <Pressable
-                style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
-                onPress={handleWatchAdReward}
-              >
-                <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
-                  <Timer size={18} color={colors.primary} />
-                </View>
-                <View style={styles.rowTextCol}>
-                  <Typography variant="bodyMedium" style={styles.rowTitle}>
-                    {t('settings.watchAdForPass')}
-                  </Typography>
-                  <Typography variant="caption" color={isAdFree ? colors.primary : colors.subtext}>
-                    {isAdFree && timeRemainingStr ? t('settings.adFreeRemaining', { time: timeRemainingStr }) : t('settings.watchAdDesc')}
-                  </Typography>
-                </View>
-                <ChevronRight size={18} color={colors.subtext} />
-              </Pressable>
 
-              <View style={styles.rowSeparator} />
+          <View style={styles.rowSeparator} />
 
               <Pressable
                 style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]}
@@ -256,11 +210,9 @@ export default function ProfileScreen() {
                     {t('settings.restoreDesc')}
                   </Typography>
                 </View>
-                <ChevronRight size={18} color={colors.subtext} />
-              </Pressable>
-            </>
-          )}
-        </View>
+              <ChevronRight size={18} color={colors.subtext} />
+            </Pressable>
+          </View>
 
         
           {/* GROUP 1: HEALTH & FITNESS TOOLS */}

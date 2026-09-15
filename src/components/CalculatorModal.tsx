@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: SPACING.md,
-    paddingBottom: SPACING.xxl,
+    paddingBottom: SPACING.xl * 2,
   },
   resultContainer: {
     paddingVertical: SPACING.lg,
