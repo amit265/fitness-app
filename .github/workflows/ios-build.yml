@@ -67,12 +67,12 @@ jobs:
           eas submit \
             --platform ios \
             --path ${{ github.workspace }}/build/app.ipa \
-            --non-interactive \
-            --apple-api-key /tmp/asc/AuthKey.p8 \
-            --apple-api-key-id ${{ secrets.ASC_API_KEY_ID }} \
-            --apple-api-issuer ${{ secrets.ASC_API_ISSUER_ID }}
+            --non-interactive
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          ASC_API_KEY_PATH: /tmp/asc/AuthKey.p8
+          ASC_API_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ASC_API_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
 
       - name: 🗑️ Cleanup API Key
         if: always()
@@ -80,8 +80,8 @@ jobs:
 
       - name: 📁 Upload .ipa as artifact (backup)
         uses: actions/upload-artifact@v4
-        if: always()
+        if: failure()
         with:
           name: sini-ios-${{ github.run_number }}.ipa
           path: ${{ github.workspace }}/build/app.ipa
-          retention-days: 7
+          retention-days: 3
