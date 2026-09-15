@@ -398,7 +398,7 @@ export default function TodayScreen() {
                 {t('home.readiness', { defaultValue: 'Daily Readiness' })}
               </Typography>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
-                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 32, lineHeight: 36 }}>
+                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 28, lineHeight: 32 }} adjustsFontSizeToFit={true} numberOfLines={2}>
                   {readiness.score >= 80 
                     ? "Prime for Movement" 
                     : readiness.score >= 50 
@@ -429,10 +429,10 @@ export default function TodayScreen() {
         {/* DAILY MILESTONES (NEW HORIZONTAL REDESIGN) */}
         <Card style={styles.targetsCard}>
           <Pressable style={styles.targetsHeaderRow} onPress={() => setTargetsExpanded(!targetsExpanded)}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1, paddingRight: 8 }}>
               <Award color={colors.ovulation} size={20} />
-              <Typography variant="h3" >
-                {t('home.todaysTargets', { defaultValue: "Today's Targets" })}
+              <Typography variant="h3" numberOfLines={1} adjustsFontSizeToFit={true}>
+                {t('home.dailyMilestones', { defaultValue: "Daily Milestones" })}
               </Typography>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -481,10 +481,10 @@ export default function TodayScreen() {
         {/* 2. TODAY'S CALORIES HERO VISUAL (PRIORITY 2) */}
         <Card style={styles.heroCalorieCard}>
           <View style={styles.calorieHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1, paddingRight: 8 }}>
               <Flame color={colors.nutrition} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 6 }}>
-                {t('home.todaysCalories')}
+              <Typography variant="h3" style={{ marginLeft: 6 }} numberOfLines={1} adjustsFontSizeToFit={true}>
+                {t('home.energyBalance', { defaultValue: "Energy Balance" })}
               </Typography>
             </View>
             <View style={[styles.targetPill, { backgroundColor: calorieBalance.isOverTarget ? colors.errorBg : colors.successBg }]}>
