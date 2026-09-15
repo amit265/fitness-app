@@ -440,10 +440,10 @@ export default function TodayScreen() {
           <View style={styles.heroCalorieContent}>
             {/* Elegant Circular Progress Indicator */}
             <View style={styles.calRingContainer}>
-              <Svg width={(calRadius + calStrokeWidth) * 2} height={(calRadius + calStrokeWidth) * 2}>
+              <Svg width={(calRadius + calStrokeWidth * 1.5) * 2} height={(calRadius + calStrokeWidth * 1.5) * 2}>
                 <Circle
-                  cx={calRadius + calStrokeWidth}
-                  cy={calRadius + calStrokeWidth}
+                  cx={calRadius + calStrokeWidth * 1.5}
+                  cy={calRadius + calStrokeWidth * 1.5}
                   r={calRadius}
                   stroke={colors.border}
                   strokeWidth={calStrokeWidth}
@@ -451,8 +451,8 @@ export default function TodayScreen() {
                 />
                 {/* Glow Layer */}
                 <Circle
-                  cx={calRadius + calStrokeWidth}
-                  cy={calRadius + calStrokeWidth}
+                  cx={calRadius + calStrokeWidth * 1.5}
+                  cy={calRadius + calStrokeWidth * 1.5}
                   r={calRadius}
                   stroke={calorieBalance.isOverTarget ? colors.error : colors.nutrition}
                   strokeWidth={calStrokeWidth * 2.5}
@@ -461,12 +461,12 @@ export default function TodayScreen() {
                   strokeLinecap="round"
                   fill="transparent"
                   opacity={0.25}
-                  transform={`rotate(-90 ${calRadius + calStrokeWidth} ${calRadius + calStrokeWidth})`}
+                  transform={`rotate(-90 ${calRadius + calStrokeWidth * 1.5} ${calRadius + calStrokeWidth * 1.5})`}
                 />
                 {/* Main Progress Ring */}
                 <Circle
-                  cx={calRadius + calStrokeWidth}
-                  cy={calRadius + calStrokeWidth}
+                  cx={calRadius + calStrokeWidth * 1.5}
+                  cy={calRadius + calStrokeWidth * 1.5}
                   r={calRadius}
                   stroke={calorieBalance.isOverTarget ? colors.error : colors.nutrition}
                   strokeWidth={calStrokeWidth}
@@ -474,7 +474,7 @@ export default function TodayScreen() {
                   strokeDashoffset={calStrokeDashoffset}
                   strokeLinecap="round"
                   fill="transparent"
-                  transform={`rotate(-90 ${calRadius + calStrokeWidth} ${calRadius + calStrokeWidth})`}
+                  transform={`rotate(-90 ${calRadius + calStrokeWidth * 1.5} ${calRadius + calStrokeWidth * 1.5})`}
                 />
               </Svg>
               <View style={styles.calRingLabelContainer}>
@@ -498,14 +498,14 @@ export default function TodayScreen() {
                 {calorieBalance.isOverTarget ? t('home.kcalOver') : t('home.kcalRemaining')}
               </Typography>
 
-              <View style={[styles.macroMiniRow, { gap: 8 }]}>
-                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 8, borderRadius: 10 }]}>
+              <View style={[styles.macroMiniRow, { gap: 6, flexWrap: 'nowrap' }]}>
+                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 6, borderRadius: 8, minWidth: 0 }]}>
                   <Typography variant="caption" color={colors.subtext}>{t('home.food')}</Typography>
                   <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontWeight: '700' }} >
                     {calorieBalance.consumedCalories}
                   </Typography>
                 </View>
-                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 8, borderRadius: 10 }]}>
+                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 6, borderRadius: 8, minWidth: 0 }]}>
                   <Typography variant="caption" color={colors.subtext}>{t('home.activity')}</Typography>
                   <Typography variant="bodyMedium" color={colors.activity} style={{ fontWeight: '700' }} >
                     ~{calorieBalance.activityCalories}
@@ -513,22 +513,22 @@ export default function TodayScreen() {
                 </View>
               </View>
 
-              <View style={[styles.macroMiniRow, { marginTop: 8, gap: 6 }]}>
-                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 8, borderRadius: 10 }]}>
-                  <Typography variant="caption" color={colors.subtext}>Protein</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600' }} >
+              <View style={[styles.macroMiniRow, { marginTop: 6, gap: 4, flexWrap: 'nowrap' }]}>
+                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 4, borderRadius: 8, minWidth: 0 }]}>
+                  <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10 }}>Protein</Typography>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} adjustsFontSizeToFit={true} numberOfLines={1}>
                     {Math.round(calorieBalance.proteinConsumed)}/{macroTargets.proteinG}g
                   </Typography>
                 </View>
-                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 8, borderRadius: 10 }]}>
-                  <Typography variant="caption" color={colors.subtext}>Carbs</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600' }} >
+                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 4, borderRadius: 8, minWidth: 0 }]}>
+                  <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10 }}>Carbs</Typography>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} adjustsFontSizeToFit={true} numberOfLines={1}>
                     {Math.round(calorieBalance.carbsConsumed)}/{macroTargets.carbsG}g
                   </Typography>
                 </View>
-                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 8, borderRadius: 10 }]}>
-                  <Typography variant="caption" color={colors.subtext}>Fat</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600' }} >
+                <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 4, borderRadius: 8, minWidth: 0 }]}>
+                  <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10 }}>Fat</Typography>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} adjustsFontSizeToFit={true} numberOfLines={1}>
                     {Math.round(calorieBalance.fatConsumed)}/{macroTargets.fatG}g
                   </Typography>
                 </View>
