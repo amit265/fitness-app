@@ -8,7 +8,7 @@
 set -e  # Exit immediately on any error
 
 BUILD_PROFILE="${1:-production}"
-SUBMIT_PROFILE="production"
+SUBMIT_PROFILE="${2:-internal}"
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 CURRENT_VERSION=$(node -e "console.log(require('./app.json').expo.version)")
