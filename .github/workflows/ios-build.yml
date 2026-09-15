@@ -74,14 +74,4 @@ jobs:
           EXPO_APPLE_APP_STORE_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
           EXPO_APPLE_APP_STORE_KEY_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
 
-      - name: 🗑️ Cleanup API Key
-        if: always()
-        run: rm -f /tmp/asc/AuthKey.p8
 
-      - name: 📁 Upload .ipa as artifact (backup)
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: sini-ios-${{ github.run_number }}.ipa
-          path: ${{ github.workspace }}/build/app.ipa
-          retention-days: 3
