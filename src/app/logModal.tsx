@@ -109,6 +109,7 @@ export default function LogScreen() {
         protein: Number(item.payload.protein) || 0,
         carbs: Number(item.payload.carbs) || 0,
         fat: Number(item.payload.fat) || 0,
+        ingredients: item.payload.ingredients,
       });
     } else if (item.type === 'activity') {
       addActivity({
@@ -117,6 +118,7 @@ export default function LogScreen() {
         intensity: item.payload.intensity || 'moderate',
         caloriesBurned: Number(item.payload.caloriesBurned) || 0,
         notes: item.payload.notes,
+        sets: item.payload.sets,
       });
     }
   };

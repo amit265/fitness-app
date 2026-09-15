@@ -28,13 +28,32 @@ Analyze the user statement and return a JSON object with this exact schema:
         "calories": number,
         "protein": number,  // grams (estimate)
         "carbs": number,    // grams (estimate)
-        "fat": number       // grams (estimate)
+        "fat": number,      // grams (estimate)
+        "ingredients": [    // Optional: detailed components if mentioned
+          {
+            "name": string,
+            "amount": number,
+            "servingUnit": string,
+            "calories": number,
+            "protein": number,
+            "carbs": number,
+            "fat": number
+          }
+        ]
         
         // If type is "activity":
         "type": "strength" | "cardio" | "walking" | "running" | "swimming" | "cycling" | "mobility" | "yoga" | "restorative" | "other",
         "durationMinutes": number,
         "intensity": "easy" | "moderate" | "challenging",
-        "caloriesBurned": number // estimate based on duration (walking is ~4/min, strength ~6/min, cardio ~8/min, running ~10/min)
+        "caloriesBurned": number, // estimate based on duration (walking is ~4/min, strength ~6/min, cardio ~8/min, running ~10/min)
+        "sets": [           // Optional: specific exercises, weights, and reps if mentioned
+          {
+            "exercise": string,
+            "weight": number, // in kg (convert from lbs if needed)
+            "reps": number,
+            "durationSeconds": number
+          }
+        ]
         
         // If type is "weight":
         "weight": number // in kg (convert from lbs if user specifies lbs, e.g. "140 lbs" -> 63.5)
