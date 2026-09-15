@@ -109,7 +109,7 @@ export default function ProfileScreen() {
         
         {/* Header Bar with Settings Gear Button */}
         <View style={[styles.headerBar, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
-          <Typography variant="h2" >{t('profile.title')}</Typography>
+          <Typography variant="h1">{t('profile.title')}</Typography>
           <Pressable
             style={({ pressed }) => [styles.settingsGearBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.7 }]}
             onPress={() => router.push('/settings')}
