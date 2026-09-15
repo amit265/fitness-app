@@ -9,7 +9,7 @@ module.exports = function withIosFmtWorkaround(config) {
       const file = path.join(config.modRequest.platformProjectRoot, 'Podfile');
       if (fs.existsSync(file)) {
         let contents = fs.readFileSync(file, 'utf8');
-        
+
         // Remove global use_modular_headers! if present to prevent react_runtime module redefinition
         contents = contents.replace(/^use_modular_headers!\n?/m, '');
 
@@ -29,28 +29,27 @@ module.exports = function withIosFmtWorkaround(config) {
           );
         }
 
-        // Remove old injected workaround if it exists at the top
-        contents = contents.replace(
-          /  # WORKAROUND FOR XCODE 16 \/ XCODE 26 FMT CONSTEVAL BUG[\s\S]*?(?=    react_native_post_install)/m,
-          ''
-        );
-
-        const workaround = `
-    # WORKAROUND FOR XCODE 16 / XCODE 26 FMT CONSTEVAL BUG
-    installer.pods_project.targets.each do |target|
-      if target.name == 'fmt'
-        target.build_configurations.each do |config|
-          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
-        end
+        // Only inject the fmt workaround once
+        if (!contents.includes("CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'")) {
+          const workaround = `
+  # WORKAROUND FOR XCODE 16 / XCODE 26 FMT CONSTEVAL BUG
+  installer.pods_project.targets.each do |target|
+    if target.name == 'fmt'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
       end
     end
+  end
 `;
-        
-        if (!contents.includes("CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'")) {
+          // Inject the workaround INSIDE the post_install block, just before its closing 'end'
+          // This is more reliable than matching after react_native_post_install() call
           contents = contents.replace(
-            /react_native_post_install\([\s\S]*?\)/,
-            (match) => `${match}\n${workaround}`
+            /(post_install do \|installer\|)([\s\S]*?)(^end)/m,
+            (match, open, inner, close) => {
+              return `${open}${inner}${workaround}\n${close}`;
+            }
           );
+
           fs.writeFileSync(file, contents);
         }
       }
