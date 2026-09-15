@@ -50,6 +50,13 @@ jobs:
         run: |
           mkdir -p /tmp/asc
           echo "${{ secrets.ASC_API_KEY_CONTENT }}" | base64 --decode > /tmp/asc/AuthKey.p8
+          cat <<EOF > /tmp/asc/api_key.json
+          {
+            "key_id": "${{ secrets.ASC_API_KEY_ID }}",
+            "issuer_id": "${{ secrets.ASC_API_ISSUER_ID }}",
+            "key_filepath": "/tmp/asc/AuthKey.p8"
+          }
+          EOF
 
       - name: 🔨 Build iOS locally (EAS manages signing credentials)
         run: |
@@ -66,8 +73,5 @@ jobs:
         run: |
           fastlane pilot upload \
             --ipa ${{ github.workspace }}/build/app.ipa \
+            --api_key_path /tmp/asc/api_key.json \
             --skip_waiting_for_build_processing true
-        env:
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: /tmp/asc/AuthKey.p8
