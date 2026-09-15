@@ -13,7 +13,7 @@ module.exports = function withIosFmtWorkaround(config) {
         // Remove global use_modular_headers! if present to prevent react_runtime module redefinition
         contents = contents.replace(/^use_modular_headers!\n?/m, '');
 
-        // Inject selective modular headers for Firebase/Google pods inside target block
+        // Inject selective modular headers for Firebase/Google pods
         const firebaseModularHeaders = `
   pod 'GoogleUtilities', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
@@ -21,7 +21,6 @@ module.exports = function withIosFmtWorkaround(config) {
   pod 'FirebaseAppCheckInterop', :modular_headers => true
   pod 'FirebaseCoreExtension', :modular_headers => true
 `;
-
         if (!contents.includes("pod 'GoogleUtilities'")) {
           contents = contents.replace(
             /use_expo_modules!/g,
@@ -29,10 +28,13 @@ module.exports = function withIosFmtWorkaround(config) {
           );
         }
 
-        // Only inject the fmt workaround once
+        // Append a new post_install block for the fmt workaround.
+        // CocoaPods supports multiple post_install hooks — they all run.
+        // This is safer than trying to inject inside an existing block via regex.
         if (!contents.includes("CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'")) {
           const workaround = `
-  # WORKAROUND FOR XCODE 16 / XCODE 26 FMT CONSTEVAL BUG
+# WORKAROUND FOR XCODE 16 / XCODE 26 FMT CONSTEVAL BUG
+post_install do |installer|
   installer.pods_project.targets.each do |target|
     if target.name == 'fmt'
       target.build_configurations.each do |config|
@@ -40,16 +42,9 @@ module.exports = function withIosFmtWorkaround(config) {
       end
     end
   end
+end
 `;
-          // Inject the workaround INSIDE the post_install block, just before its closing 'end'
-          // This is more reliable than matching after react_native_post_install() call
-          contents = contents.replace(
-            /(post_install do \|installer\|)([\s\S]*?)(^end)/m,
-            (match, open, inner, close) => {
-              return `${open}${inner}${workaround}\n${close}`;
-            }
-          );
-
+          contents = contents.trimEnd() + '\n' + workaround;
           fs.writeFileSync(file, contents);
         }
       }
