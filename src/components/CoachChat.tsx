@@ -15,7 +15,7 @@ import { answerCoachQuestion } from '../services/ai/aiService';
 import { ChatMessage, CoachingContext } from '../types';
 import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Send, X, User as UserIcon, RotateCcw, Flag, Sparkles } from 'lucide-react-native';
+import { Send, X, User as UserIcon, RotateCcw, Flag, Sparkles, Square } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 import { Alert } from '../utils/alertUtils';
@@ -94,6 +94,16 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
   const [animatingMsgId, setAnimatingMsgId] = useState<string | null>(null);
+  const abortControllerRef = useRef<{ abort: () => void } | null>(null);
+
+  const handleStopGenerating = () => {
+    if (sending && abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    if (animatingMsgId) {
+      setAnimatingMsgId(null); // Instantly finishes the typewriter effect
+    }
+  };
 
   const quickActions = [
     t('coach.quickActions.logFood'),
@@ -213,29 +223,43 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
 
     setMessages((prev) => [...prev, userMsg].slice(-30));
 
+    let isCancelled = false;
+    abortControllerRef.current = {
+      abort: () => {
+        isCancelled = true;
+        setSending(false);
+      }
+    };
+
     try {
       const context = getContext();
       const answer = await answerCoachQuestion(userMessageText, messages, context, userProfile?.groqApiKey);
 
-      const assistantMsg: ChatMessage = {
-        id: Math.random().toString(36).substring(7),
-        role: 'assistant',
-        content: answer,
-        timestamp: new Date().toISOString(),
-      };
+      if (!isCancelled) {
+        const assistantMsg: ChatMessage = {
+          id: Math.random().toString(36).substring(7),
+          role: 'assistant',
+          content: answer,
+          timestamp: new Date().toISOString(),
+        };
 
-      setAnimatingMsgId(assistantMsg.id);
-      setMessages((prev) => [...prev, assistantMsg].slice(-30));
+        setAnimatingMsgId(assistantMsg.id);
+        setMessages((prev) => [...prev, assistantMsg].slice(-30));
+      }
     } catch (e: any) {
-      const errorMessage: ChatMessage = {
-        id: Math.random().toString(36).substring(7),
-        role: 'assistant',
-        content: t('errors.aiError'),
-        timestamp: new Date().toISOString(),
-      };
-      setMessages((prev) => [...prev, errorMessage].slice(-30));
+      if (!isCancelled) {
+        const errorMessage: ChatMessage = {
+          id: Math.random().toString(36).substring(7),
+          role: 'assistant',
+          content: t('errors.aiError'),
+          timestamp: new Date().toISOString(),
+        };
+        setMessages((prev) => [...prev, errorMessage].slice(-30));
+      }
     } finally {
-      setSending(false);
+      if (!isCancelled) {
+        setSending(false);
+      }
     }
   };
 
@@ -381,17 +405,30 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
               onSubmitEditing={() => handleSendText(inputText)}
               returnKeyType="send"
             />
-            <Pressable
-              onPress={() => handleSendText(inputText)}
-              disabled={sending || !inputText.trim()}
-              style={({ pressed }) => [
-                styles.sendBtn,
-                { backgroundColor: inputText.trim() ? colors.primary : colors.border },
-                pressed && { opacity: 0.8 },
-              ]}
-            >
-              <Send color={inputText.trim() ? colors.primaryText : colors.subtext} size={18} />
-            </Pressable>
+            {sending || animatingMsgId ? (
+              <Pressable
+                onPress={handleStopGenerating}
+                style={({ pressed }) => [
+                  styles.sendBtn,
+                  { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <Square color={colors.primary} size={16} fill={colors.primary} />
+              </Pressable>
+            ) : (
+              <Pressable
+                onPress={() => handleSendText(inputText)}
+                disabled={sending || !inputText.trim()}
+                style={({ pressed }) => [
+                  styles.sendBtn,
+                  { backgroundColor: inputText.trim() ? colors.primary : colors.border },
+                  pressed && { opacity: 0.8 },
+                ]}
+              >
+                <Send color={inputText.trim() ? colors.primaryText : colors.subtext} size={18} />
+              </Pressable>
+            )}
           </View>
         </KeyboardAvoidingView>
         </View>
