@@ -13,7 +13,9 @@ import { APP_LINKS } from '../constants/links';
 import { t } from '../i18n';
 import { Alert } from '../utils/alertUtils';
 
+import { useResponsive } from '../utils/responsive';
 
+import { ScreenContainer } from '../components/ScreenContainer';
 export default function GroqApiScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
@@ -82,7 +84,7 @@ export default function GroqApiScreen() {
           <View style={{ width: 36 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScreenContainer>
 
           {/* CARD 1: WHY CUSTOM AI */}
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -206,7 +208,7 @@ export default function GroqApiScreen() {
           </View>
 
 
-        </ScrollView>
+        </ScreenContainer>
       </KeyboardAvoidingView>
           </SafeAreaView>
   );

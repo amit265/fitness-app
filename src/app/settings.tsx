@@ -39,7 +39,9 @@ import { Alert } from '../utils/alertUtils';
 
 
 
+import { useResponsive } from '../utils/responsive';
 
+import { ScreenContainer } from '../components/ScreenContainer';
 export default function SettingsScreen() {
   const router = useRouter();
     const { isPremium: isIapPremium, premiumProduct, requestPurchase, restorePurchases } = useIAP();
@@ -133,7 +135,7 @@ export default function SettingsScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScreenContainer>
         {/* SECTION 1: LANGUAGE & REGION */}
         <Typography variant="caption" color={colors.subtext} style={styles.sectionHeaderTitle}>
           {t('settings.language').toUpperCase()}
@@ -421,7 +423,7 @@ export default function SettingsScreen() {
             {t('settings.version', { version: APP_CONFIG.version })}
           </Typography>
         </View>
-      </ScrollView>
+      </ScreenContainer>
 
       {/* LANGUAGE SELECTION MODAL */}
       <Modal

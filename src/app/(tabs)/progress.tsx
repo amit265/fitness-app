@@ -34,7 +34,9 @@ import {
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { t, formatDate, formatNumber } from '../../i18n';
+import { useResponsive } from '../../utils/responsive';
 
+import { ScreenContainer } from '../../components/ScreenContainer';
 type TimeWindow = 7 | 30 | 90;
 
 export default function ProgressScreen() {
@@ -103,7 +105,7 @@ export default function ProgressScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScreenContainer>
 
         {/* Header */}
         <View style={styles.header}>
@@ -251,7 +253,7 @@ export default function ProgressScreen() {
 
         {/* Native Ad Card */}
         
-      </ScrollView>
+      </ScreenContainer>
 
       {/* Measurement Modal */}
       <Modal visible={measureModalVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setMeasureModalVisible(false)}>

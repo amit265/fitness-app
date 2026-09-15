@@ -69,13 +69,7 @@
           "paymentProvider": "Play Store"
         }
       ],
-      [
-        "react-native-google-mobile-ads",
-        {
-          "androidAppId": "ca-app-pub-7433519007687449~9269190746",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511"
-        }
-      ],
+      
       [
         "expo-build-properties",
         {

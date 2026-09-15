@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, TextProps, StyleSheet } from 'react-native';
 import { TYPOGRAPHY, PALETTE } from '../constants/theme';
 import { useAppTheme } from '../context/ThemeContext';
+import { useResponsive } from '../utils/responsive';
 
 export type TypographyVariant =
   | 'display'
@@ -30,14 +31,20 @@ export const Typography: React.FC<TypographyProps> = ({
   ...props
 }) => {
   const { colors } = useAppTheme();
+  const { isTablet } = useResponsive();
 
   const defaultColor = colors.text;
   const textColor = color || defaultColor;
 
+  // Bump heading sizes up slightly on tablets
+  const tabletScale = isTablet && ['display', 'h1', 'h2', 'h3'].includes(variant) ? 2 : 0;
+  const baseStyle = styles[variant] as any;
+
   return (
     <Text
       style={[
-        styles[variant],
+        baseStyle,
+        tabletScale ? { fontSize: (baseStyle.fontSize || 16) + tabletScale } : null,
         { color: textColor, textAlign: align },
         style,
       ]}

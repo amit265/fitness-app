@@ -31,6 +31,8 @@ import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { t } from '../../i18n';
 import { CalculatorModal } from '../../components/CalculatorModal';
 import { Alert } from '../../utils/alertUtils';
+import { ScreenContainer } from '../../components/ScreenContainer';
+import { useResponsive } from '../../utils/responsive';
 
 import {
   calculateBMR,

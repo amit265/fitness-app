@@ -13,7 +13,9 @@ import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 import { Alert } from '../utils/alertUtils';
+import { useResponsive } from '../utils/responsive';
 
+import { ScreenContainer } from '../components/ScreenContainer';
 export default function EditProfileScreen() {
   const { colors, isDark } = useAppTheme();
   const router = useRouter();
@@ -84,11 +86,7 @@ export default function EditProfileScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScreenContainer>
           {/* Header */}
           <View style={styles.header}>
             <Pressable style={styles.backBtn} onPress={() => router.back()}>
@@ -240,7 +238,7 @@ export default function EditProfileScreen() {
             />
           </View>
 
-        </ScrollView>
+        </ScreenContainer>
 
       </KeyboardAvoidingView>
 

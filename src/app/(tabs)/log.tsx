@@ -27,7 +27,9 @@ import {
 import { t, formatNumber } from '../../i18n';
 import { Alert } from '../../utils/alertUtils';
 
+import { useResponsive } from '../../utils/responsive';
 
+import { ScreenContainer } from '../../components/ScreenContainer';
 export default function LogScreen() {
   const { colors, isDark } = useAppTheme();
   const uiLanguage = useAppStore((state) => state.uiLanguage);
@@ -207,7 +209,7 @@ export default function LogScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <ScreenContainer>
 
           {/* Header */}
           <View style={styles.header}>
@@ -377,7 +379,7 @@ export default function LogScreen() {
 
           {/* BannerAdComponent removed per spec section 13 & 14 */}
 
-        </ScrollView>
+        </ScreenContainer>
       </KeyboardAvoidingView>
 
       {/* Meal Manual Modal */}

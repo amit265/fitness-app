@@ -19,6 +19,7 @@ import { Send, X, User as UserIcon, RotateCcw, Flag, Sparkles } from 'lucide-rea
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 import { Alert } from '../utils/alertUtils';
+import { useResponsive } from '../utils/responsive';
 
 
 const TypewriterMarkdown = ({ text, isCoach, onContentChange, onComplete }: { text: string, isCoach: boolean, onContentChange?: () => void, onComplete?: () => void }) => {
@@ -68,7 +69,8 @@ const QUICK_ACTIONS = [
 ];
 
 export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQuery }) => {
-  const { colors, isDark } = useAppTheme();
+  const { colors } = useAppTheme();
+  const { isTablet, maxContentWidth } = useResponsive();
   const scrollViewRef = useRef<ScrollView>(null);
 
   // Store data
@@ -241,6 +243,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <StatusBar style={colors.statusBar.content} />
       <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
+        <View style={[styles.innerWrapper, { maxWidth: isTablet ? Math.min(maxContentWidth, 680) : undefined }]}>
 
         {/* Header */}
         <View style={[styles.header, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
@@ -305,6 +308,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                   style={[
                     styles.messageRow,
                     isCoach ? styles.coachRow : styles.userRow,
+                    isTablet && { maxWidth: '70%' },
                   ]}
                 >
                   <View style={styles.avatarWrap}>
@@ -343,7 +347,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
               );
             })}
             {sending && (
-              <View style={[styles.messageRow, styles.coachRow]}>
+              <View style={[styles.messageRow, styles.coachRow, isTablet && { maxWidth: '70%' }]}>
                 <SiniAvatar size={28} variant="plum" />
                 <View style={[styles.bubble, styles.coachBubble, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   <ActivityIndicator size="small" color={colors.primary} />
@@ -390,6 +394,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
             </Pressable>
           </View>
         </KeyboardAvoidingView>
+        </View>
       </SafeAreaView>
     </Modal>
   );
@@ -398,6 +403,11 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  innerWrapper: {
+    flex: 1,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     flexDirection: 'row',

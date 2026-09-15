@@ -52,10 +52,13 @@ import {
 import { useAppTheme } from '../../context/ThemeContext';
 import { t, formatNumber } from '../../i18n';
 import { useFocusEffect } from 'expo-router';
+import { useResponsive } from '../../utils/responsive';
+import { ScreenContainer } from '../../components/ScreenContainer';
 
 export default function TodayScreen() {
   const { colors, isDark } = useAppTheme();
   const router = useRouter();
+  const { isTablet, rs } = useResponsive();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -238,8 +241,8 @@ export default function TodayScreen() {
       };
 
   // Calorie Circular Arc Math
-  const calStrokeWidth = 14;
-  const calRadius = 56;
+  const calStrokeWidth = rs(14, 16);
+  const calRadius = rs(56, 72);
   const calCircumference = 2 * Math.PI * calRadius;
   const calProgress = Math.min(1, calorieBalance.consumedCalories / (calorieBalance.targetCalories || 1850));
   const calStrokeDashoffset = calCircumference - calProgress * calCircumference;
@@ -323,16 +326,9 @@ export default function TodayScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <ScreenContainer
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={[PALETTE.plum.default]}
-            tintColor={PALETTE.plum.default}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
         }
       >
 
@@ -671,7 +667,7 @@ export default function TodayScreen() {
 
         {/* Native Ad Card */}
         
-      </ScrollView>
+      </ScreenContainer>
 
       {/* FLOATING ACTION BUTTON (FAB) FOR SINI CHAT */}
       <Pressable

@@ -20,6 +20,8 @@ import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 import { Alert } from '../utils/alertUtils';
+import { ScreenContainer } from '../components/ScreenContainer';
+import { useResponsive } from '../utils/responsive';
 
 import {
   ArrowLeft,
@@ -370,7 +372,7 @@ export default function DedicatedCyclePage() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScreenContainer>
         
         {/* Header */}
         <View style={styles.header}>
@@ -862,7 +864,7 @@ export default function DedicatedCyclePage() {
           </View>
         </Card>
 
-      </ScrollView>
+      </ScreenContainer>
 
 
       {/* Log Period Modal */}

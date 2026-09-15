@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { useAppTheme } from '../../context/ThemeContext';
+import { useResponsive } from '../../utils/responsive';
 
 import { t } from '../../i18n';
 import { APP_LINKS } from '../../constants/links';
@@ -18,7 +19,9 @@ export default function TabsLayout() {
   const { colors, isDark } = useAppTheme();
   const uiLanguage = useAppStore((state) => state.uiLanguage);
   const insets = useSafeAreaInsets();
-  const bottomMargin = Math.max(insets.bottom, 16);
+  const { isTablet, maxContentWidth } = useResponsive();
+  const bottomMargin = Math.max(insets.bottom, isTablet ? 24 : 16);
+  const tabBarHeight = isTablet ? 72 : 64;
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
   const webTabListener = {
@@ -50,11 +53,20 @@ export default function TabsLayout() {
           tabBarStyle: {
             position: 'absolute',
             bottom: bottomMargin,
-            marginHorizontal: 16,
+            // On tablet: constrain and centre the tab bar
+            ...(isTablet
+              ? {
+                  alignSelf: 'center',
+                  width: Math.min(maxContentWidth, 680),
+                  left: undefined,
+                  right: undefined,
+                  marginHorizontal: 0,
+                }
+              : { marginHorizontal: 16 }),
             backgroundColor: colors.card,
             borderTopWidth: 0,
             borderRadius: 24,
-            height: 64,
+            height: tabBarHeight,
             paddingBottom: 0,
             paddingTop: 0,
             elevation: 12,
@@ -64,8 +76,11 @@ export default function TabsLayout() {
             shadowOffset: { width: 0, height: 6 },
           },
           tabBarLabelStyle: {
-            fontSize: 11,
-            },
+            fontSize: isTablet ? 13 : 11,
+          },
+          tabBarIconStyle: {
+            marginTop: isTablet ? 4 : 0,
+          },
         }}
       >
         <Tabs.Screen

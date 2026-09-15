@@ -17,7 +17,9 @@ import { Alert } from '../utils/alertUtils';
 
 
 
+import { useResponsive } from '../utils/responsive';
 
+import { ScreenContainer } from '../components/ScreenContainer';
 export default function BMICalculatorScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
@@ -142,7 +144,7 @@ export default function BMICalculatorScreen() {
           <View style={{ width: 24 }} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScreenContainer>
           
           <Card style={styles.card}>
             <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={{ marginBottom: SPACING.md }}>
@@ -233,7 +235,7 @@ export default function BMICalculatorScreen() {
             </View>
           </Card>
 
-        </ScrollView>
+        </ScreenContainer>
 
       </KeyboardAvoidingView>
           </SafeAreaView>
