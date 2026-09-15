@@ -41,8 +41,8 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
           else contentText = trimmed.substring(2);
         }
 
-        // Parse bold markers (**bold**) and links ([text](url))
-        const regex = /(\[.*?\]\(.*?\)|\*\*.*?\*\*)/g;
+        // Parse bold markers (**bold**), italics (*italic* or _italic_), and links ([text](url))
+        const regex = /(\[.*?\]\(.*?\)|\*\*.*?\*\*|\*.*?\*|_.*?_)/g;
         const parts = contentText.split(regex);
         
         // If the line is empty and it's not a bullet/heading, render a spacer line
@@ -76,6 +76,16 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
                       onPress={() => router.push(linkMatch[2] as any)}
                     >
                       {linkMatch[1]}
+                    </Text>
+                  );
+                }
+              }
+              if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('_') && part.endsWith('_'))) {
+                // Ensure it's not a bold match that got stripped to nothing
+                if (part.length > 2) {
+                  return (
+                    <Text key={idx} style={{ fontStyle: 'italic' }}>
+                      {part.slice(1, -1)}
                     </Text>
                   );
                 }
