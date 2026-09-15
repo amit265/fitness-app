@@ -759,8 +759,35 @@ export default function TodayScreen() {
           </Pressable>
         </Card>
 
-        {/* End of Cards */}
+        {/* 6. DAILY READINESS CARD */}
+        <Card style={{ padding: SPACING.md }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1 }}>
+              <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 4 }}>
+                {t('home.readiness', { defaultValue: 'Daily Readiness' })}
+              </Typography>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
+                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 28, lineHeight: 32 }} adjustsFontSizeToFit={true} numberOfLines={2}>
+                  {readiness.score >= 80 
+                    ? "Prime for Movement" 
+                    : readiness.score >= 50 
+                      ? "Holding Steady" 
+                      : "Prioritize Recovery"}
+                </Typography>
+              </View>
+            </View>
+            
+            <View style={[styles.readinessIconCircle, { backgroundColor: colors.surface }]}>
+              <Zap 
+                size={32} 
+                color={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning} 
+                fill={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning}
+              />
+            </View>
+          </View>
+        </Card>
 
+        {/* End of Cards */}
         {/* Native Ad Card */}
         
       </ScreenContainer>
