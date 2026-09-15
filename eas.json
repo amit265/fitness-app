@@ -43,7 +43,8 @@
         "track": "internal"
       },
       "ios": {
-        "appleId": "dev@destyastudio.com"
+        "appleId": "dev@destyastudio.com",
+        "ascAppId": "6812485742"
       }
     },
     "production": {
@@ -52,7 +53,8 @@
         "track": "production"
       },
       "ios": {
-        "appleId": "dev@destyastudio.com"
+        "appleId": "dev@destyastudio.com",
+        "ascAppId": "6812485742"
       }
     }
   }
