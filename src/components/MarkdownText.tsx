@@ -72,7 +72,14 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
                   return (
                     <Text 
                       key={idx} 
-                      style={{ color: colors.primary, textDecorationLine: 'underline' }}
+                      style={{ 
+                        color: colors.primary, 
+                        backgroundColor: colors.surface,
+                        fontWeight: '600',
+                        overflow: 'hidden',
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                      }}
                       onPress={() => router.push(linkMatch[2] as any)}
                     >
                       {linkMatch[1]}
