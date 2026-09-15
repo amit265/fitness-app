@@ -165,6 +165,9 @@ export default function RootLayout() {
             <Stack.Screen name="bmi" options={{ headerShown: false }} />
             <Stack.Screen name="edit-profile" options={{ headerShown: false }} />
             <Stack.Screen name="cycle" options={{ headerShown: false }} />
+            <Stack.Screen name="logModal" options={{ presentation: 'modal', headerShown: false }} />
+            <Stack.Screen name="workoutDetailModal" options={{ presentation: 'modal', headerShown: false }} />
+            <Stack.Screen name="nutritionDetailModal" options={{ presentation: 'modal', headerShown: false }} />
           </Stack>
 
           {/* Custom Animated Splash Screen Overlay */}

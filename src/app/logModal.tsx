@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TextInput, Pressable, Keyboard, Platform, KeyboardAvoidingView, ActivityIndicator,  } from 'react-native';
-import { AppModal as Modal } from '../../components/AppModal';
-import { Typography } from '../../components/Typography';
-import { Card } from '../../components/Card';
-import { Button } from '../../components/Button';
-import { InputField } from '../../components/InputField';
-import { useAppStore } from '../../store/useAppStore';
-import { parseUserInput } from '../../services/ai/aiService';
-import { lookupFood } from '../../services/nutrition/nutritionService';
-import { ParsedLogResult } from '../../services/ai/regexParser';
-import { getTodayStr } from '../../utils/date';
-import { PALETTE, SPACING } from '../../constants/theme';
+import { useRouter } from 'expo-router';
+import { AppModal as Modal } from '../components/AppModal';
+import { Typography } from '../components/Typography';
+import { Card } from '../components/Card';
+import { Button } from '../components/Button';
+import { InputField } from '../components/InputField';
+import { useAppStore } from '../store/useAppStore';
+import { parseUserInput } from '../services/ai/aiService';
+import { lookupFood } from '../services/nutrition/nutritionService';
+import { ParsedLogResult } from '../services/ai/regexParser';
+import { getTodayStr } from '../utils/date';
+import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAppTheme } from '../../context/ThemeContext';
+import { useAppTheme } from '../context/ThemeContext';
 import {
   Sparkles,
   Utensils,
@@ -23,16 +24,18 @@ import {
   Trash2,
   CheckCircle2,
   Activity as ActivityIcon,
+  X,
 } from 'lucide-react-native';
-import { t, formatNumber } from '../../i18n';
-import { Alert } from '../../utils/alertUtils';
+import { t, formatNumber } from '../i18n';
+import { Alert } from '../utils/alertUtils';
 
-import { useResponsive } from '../../utils/responsive';
+import { useResponsive } from '../utils/responsive';
 
-import { ScreenContainer } from '../../components/ScreenContainer';
+import { ScreenContainer } from '../components/ScreenContainer';
 export default function LogScreen() {
   const { colors, isDark } = useAppTheme();
   const uiLanguage = useAppStore((state) => state.uiLanguage);
+  const router = useRouter();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -212,11 +215,16 @@ export default function LogScreen() {
         <ScreenContainer contentStyle={styles.scrollContent}>
 
           {/* Header */}
-          <View style={styles.header}>
-            <Typography variant="h1" >{t('log.title')}</Typography>
-            <Typography variant="bodyMedium" color={colors.subtext}>
-              {t('log.subtitle')}
-            </Typography>
+          <View style={[styles.header, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }]}>
+            <View>
+              <Typography variant="h1" >{t('log.title')}</Typography>
+              <Typography variant="bodyMedium" color={colors.subtext}>
+                {t('log.subtitle')}
+              </Typography>
+            </View>
+            <Pressable onPress={() => router.back()} style={{ padding: 4 }}>
+              <X size={24} color={colors.textPrimary} />
+            </Pressable>
           </View>
 
           {/* Natural Language Input Card */}
@@ -385,19 +393,29 @@ export default function LogScreen() {
       {/* Meal Manual Modal */}
       <Modal visible={mealModalVisible} animationType="slide" transparent={true} onRequestClose={() => setMealModalVisible(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '80%', backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-          <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logMealHeader')}</Typography>
-            <InputField label={t('nutrition.mealName')} value={manualMealName} onChangeText={handleMealNameChange} placeholder={t('log.mealPlaceholder')} />
-            <InputField label={t('nutrition.calories')} value={manualMealCal} onChangeText={setManualMealCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
-            <InputField label={t('nutrition.protein')} value={manualMealProt} onChangeText={setManualMealProt} keyboardType="numeric" placeholder="18" />
-            <InputField label={t('nutrition.carbs')} value={manualMealCarb} onChangeText={setManualMealCarb} keyboardType="numeric" placeholder="30" />
-            <InputField label={t('nutrition.fat')} value={manualMealFat} onChangeText={setManualMealFat} keyboardType="numeric" placeholder="12" />
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title={t('common.cancel')} variant="outline" onPress={() => setMealModalVisible(false)} style={{ flex: 1 }} />
-              <Button title={t('common.save')} variant="nutrition" onPress={handleManualMealSubmit} style={{ flex: 1 }} />
+          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '90%', backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
+            {/* Drag Handle */}
+            <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 4 }}>
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border }} />
             </View>
-          </ScrollView>
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm }}>
+              <Typography variant="h2" color={colors.textPrimary}>{t('log.logMealHeader')}</Typography>
+              <Pressable onPress={() => setMealModalVisible(false)} style={{ padding: 6, borderRadius: 20, backgroundColor: colors.surface }}>
+                <X size={18} color={colors.subtext} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.xl }}>
+              <InputField label={t('nutrition.mealName')} value={manualMealName} onChangeText={handleMealNameChange} placeholder={t('log.mealPlaceholder')} />
+              <InputField label={t('nutrition.calories')} value={manualMealCal} onChangeText={setManualMealCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
+              <InputField label={t('nutrition.protein')} value={manualMealProt} onChangeText={setManualMealProt} keyboardType="numeric" placeholder="18" />
+              <InputField label={t('nutrition.carbs')} value={manualMealCarb} onChangeText={setManualMealCarb} keyboardType="numeric" placeholder="30" />
+              <InputField label={t('nutrition.fat')} value={manualMealFat} onChangeText={setManualMealFat} keyboardType="numeric" placeholder="12" />
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: SPACING.lg }}>
+                <Button title={t('common.cancel')} variant="outline" onPress={() => setMealModalVisible(false)} style={{ flex: 1 }} />
+                <Button title={t('common.save')} variant="nutrition" onPress={handleManualMealSubmit} style={{ flex: 1 }} />
+              </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         </View>
       </Modal>
@@ -405,16 +423,26 @@ export default function LogScreen() {
       {/* Workout Manual Modal */}
       <Modal visible={workoutModalVisible} animationType="slide" transparent={true} onRequestClose={() => setWorkoutModalVisible(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '80%', backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-          <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logActivityHeader')}</Typography>
-            <InputField label={t('activity.duration')} value={manualWorkDur} onChangeText={setManualWorkDur} keyboardType="numeric" placeholder={t('log.durationPlaceholder')} />
-            <InputField label={t('activity.caloriesBurned')} value={manualWorkCal} onChangeText={setManualWorkCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title={t('common.cancel')} variant="outline" onPress={() => setWorkoutModalVisible(false)} style={{ flex: 1 }} />
-              <Button title={t('common.save')} variant="positive" onPress={handleManualWorkoutSubmit} style={{ flex: 1 }} />
+          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '90%', backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
+            {/* Drag Handle */}
+            <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 4 }}>
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border }} />
             </View>
-          </ScrollView>
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm }}>
+              <Typography variant="h2" color={colors.textPrimary}>{t('log.logActivityHeader')}</Typography>
+              <Pressable onPress={() => setWorkoutModalVisible(false)} style={{ padding: 6, borderRadius: 20, backgroundColor: colors.surface }}>
+                <X size={18} color={colors.subtext} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.xl }}>
+              <InputField label={t('activity.duration')} value={manualWorkDur} onChangeText={setManualWorkDur} keyboardType="numeric" placeholder={t('log.durationPlaceholder')} />
+              <InputField label={t('activity.caloriesBurned')} value={manualWorkCal} onChangeText={setManualWorkCal} keyboardType="numeric" placeholder={t('log.caloriesPlaceholder')} />
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: SPACING.lg }}>
+                <Button title={t('common.cancel')} variant="outline" onPress={() => setWorkoutModalVisible(false)} style={{ flex: 1 }} />
+                <Button title={t('common.save')} variant="positive" onPress={handleManualWorkoutSubmit} style={{ flex: 1 }} />
+              </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         </View>
       </Modal>
@@ -422,15 +450,25 @@ export default function LogScreen() {
       {/* Weight Manual Modal */}
       <Modal visible={weightModalVisible} animationType="slide" transparent={true} onRequestClose={() => setWeightModalVisible(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '80%', backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}>
-          <ScrollView contentContainerStyle={{ padding: SPACING.md }}>
-            <Typography variant="h2" style={{ marginBottom: 16 }}>{t('log.logWeightHeader')}</Typography>
-            <InputField label={t('progress.currentWeight')} value={manualWeight} onChangeText={setManualWeight} keyboardType="decimal-pad" placeholder={t('log.weightPlaceholder')} />
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
-              <Button title={t('common.cancel')} variant="outline" onPress={() => setWeightModalVisible(false)} style={{ flex: 1 }} />
-              <Button title={t('common.save')} variant="primary" onPress={handleManualWeightSubmit} style={{ flex: 1 }} />
+          <KeyboardAvoidingView behavior="padding" style={{ maxHeight: '90%', backgroundColor: colors.bg, borderTopLeftRadius: 28, borderTopRightRadius: 28 }}>
+            {/* Drag Handle */}
+            <View style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 4 }}>
+              <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: colors.border }} />
             </View>
-          </ScrollView>
+            {/* Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SPACING.md, paddingBottom: SPACING.sm }}>
+              <Typography variant="h2" color={colors.textPrimary}>{t('log.logWeightHeader')}</Typography>
+              <Pressable onPress={() => setWeightModalVisible(false)} style={{ padding: 6, borderRadius: 20, backgroundColor: colors.surface }}>
+                <X size={18} color={colors.subtext} />
+              </Pressable>
+            </View>
+            <ScrollView contentContainerStyle={{ paddingHorizontal: SPACING.md, paddingBottom: SPACING.xl }}>
+              <InputField label={t('progress.currentWeight')} value={manualWeight} onChangeText={setManualWeight} keyboardType="decimal-pad" placeholder={t('log.weightPlaceholder')} />
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: SPACING.lg }}>
+                <Button title={t('common.cancel')} variant="outline" onPress={() => setWeightModalVisible(false)} style={{ flex: 1 }} />
+                <Button title={t('common.save')} variant="primary" onPress={handleManualWeightSubmit} style={{ flex: 1 }} />
+              </View>
+            </ScrollView>
           </KeyboardAvoidingView>
         </View>
       </Modal>

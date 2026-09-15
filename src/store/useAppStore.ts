@@ -14,6 +14,14 @@ import {
   CustomFood,
 } from '../types';
 
+export interface ActiveWorkoutTimer {
+  workoutId: string;
+  elapsedSeconds: number;
+  status: 'running' | 'paused';
+  lastUpdatedDate: string; // "YYYY-MM-DD"
+  lastTickTimestamp: number; // Date.now() for accurate background tracking
+}
+
 export interface AlertButton {
   text: string;
   style?: 'default' | 'cancel' | 'destructive';
@@ -46,6 +54,7 @@ interface AppState {
 
   // Global UI State
   alertState: AlertState;
+  activeWorkoutTimer: ActiveWorkoutTimer | null;
 
   // Setters/Actions
   setUiLanguage: (lang: string) => void;
@@ -72,6 +81,11 @@ interface AppState {
   addMeasurement: (measurement: Omit<BodyMeasurement, 'id' | 'date'> & { date?: string }) => void;
   deleteMeasurement: (id: string) => void;
 
+  // Global UI Actions
+  showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
+  hideAlert: () => void;
+  setActiveWorkoutTimer: (timer: ActiveWorkoutTimer | null) => void;
+
   // AI Governance Actions
   setCachedInsight: (date: string, insight: CachedDailyInsight) => void;
   logAIUsage: (log: Omit<AIMonitoringLog, 'id' | 'timestamp'>) => void;
@@ -79,10 +93,6 @@ interface AppState {
 
   seedMockData: () => void;
   resetStore: () => void;
-
-  // Global UI Actions
-  showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
-  hideAlert: () => void;
 }
 
 import { calculateUpdatedStreak } from '../utils/streakUtils';
@@ -107,6 +117,7 @@ export const useAppStore = create<AppState>()(
       dailyInsightCache: {},
       aiLogs: [],
       alertState: { visible: false, title: '' },
+      activeWorkoutTimer: null,
 
       seedMockData: () => set(getMockSeedData()),
 
@@ -118,6 +129,7 @@ export const useAppStore = create<AppState>()(
 
       showAlert: (title, message, buttons) => set({ alertState: { visible: true, title, message, buttons } }),
       hideAlert: () => set({ alertState: { visible: false, title: '' } }),
+      setActiveWorkoutTimer: (timer) => set({ activeWorkoutTimer: timer }),
 
       recordActivityStreak: (todayStr) =>
         set((state) => ({

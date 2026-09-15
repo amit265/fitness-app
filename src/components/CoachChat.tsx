@@ -266,8 +266,8 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
         </View>
 
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 10 : 0}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'padding'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 32}
           style={{ flex: 1 }}
         >
           {/* Quick Action Chips Horizontal Bar */}

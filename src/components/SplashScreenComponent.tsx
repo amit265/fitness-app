@@ -49,13 +49,15 @@ export function SplashScreenComponent({
       }),
     ]).start();
 
-    // 2. 3D Horizontal Coin Spin (3 full rotations = 1080deg)
-    Animated.timing(coinSpin, {
-      toValue: 1,
-      duration: 1800,
-      easing: Easing.out(Easing.cubic),
-      useNativeDriver: true,
-    }).start();
+    // 2. Continuous 2D Cycle Rotation
+    Animated.loop(
+      Animated.timing(coinSpin, {
+        toValue: 1,
+        duration: 4000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start();
 
     // 3. Text Slide Up & Fade In
     Animated.parallel([
@@ -85,9 +87,9 @@ export function SplashScreenComponent({
     }).start();
   }, [startAnimation]);
 
-  const spinY = coinSpin.interpolate({
+  const spin = coinSpin.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '1080deg'],
+    outputRange: ['0deg', '360deg'],
   });
 
   return (
@@ -122,10 +124,8 @@ export function SplashScreenComponent({
               style={[
                 styles.logoCircleWrapper,
                 {
-                  borderColor: colors.border,
-                  backgroundColor: colors.surface,
                   opacity: iconOpacity,
-                  transform: [{ scale: iconScale }, { rotateY: spinY }],
+                  transform: [{ scale: iconScale }, { rotate: spin }],
                 },
               ]}
             >
@@ -197,16 +197,8 @@ const styles = StyleSheet.create({
   logoCircleWrapper: {
     width: 140,
     height: 140,
-    borderRadius: 70,
-    overflow: 'hidden',
-    borderWidth: 3,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#29252A',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 6,
   },
   logoImage: {
     width: '100%',

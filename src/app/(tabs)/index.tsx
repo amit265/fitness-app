@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  RefreshControl,
   Alert,
 } from 'react-native';
 import { AppModal as Modal } from '../../components/AppModal';
@@ -47,13 +46,16 @@ import {
   Calendar as CalendarIcon,
   Settings,
   Zap,
-  MessageSquare,
+  Droplets,
+  ChevronRight,
+  Smile,
 } from 'lucide-react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { t, formatNumber } from '../../i18n';
 import { useFocusEffect } from 'expo-router';
 import { useResponsive } from '../../utils/responsive';
 import { ScreenContainer } from '../../components/ScreenContainer';
+import Markdown from 'react-native-markdown-display';
 
 export default function TodayScreen() {
   const { colors, isDark } = useAppTheme();
@@ -70,16 +72,50 @@ export default function TodayScreen() {
   const measurements = useAppStore((state) => state.measurements);
   const streak = useAppStore((state) => state.streak);
   const uiLanguage = useAppStore((state) => state.uiLanguage);
+  
+  const markdownStyles = {
+    body: {
+      color: colors.textPrimary,
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    strong: {
+      color: colors.textPrimary,
+      fontWeight: '700' as const,
+    },
+    paragraph: {
+      marginTop: 2,
+      marginBottom: 0,
+    }
+  };
   const dailyInsightCache = useAppStore((state) => state.dailyInsightCache);
   const setCachedInsight = useAppStore((state) => state.setCachedInsight);
   const setDailyCheckIn = useAppStore((state) => state.setDailyCheckIn);
   const recordActivityStreak = useAppStore((state) => state.recordActivityStreak);
+  const activeWorkoutTimer = useAppStore((state) => state.activeWorkoutTimer);
+  const setActiveWorkoutTimer = useAppStore((state) => state.setActiveWorkoutTimer);
+
+  useEffect(() => {
+    // Midnight kill-switch for timer
+    if (activeWorkoutTimer && activeWorkoutTimer.lastUpdatedDate !== getTodayStr()) {
+      setActiveWorkoutTimer(null);
+    }
+  }, [activeWorkoutTimer]);
 
   // Modals state
+  const [targetsExpanded, setTargetsExpanded] = useState(false);
   const [checkInModalVisible, setCheckInModalVisible] = useState(false);
   const [coachChatVisible, setCoachChatVisible] = useState(false);
   const [coachInitialQuery, setCoachInitialQuery] = useState<string | undefined>(undefined);
-  const [isTargetsFolded, setIsTargetsFolded] = useState(false);
+  
+  // Targets Info Modal
+  const [targetModalVisible, setTargetModalVisible] = useState(false);
+  const [targetModalType, setTargetModalType] = useState<'checkin'|'water'|'move'|'food'>('checkin');
+
+  const openTargetModal = (type: 'checkin'|'water'|'move'|'food') => {
+    setTargetModalType(type);
+    setTargetModalVisible(true);
+  };
 
   // AI Daily Insight state
   const [dailyInsight, setDailyInsight] = useState<string>('');
@@ -229,11 +265,11 @@ export default function TodayScreen() {
   const handleCheckInSubmit = () => {
     setDailyCheckIn(todayStr, {
       sleepDuration: parseFloat(sleepDur) || 8,
-      sleepQuality: sleepQual,
+      sleepQuality: todayCheckIn ? todayCheckIn.sleepQuality : 4,
       energy: energyVal,
-      stress: stressVal,
+      stress: todayCheckIn ? todayCheckIn.stress : 2,
       hydration: parseFloat(waterVal) || 1.5,
-      mood: moodVal,
+      mood: todayCheckIn ? todayCheckIn.mood : 'good',
       symptoms: selectedSymptoms,
     });
     setCheckInModalVisible(false);
@@ -247,16 +283,6 @@ export default function TodayScreen() {
   const calProgress = Math.min(1, calorieBalance.consumedCalories / (calorieBalance.targetCalories || 1850));
   const calStrokeDashoffset = calCircumference - calProgress * calCircumference;
 
-  const [refreshing, setRefreshing] = useState(false);
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    try {
-      await fetchDailyInsight(true);
-    } catch (e) {}
-    setRefreshing(false);
-  };
-
-
   const openSiniWithQuery = (query?: string) => {
     setCoachInitialQuery(query);
     setCoachChatVisible(true);
@@ -268,9 +294,9 @@ export default function TodayScreen() {
     const hasFact = text.includes('FACT:') || text.includes('**FACT**');
     if (!hasFact) {
       return (
-        <Typography variant="bodyMedium" style={{ lineHeight: 22 }}>
+        <Markdown style={markdownStyles}>
           {text}
-        </Typography>
+        </Markdown>
       );
     }
 
@@ -295,9 +321,9 @@ export default function TodayScreen() {
             <Typography variant="caption" color={PALETTE.plum.default} style={styles.insightBlockTag}>
               FACT
             </Typography>
-            <Typography variant="bodyMedium" style={styles.insightBlockText}>
+            <Markdown style={markdownStyles}>
               {parsed.FACT}
-            </Typography>
+            </Markdown>
           </View>
         )}
         {parsed.CONTEXT && (
@@ -305,9 +331,9 @@ export default function TodayScreen() {
             <Typography variant="caption" color={PALETTE.rose.default} style={styles.insightBlockTag}>
               CONTEXT
             </Typography>
-            <Typography variant="bodyMedium" style={styles.insightBlockText}>
+            <Markdown style={markdownStyles}>
               {parsed.CONTEXT}
-            </Typography>
+            </Markdown>
           </View>
         )}
         {parsed.CHOICE && (
@@ -315,9 +341,9 @@ export default function TodayScreen() {
             <Typography variant="caption" color={PALETTE.sage.default} style={styles.insightBlockTag}>
               CHOICE
             </Typography>
-            <Typography variant="bodyMedium" style={styles.insightBlockText}>
+            <Markdown style={markdownStyles}>
               {parsed.CHOICE}
-            </Typography>
+            </Markdown>
           </View>
         )}
       </View>
@@ -326,17 +352,13 @@ export default function TodayScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
-      <ScreenContainer contentStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={colors.primary} />
-        }
-      >
+      <ScreenContainer contentStyle={styles.scrollContent}>
 
         {/* Top Branding Header */}
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
             <Typography variant="caption" color={colors.subtext} style={{ letterSpacing: 0.5, textTransform: 'uppercase' }}>
-              Sini: Cycle Syncing & Fitness • 🔥 {streak?.currentStreak || 1}d Streak
+              🔥 {streak?.currentStreak || 1} Day Streak
             </Typography>
             <Typography variant="h1" style={styles.userName}>
               {userProfile?.name ? t('home.greeting', { name: userProfile.name }) : t('home.greetingDefault')}
@@ -362,68 +384,98 @@ export default function TodayScreen() {
           </View>
         </View>
 
-        {/* 1. CURRENT CYCLE & HOW I FEEL (PRIORITY 1) */}
+        {/* 1. CURRENT CYCLE & READINESS (HERO REDESIGN) */}
         <Card style={styles.cycleStatusCard}>
-          <View style={styles.cycleHeaderRow}>
-            <View style={styles.cycleBadgeRow}>
-              <Pressable
-                onPress={() => router.push('/cycle')}
-                style={[
-                  styles.phasePill,
-                  {
-                    backgroundColor: colors.surface,
-                  },
-                ]}
-              >
-                <Typography
-                  variant="caption"
-                  color={colors.primary}
-                  style={{ textTransform: 'uppercase' }}
-                >
-                  {t('cycle.phase.' + cycleState.phase.toLowerCase(), { defaultValue: cycleState.phase }).toUpperCase()} · {t('cycle.currentDay', { day: cycleState.cycleDay }).toUpperCase()}
-                </Typography>
-              </Pressable>
+          <Pressable onPress={() => router.push('/cycle')} style={{ alignSelf: 'flex-start' }}>
+            <Typography variant="caption" color={colors.primary} style={{ letterSpacing: 1, fontWeight: '700' }}>
+              {t('cycle.phase.' + cycleState.phase.toLowerCase(), { defaultValue: cycleState.phase }).toUpperCase()} · {t('cycle.currentDay', { day: cycleState.cycleDay }).toUpperCase()}
+            </Typography>
+          </Pressable>
 
-              <View style={[styles.energyPill, { backgroundColor: colors.surface }]}>
-                <Zap size={14} color={colors.ovulation} />
-                <Typography variant="caption" color={colors.textPrimary} style={{ marginLeft: 4 }}>
-                  {t('home.energyLabel')} {todayCheckIn ? todayCheckIn.energy : 3}/5
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: SPACING.md }}>
+            <View style={{ flex: 1 }}>
+              <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 4 }}>
+                {t('home.readiness', { defaultValue: 'Daily Readiness' })}
+              </Typography>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
+                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 32, lineHeight: 36 }}>
+                  {readiness.score >= 80 
+                    ? "Prime for Movement" 
+                    : readiness.score >= 50 
+                      ? "Holding Steady" 
+                      : "Prioritize Recovery"}
                 </Typography>
               </View>
             </View>
+            
+            <View style={[styles.readinessIconCircle, { backgroundColor: colors.surface }]}>
+              <Zap 
+                size={32} 
+                color={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning} 
+                fill={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning}
+              />
+            </View>
+          </View>
 
-            <Pressable
-              style={styles.checkInBtn}
-              onPress={() => setCheckInModalVisible(true)}
-            >
-              <Typography variant="caption" color={colors.primary} >
-                {todayCheckIn ? t('home.editCheckIn') : t('home.logFeeling')}
+          <Button
+            title={todayCheckIn ? t('home.editCheckIn', { defaultValue: 'Edit Check-In' }) : t('home.logFeeling', { defaultValue: 'Log Daily Check-In' })}
+            variant={todayCheckIn ? 'secondary' : 'primary'}
+            onPress={() => setCheckInModalVisible(true)}
+            style={{ marginTop: SPACING.lg }}
+            adjustsFontSizeToFit={true}
+          />
+        </Card>
+
+        {/* DAILY MILESTONES (NEW HORIZONTAL REDESIGN) */}
+        <Card style={styles.targetsCard}>
+          <Pressable style={styles.targetsHeaderRow} onPress={() => setTargetsExpanded(!targetsExpanded)}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Award color={colors.ovulation} size={20} />
+              <Typography variant="h3" >
+                {t('home.todaysTargets', { defaultValue: "Today's Targets" })}
               </Typography>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 4 ? colors.successBg : colors.warningBg }]}>
+                <Typography variant="caption" color={completedTargetsCount >= 4 ? colors.success : colors.warning} >
+                  {completedTargetsCount}/4 {t('common.done')}
+                </Typography>
+              </View>
+              {targetsExpanded ? <ChevronUp size={20} color={colors.subtext} /> : <ChevronDown size={20} color={colors.subtext} />}
+            </View>
+          </Pressable>
+          
+          {targetsExpanded && (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: SPACING.md }}>
+              <Pressable onPress={() => openTargetModal('checkin')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isCheckInMet ? colors.successBg : colors.surface }]}>
+                {isCheckInMet ? <CheckCircle2 color={colors.success} size={22} /> : <Smile color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isCheckInMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Check-In</Typography>
+            </Pressable>
+
+            <Pressable onPress={() => openTargetModal('water')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isWaterMet ? colors.successBg : colors.surface }]}>
+                {isWaterMet ? <CheckCircle2 color={colors.success} size={22} /> : <Droplet color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isWaterMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Water</Typography>
+            </Pressable>
+
+            <Pressable onPress={() => openTargetModal('move')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isExerciseMet ? colors.successBg : colors.surface }]}>
+                {isExerciseMet ? <CheckCircle2 color={colors.success} size={22} /> : <ActivityIcon color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isExerciseMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Move</Typography>
+            </Pressable>
+
+            <Pressable onPress={() => openTargetModal('food')} style={{ alignItems: 'center', gap: 6, flex: 1 }}>
+              <View style={[styles.targetIconCircle, { backgroundColor: isNutritionMet ? colors.successBg : colors.surface }]}>
+                {isNutritionMet ? <CheckCircle2 color={colors.success} size={22} /> : <Utensils color={colors.subtext} size={22} />}
+              </View>
+              <Typography variant="caption" color={isNutritionMet ? colors.textPrimary : colors.subtext} style={{ textAlign: 'center' }}>Food</Typography>
             </Pressable>
           </View>
-
-          <View style={styles.feelingSummaryRow}>
-            <View style={styles.feelingStat}>
-              <Typography variant="caption" color={colors.subtext}>{t('home.readiness')}</Typography>
-              <Typography variant="h2" color={colors.activity} >
-                {readiness.score}/100
-              </Typography>
-            </View>
-            <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
-            <View style={styles.feelingStat}>
-              <Typography variant="caption" color={colors.subtext}>{t('home.sleep')}</Typography>
-              <Typography variant="h3" >
-                {todayCheckIn ? `${todayCheckIn.sleepDuration}h` : '8.0h'}
-              </Typography>
-            </View>
-            <View style={[styles.feelingDivider, { backgroundColor: colors.border }]} />
-            <View style={styles.feelingStat}>
-              <Typography variant="caption" color={colors.subtext}>{t('home.hydration')}</Typography>
-              <Typography variant="h3" >
-                {todayCheckIn ? `${todayCheckIn.hydration}L` : '1.5L'}
-              </Typography>
-            </View>
-          </View>
+          )}
         </Card>
 
         {/* 2. TODAY'S CALORIES HERO VISUAL (PRIORITY 2) */}
@@ -445,6 +497,20 @@ export default function TodayScreen() {
               </Typography>
             </View>
           </View>
+
+          {activeWorkoutTimer && activeWorkoutTimer.lastUpdatedDate === getTodayStr() && (
+            <Pressable 
+              style={[styles.resumeBanner, { backgroundColor: colors.activity }]}
+              onPress={() => router.push(`/workoutDetailModal?id=${activeWorkoutTimer.workoutId}`)}
+            >
+              <ActivityIcon color="#FFF" size={20} />
+              <View style={{ flex: 1, marginLeft: 12 }}>
+                <Typography variant="bodyMedium" style={{ color: '#FFF', fontWeight: '600' }}>Workout in Progress</Typography>
+                <Typography variant="caption" style={{ color: 'rgba(255,255,255,0.8)' }}>Tap to resume or finish</Typography>
+              </View>
+              <ChevronRight color="#FFF" size={20} />
+            </Pressable>
+          )}
 
           <View style={styles.heroCalorieContent}>
             {/* Elegant Circular Progress Indicator */}
@@ -547,7 +613,70 @@ export default function TodayScreen() {
           </View>
         </Card>
 
-        {/* 3. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) */}
+        {/* 4. NUTRITION & FUEL CARD */}
+        <Card style={styles.nutritionPlanCard}>
+          <View style={styles.cardTitleRow}>
+            <Utensils color={colors.nutrition} size={20} />
+            <Typography variant="h3" style={{ marginLeft: 8 }}>
+              Recommended Diet
+            </Typography>
+          </View>
+          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20, marginBottom: SPACING.md }}>
+            Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
+          </Typography>
+          <Pressable 
+            style={[styles.libraryLinkBtn, { backgroundColor: colors.surface }]}
+            onPress={() => router.push('/explore')}
+          >
+            <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontWeight: '600' }}>
+              Explore Phase Nutrition Guides →
+            </Typography>
+          </Pressable>
+        </Card>
+
+        {/* 5. ACTIVITY & RECOVERY PLAN */}
+        <Card style={styles.activityPlanCard}>
+          <View style={styles.cardTitleRow}>
+            <ActivityIcon color={colors.activity} size={20} />
+            <Typography variant="h3" style={{ marginLeft: 8 }}>
+              Recommended Workout
+            </Typography>
+          </View>
+
+          <View style={styles.activityBadgeRow}>
+            <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+              <Typography variant="caption" color={colors.activity} >
+                {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
+              </Typography>
+            </View>
+            {readiness.recommendation.durationMinutes && (
+              <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+                <Typography variant="caption" color={colors.textPrimary} >
+                  ⏱ {readiness.recommendation.durationMinutes} mins
+                </Typography>
+              </View>
+            )}
+          </View>
+
+          <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
+            {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
+          </Typography>
+          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
+            {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
+          </Typography>
+
+
+          <Pressable 
+            style={[styles.libraryLinkBtn, { backgroundColor: colors.surface, marginTop: SPACING.md }]}
+            onPress={() => router.push('/explore')}
+          >
+            <Typography variant="bodyMedium" color={colors.activity} style={{ fontWeight: '600' }}>
+              Explore Movement Library →
+            </Typography>
+          </Pressable>
+        </Card>
+
+        {/* 3. SINI'S SUGGESTION CARD (FACT · CONTEXT · CHOICE) MOVED TO BOTTOM */}
         <Card style={[styles.siniSuggestionCard, { backgroundColor: colors.surface }]}>
           <View style={styles.siniHeaderRow}>
             <SiniAvatar size={30} variant="plum" />
@@ -575,95 +704,7 @@ export default function TodayScreen() {
           </Pressable>
         </Card>
 
-        {/* SPONSORED NATIVE AD */}
-        
-        {/* 4. ACTIVITY & RECOVERY PLAN */}
-        <Card style={styles.activityPlanCard}>
-          <View style={styles.cardTitleRow}>
-            <ActivityIcon color={colors.activity} size={20} />
-            <Typography variant="h3" style={{ marginLeft: 8 }}>
-              {t('home.activityMovement')}
-            </Typography>
-          </View>
-
-          <View style={styles.activityBadgeRow}>
-            <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.activity} >
-                {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
-              </Typography>
-            </View>
-            {readiness.recommendation.durationMinutes && (
-              <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                <Typography variant="caption" color={colors.textPrimary} >
-                  ⏱ {readiness.recommendation.durationMinutes} mins
-                </Typography>
-              </View>
-            )}
-          </View>
-
-          <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
-            {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
-          </Typography>
-          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
-            {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
-          </Typography>
-
-          {/* Quick Hydration Tracker */}
-          <View style={styles.hydrationBox}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-              <Droplet color={colors.activity} size={18} />
-              <Typography variant="bodyMedium" style={{ marginLeft: 8, }}>
-                {t('home.hydrationTarget', { litres: recommendedWaterL.toString() })}
-              </Typography>
-            </View>
-            <Pressable onPress={openWaterModal} style={styles.quickAddWaterBtn}>
-              <Typography variant="caption" color={colors.activity} >
-                {t('home.addWater')}
-              </Typography>
-            </Pressable>
-          </View>
-        </Card>
-
-        {/* 5. TODAY'S TARGETS CHECKLIST */}
-        <Card style={styles.targetsCard}>
-          <Pressable onPress={() => setIsTargetsFolded(!isTargetsFolded)} style={styles.targetsHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Award color={colors.ovulation} size={20} />
-              <Typography variant="h3" >
-                {t('home.todaysTargets')}
-              </Typography>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <View style={[styles.targetCountBadge, { backgroundColor: completedTargetsCount >= 2 ? colors.successBg : colors.warningBg }]}>
-                <Typography variant="caption" color={completedTargetsCount >= 2 ? colors.success : colors.warning} >
-                  {completedTargetsCount}/4 {t('common.done')}
-                </Typography>
-              </View>
-              {isTargetsFolded ? <ChevronDown color={colors.subtext} size={18} /> : <ChevronUp color={colors.subtext} size={18} />}
-            </View>
-          </Pressable>
-
-          {!isTargetsFolded && (
-            <View style={styles.targetsList}>
-              <View style={styles.targetItem}>
-                {isCheckInMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.checkInLogged')}</Typography>
-              </View>
-              <View style={styles.targetItem}>
-                {isWaterMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.hydrationTargetLabel', { litres: recommendedWaterL.toString() })}</Typography>
-              </View>
-              <View style={styles.targetItem}>
-                {isExerciseMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.movementLabel', { mins: (readiness.recommendation.durationMinutes || 20).toString() })}</Typography>
-              </View>
-              <View style={styles.targetItem}>
-                {isNutritionMet ? <CheckCircle2 color={colors.activity} size={20} /> : <CircleIcon color={colors.border} size={20} />}
-                <Typography variant="bodyMedium" style={styles.targetLabel}>{t('home.nutritionLogged')}</Typography>
-              </View>
-            </View>
-          )}
-        </Card>
+        {/* End of Cards */}
 
         {/* Native Ad Card */}
         
@@ -701,6 +742,46 @@ export default function TodayScreen() {
                 <Typography variant="bodyMedium" color={colors.primary}>{t('common.done')}</Typography>
               </Pressable>
             </View>
+
+            {/* SLEEP SECTION */}
+            <Card style={{ marginBottom: SPACING.md }}>
+              <Typography variant="h3" style={{ marginBottom: 16 }}>{t('home.sleep', { defaultValue: 'Sleep (Hours)' })}</Typography>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+                <Pressable
+                  onPress={() => setSleepDur(prev => Math.max(0, parseFloat(prev || '0') - 0.5).toString())}
+                  style={[styles.stepperBtn, { backgroundColor: colors.surface }]}
+                >
+                  <Typography variant="h2" color={colors.textPrimary}>-</Typography>
+                </Pressable>
+                <Typography variant="display" style={{ minWidth: 80, textAlign: 'center' }}>{sleepDur}h</Typography>
+                <Pressable
+                  onPress={() => setSleepDur(prev => Math.min(24, parseFloat(prev || '0') + 0.5).toString())}
+                  style={[styles.stepperBtn, { backgroundColor: colors.surface }]}
+                >
+                  <Typography variant="h2" color={colors.textPrimary}>+</Typography>
+                </Pressable>
+              </View>
+            </Card>
+
+            {/* WATER SECTION */}
+            <Card style={{ marginBottom: SPACING.md }}>
+              <Typography variant="h3" style={{ marginBottom: 16 }}>{t('home.hydration', { defaultValue: 'Hydration (Liters)' })}</Typography>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+                <Pressable
+                  onPress={() => setWaterVal(prev => Math.max(0, parseFloat(prev || '0') - 0.25).toString())}
+                  style={[styles.stepperBtn, { backgroundColor: colors.surface }]}
+                >
+                  <Typography variant="h2" color={colors.textPrimary}>-</Typography>
+                </Pressable>
+                <Typography variant="display" style={{ minWidth: 80, textAlign: 'center' }}>{waterVal}L</Typography>
+                <Pressable
+                  onPress={() => setWaterVal(prev => Math.min(10, parseFloat(prev || '0') + 0.25).toString())}
+                  style={[styles.stepperBtn, { backgroundColor: colors.surface }]}
+                >
+                  <Typography variant="h2" color={colors.textPrimary}>+</Typography>
+                </Pressable>
+              </View>
+            </Card>
 
             <Typography variant="bodyMedium" color={colors.subtext} style={{ marginBottom: SPACING.md }}>
               {t('home.moodLabel')}
@@ -768,10 +849,62 @@ export default function TodayScreen() {
               onChangeText={setWaterInputVal}
               keyboardType="decimal-pad"
             />
-            <View style={styles.waterDialogButtons}>
-              <Button title={t('common.cancel')} variant="outline" onPress={() => setWaterModalVisible(false)} style={{ flex: 1 }} />
-              <Button title={t('common.save')} variant="positive" onPress={handleSaveWaterModal} style={{ flex: 1 }} />
+            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16, gap: 12 }}>
+              <Pressable onPress={() => setWaterModalVisible(false)} style={{ padding: 8 }}>
+                <Typography color={colors.subtext}>{t('common.cancel')}</Typography>
+              </Pressable>
+              <Button title={t('common.save')} onPress={handleSaveWaterModal} style={{ paddingHorizontal: 20 }} />
             </View>
+          </Card>
+        </View>
+      </Modal>
+
+      {/* Target Info Modal */}
+      <Modal visible={targetModalVisible} transparent animationType="fade" onRequestClose={() => setTargetModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <Card style={styles.waterDialog}>
+            {targetModalType === 'checkin' && (
+              <>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8}}>
+                  <Smile color={colors.textPrimary} size={24} />
+                  <Typography variant="h2">Check-In</Typography>
+                </View>
+                <Typography variant="bodyMedium" style={{marginBottom: 8}}>Log your mood, energy, sleep, and symptoms for today.</Typography>
+                <Typography variant="caption" color={isCheckInMet ? colors.success : colors.subtext}>Status: {isCheckInMet ? 'Completed' : 'Not yet logged'}</Typography>
+              </>
+            )}
+            {targetModalType === 'water' && (
+              <>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8}}>
+                  <Droplet color={colors.textPrimary} size={24} />
+                  <Typography variant="h2">Water Intake</Typography>
+                </View>
+                <Typography variant="bodyMedium" style={{marginBottom: 8}}>Drink at least {recommendedWaterL}L of water today based on your body weight and activity level.</Typography>
+                <Typography variant="caption" color={isWaterMet ? colors.success : colors.subtext}>Status: {(todayCheckIn?.hydration || 0)}L / {recommendedWaterL}L</Typography>
+              </>
+            )}
+            {targetModalType === 'move' && (
+              <>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8}}>
+                  <ActivityIcon color={colors.textPrimary} size={24} />
+                  <Typography variant="h2">Movement</Typography>
+                </View>
+                <Typography variant="bodyMedium" style={{marginBottom: 8}}>Engage in {readiness.recommendation.durationMinutes || 20} minutes of {readiness.recommendation.activityType.replace('_', ' ')} based on your cycle phase.</Typography>
+                <Typography variant="caption" color={isExerciseMet ? colors.success : colors.subtext}>Status: {recentWorkoutMinutes}m / {readiness.recommendation.durationMinutes || 20}m</Typography>
+              </>
+            )}
+            {targetModalType === 'food' && (
+              <>
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8}}>
+                  <Utensils color={colors.textPrimary} size={24} />
+                  <Typography variant="h2">Nutrition</Typography>
+                </View>
+                <Typography variant="bodyMedium" style={{marginBottom: 8}}>Log at least one meal to track your macros and cycle-sync your nutrition.</Typography>
+                <Typography variant="caption" color={isNutritionMet ? colors.success : colors.subtext}>Status: {isNutritionMet ? 'Completed' : 'No meals logged'}</Typography>
+              </>
+            )}
+            
+            <Button title="Got it" onPress={() => setTargetModalVisible(false)} style={{ marginTop: 20 }} />
           </Card>
         </View>
       </Modal>
@@ -830,53 +963,12 @@ const styles = StyleSheet.create({
   cycleStatusCard: {
     padding: SPACING.md,
   },
-  cycleHeaderRow: {
-    flexDirection: 'row',
+  readinessIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: SPACING.sm,
-  },
-  cycleBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-    flex: 1,
-  },
-  phasePill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 100,
-  },
-  energyPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 100,
-  },
-  checkInBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 100,
-    backgroundColor: PALETTE.plum.bg,
-  },
-  feelingSummaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    marginTop: SPACING.xs,
-    paddingTop: SPACING.xs,
-  },
-  feelingStat: {
-    alignItems: 'center',
-  },
-  feelingDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: 'rgba(0,0,0,0.08)',
   },
   // 2. Hero Calorie Card
   heroCalorieCard: {
@@ -960,6 +1052,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     alignSelf: 'flex-start',
   },
+  resumeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: SPACING.md,
+    marginBottom: SPACING.md,
+    padding: SPACING.md,
+    borderRadius: 12,
+  },
   // 4. Activity Card
   activityPlanCard: {
     padding: SPACING.md,
@@ -992,7 +1092,18 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     backgroundColor: PALETTE.sage.bg,
   },
-  // 5. Targets Card
+  libraryLinkBtn: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  nutritionPlanCard: {
+    padding: SPACING.md,
+    marginTop: SPACING.md,
+  },
+  // 6. Targets Card
   targetsCard: {
     padding: SPACING.md,
   },
@@ -1018,6 +1129,20 @@ const styles = StyleSheet.create({
   targetLabel: {
     },
   // Check-In Modal
+  targetIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperBtn: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   modalContainer: {
     flex: 1,
   },

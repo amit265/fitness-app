@@ -53,7 +53,7 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
       style={[styles.fill, style]}
       contentContainerStyle={[
         styles.scrollContent,
-        { paddingBottom: isTablet ? 40 : 120 },
+        { paddingBottom: isTablet ? 40 : 60 },
         contentContainerStyle,
       ]}
       showsVerticalScrollIndicator={false}

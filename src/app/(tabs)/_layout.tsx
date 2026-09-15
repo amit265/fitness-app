@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Tabs, useFocusEffect, useRouter } from 'expo-router';
 import { useColorScheme, Platform, Linking, Pressable, View, StyleSheet, BackHandler } from 'react-native';
 import { AppModal as Modal } from '../../components/AppModal';
-import { Sparkles, PlusCircle, TrendingUp, Calendar, User } from 'lucide-react-native';
+import { Sparkles, PlusCircle, TrendingUp, Calendar, User, Compass, Plus } from 'lucide-react-native';
 import { PALETTE } from '../../constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Typography } from '../../components/Typography';
@@ -15,11 +15,13 @@ import { APP_LINKS } from '../../constants/links';
 
 import { useAppStore } from '../../store/useAppStore';
 
+
+
 export default function TabsLayout() {
   const { colors, isDark } = useAppTheme();
   const uiLanguage = useAppStore((state) => state.uiLanguage);
   const insets = useSafeAreaInsets();
-  const { isTablet, maxContentWidth } = useResponsive();
+  const { isTablet, maxContentWidth, width } = useResponsive();
   const bottomMargin = Math.max(insets.bottom, isTablet ? 24 : 16);
   const tabBarHeight = isTablet ? 72 : 64;
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
@@ -53,16 +55,7 @@ export default function TabsLayout() {
           tabBarStyle: {
             position: 'absolute',
             bottom: bottomMargin,
-            // On tablet: constrain and centre the tab bar
-            ...(isTablet
-              ? {
-                  alignSelf: 'center',
-                  width: Math.min(maxContentWidth, 680),
-                  left: undefined,
-                  right: undefined,
-                  marginHorizontal: 0,
-                }
-              : { marginHorizontal: 16 }),
+            marginHorizontal: 16,
             backgroundColor: colors.card,
             borderTopWidth: 0,
             borderRadius: 24,
@@ -91,13 +84,14 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="log"
+          name="explore"
           listeners={webTabListener}
           options={{
-            title: t('tabs.log'),
-            tabBarIcon: ({ color, size }) => <PlusCircle color={color} size={size} />,
+            title: t('tabs.explore', { defaultValue: 'Explore' }),
+            tabBarIcon: ({ color, size }) => <Compass color={color} size={size} />,
           }}
         />
+
         <Tabs.Screen
           name="progress"
           listeners={webTabListener}

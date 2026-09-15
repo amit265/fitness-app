@@ -20,6 +20,7 @@ interface ButtonProps {
   loading?: boolean;
   icon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  adjustsFontSizeToFit?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -30,6 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
   loading = false,
   icon,
   style,
+  adjustsFontSizeToFit = false,
 }) => {
   const { colors } = useAppTheme();
 
@@ -108,6 +110,8 @@ export const Button: React.FC<ButtonProps> = ({
             variant="dataLabel"
             color={getTextColor()}
             style={[styles.text, icon ? { marginLeft: 8 } : null]}
+            numberOfLines={adjustsFontSizeToFit ? 1 : undefined}
+            adjustsFontSizeToFit={adjustsFontSizeToFit}
           >
             {title}
           </Typography>

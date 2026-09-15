@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform
 import { Typography } from '../../components/Typography';
 import { SiniAvatar } from '../../components/SiniAvatar';
 import { useAppStore } from '../../store/useAppStore';
-import { DestyaStudioFooter } from '../../components/DestyaStudioFooter';
+
 import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -106,19 +106,17 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        
-        {/* Header Bar with Settings Gear Button */}
-        <View style={[styles.headerBar, { borderBottomColor: colors.border, backgroundColor: colors.card }]}>
-          <Typography variant="h1">{t('profile.title')}</Typography>
-          <Pressable
-            style={({ pressed }) => [styles.settingsGearBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.7 }]}
-            onPress={() => router.push('/settings')}
-          >
-            <Settings size={20} color={colors.primary} />
-          </Pressable>
-        </View>
-
         <ScreenContainer contentStyle={styles.scrollContent}>
+          {/* Header Bar with Settings Gear Button */}
+          <View style={styles.header}>
+            <Typography variant="h1">{t('profile.title')}</Typography>
+            <Pressable
+              style={({ pressed }) => [styles.settingsGearBtn, { backgroundColor: colors.surface }, pressed && { opacity: 0.7 }]}
+              onPress={() => router.push('/settings')}
+            >
+              <Settings size={20} color={colors.primary} />
+            </Pressable>
+          </View>
 
           {/* Top Hero User Identity Card */}
           <View style={[styles.heroProfileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -379,9 +377,6 @@ export default function ProfileScreen() {
 
           {/* Native Ad Card */}
           
-          {/* Destya Studio Footer */}
-          <DestyaStudioFooter />
-
         </ScreenContainer>
       </KeyboardAvoidingView>
 
@@ -434,13 +429,11 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  headerBar: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm + 4,
-    borderBottomWidth: 1,
+    marginBottom: SPACING.xs,
   },
   settingsGearBtn: {
     padding: 8,

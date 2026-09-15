@@ -11,6 +11,7 @@ export function buildAIContext(
   fullContext: Partial<CoachingContext>
 ): Partial<CoachingContext> {
   const baseContext = {
+    currentDateTime: new Date().toLocaleString(),
     userName: fullContext.userName || 'User',
     userGoal: fullContext.userGoal || 'wellness',
     cycleState: fullContext.cycleState
