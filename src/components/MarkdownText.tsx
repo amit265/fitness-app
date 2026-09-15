@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Pressable } from 'react-native';
 import { Typography } from './Typography';
 import { PALETTE } from '../constants/theme';
 import { useAppTheme } from '../context/ThemeContext';
@@ -8,9 +8,10 @@ import { useRouter } from 'expo-router';
 interface MarkdownTextProps {
   text: string;
   isCoach: boolean;
+  onLinkPress?: (url: string) => void;
 }
 
-export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => {
+export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach, onLinkPress }) => {
   const router = useRouter();
   const { colors } = useAppTheme();
   // Strip any raw HTML tags and replace <br> tags with clean newlines
@@ -39,6 +40,34 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
           if (trimmed.startsWith('### ')) contentText = trimmed.substring(4);
           else if (trimmed.startsWith('## ')) contentText = trimmed.substring(3);
           else contentText = trimmed.substring(2);
+        }
+
+        // If the line is EXACTLY a link (e.g., Sini recommends a workout), render it as a full-width block button
+        // Allow optional trailing punctuation (.,;) that the AI might add
+        const exactLinkMatch = contentText.trim().match(/^\[(.*?)\]\((.*?)\)[.,;]?$/);
+        if (exactLinkMatch) {
+          return (
+            <View key={lineIdx} style={{ marginVertical: 8, width: '100%' }}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.fullWidthLinkBtn,
+                  { backgroundColor: colors.surface, borderColor: colors.border },
+                  pressed && { opacity: 0.8 }
+                ]}
+                onPress={() => {
+                  if (onLinkPress) {
+                    onLinkPress(exactLinkMatch[2]);
+                  } else {
+                    router.push(exactLinkMatch[2] as any);
+                  }
+                }}
+              >
+                <Text style={[styles.fullWidthLinkText, { color: colors.primary }]}>
+                  {exactLinkMatch[1]}
+                </Text>
+              </Pressable>
+            </View>
+          );
         }
 
         // Parse bold markers (**bold**), italics (*italic* or _italic_), and links ([text](url))
@@ -80,7 +109,13 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ text, isCoach }) => 
                         paddingHorizontal: 6,
                         paddingVertical: 2,
                       }}
-                      onPress={() => router.push(linkMatch[2] as any)}
+                      onPress={() => {
+                        if (onLinkPress) {
+                          onLinkPress(linkMatch[2]);
+                        } else {
+                          router.push(linkMatch[2] as any);
+                        }
+                      }}
                     >
                       {linkMatch[1]}
                     </Text>
@@ -116,5 +151,18 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 8,
+  },
+  fullWidthLinkBtn: {
+    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fullWidthLinkText: {
+    fontFamily: 'Urbanist-Bold',
+    fontSize: 15,
   },
 });

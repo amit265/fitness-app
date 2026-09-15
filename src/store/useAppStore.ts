@@ -113,16 +113,16 @@ const initialMockData = getMockSeedData();
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      // Initial State populated with past 45 days testing data
-      userProfile: initialMockData.userProfile,
-      cyclePreferences: initialMockData.cyclePreferences,
-      periods: initialMockData.periods,
-      dailyCheckIns: initialMockData.dailyCheckIns,
-      meals: initialMockData.meals,
-      activities: initialMockData.activities,
+      // Initial State (Empty for production, Onboarding will trigger)
+      userProfile: null,
+      cyclePreferences: null,
+      periods: [],
+      dailyCheckIns: {},
+      meals: [],
+      activities: [],
       customFoods: [],
-      measurements: initialMockData.measurements,
-      streak: initialMockData.streak,
+      measurements: [],
+      streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: null },
       uiLanguage: 'en',
       dailyInsightCache: {},
       aiLogs: [],

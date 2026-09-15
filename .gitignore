@@ -35,7 +35,10 @@ google-service-account*.json
 expo-apps-submissions*.json
 
 # ===========================
-# Build Artifacts
+# Build artifacts
+/build
+*.apk
+*.aab
 # ===========================
 *.aab
 *.apk

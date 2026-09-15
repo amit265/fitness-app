@@ -20,9 +20,10 @@ import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 import { Alert } from '../utils/alertUtils';
 import { useResponsive } from '../utils/responsive';
+import { useRouter } from 'expo-router';
 
 
-const TypewriterMarkdown = ({ text, isCoach, onContentChange, onComplete }: { text: string, isCoach: boolean, onContentChange?: () => void, onComplete?: () => void }) => {
+const TypewriterMarkdown = ({ text, isCoach, onContentChange, onComplete, onLinkPress }: { text: string, isCoach: boolean, onContentChange?: () => void, onComplete?: () => void, onLinkPress?: (url: string) => void }) => {
   const [displayedText, setDisplayedText] = useState('');
 
   // Use refs for callbacks to avoid re-triggering effect
@@ -51,7 +52,7 @@ const TypewriterMarkdown = ({ text, isCoach, onContentChange, onComplete }: { te
     return () => clearInterval(timer);
   }, [text]);
 
-  return <MarkdownText text={displayedText} isCoach={isCoach} />;
+  return <MarkdownText text={displayedText} isCoach={isCoach} onLinkPress={onLinkPress} />;
 };
 
 interface CoachChatProps {
@@ -72,6 +73,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
   const { colors } = useAppTheme();
   const { isTablet, maxContentWidth } = useResponsive();
   const scrollViewRef = useRef<ScrollView>(null);
+  const router = useRouter();
 
   // Store data
   const userProfile = useAppStore((state) => state.userProfile);
@@ -362,9 +364,20 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
                         isCoach={isCoach} 
                         onContentChange={scrollToBottom}
                         onComplete={() => setAnimatingMsgId(null)}
+                        onLinkPress={(url) => {
+                          onClose();
+                          router.push(url as any);
+                        }}
                       />
                     ) : (
-                      <MarkdownText text={m.content} isCoach={isCoach} />
+                      <MarkdownText 
+                        text={m.content} 
+                        isCoach={isCoach} 
+                        onLinkPress={(url) => {
+                          onClose();
+                          router.push(url as any);
+                        }}
+                      />
                     )}
                   </View>
                 </View>

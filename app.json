@@ -10,23 +10,25 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.destyastudio.sini",
+      "buildNumber": "1",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads and cycle-awareness recommendations."
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
       }
     },
     "android": {
       "package": "com.destyastudio.sini",
       "googleServicesFile": "./google-services.json",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#3B2938",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": [
-        "com.google.android.gms.permission.AD_ID"
-      ],
       "intentFilters": [
         {
           "action": "VIEW",
@@ -54,7 +56,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F5EEE6"
+          "backgroundColor": "#F5EEE6",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200
         }
       ],
       "expo-router",
@@ -64,7 +68,7 @@
       [
         "react-native-iap",
         {
-          "paymentProvider": "Play Store"
+          "paymentProvider": "both"
         }
       ],
       
@@ -95,9 +99,11 @@
         }
       ],
       "./plugins/withAndroidResolutionStrategy",
+      "./withIosFmtWorkaround.js",
       "@react-native-firebase/app",
       "@react-native-firebase/analytics",
       "@react-native-firebase/messaging",
+      "expo-notifications",
       "expo-localization"
     ],
     "updates": {

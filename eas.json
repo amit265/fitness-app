@@ -41,12 +41,18 @@
       "android": {
         "serviceAccountKeyPath": "./google-services-key.json",
         "track": "internal"
+      },
+      "ios": {
+        "appleId": "dev@destyastudio.com"
       }
     },
     "production": {
       "android": {
         "serviceAccountKeyPath": "./google-services-key.json",
         "track": "production"
+      },
+      "ios": {
+        "appleId": "dev@destyastudio.com"
       }
     }
   }

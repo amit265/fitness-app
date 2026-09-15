@@ -58,7 +58,8 @@
     "test": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/domain/cycle/test-runner.ts",
     "test:i18n": "ts-node -O '{\"module\":\"CommonJS\",\"types\":[\"node\"]}' src/i18n/validate-i18n.ts",
     "build:apk": "cd android && ./gradlew assembleRelease",
-    "build": "expo export -p web"
+    "build": "expo export -p web",
+    "release": "bash build-and-submit.sh"
   },
   "private": true
 }
