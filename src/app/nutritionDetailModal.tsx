@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, ScrollView, Pressable, Platform } from 'react-native';
+import { View, StyleSheet, Image, ScrollView, Pressable, Platform, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Typography } from '../components/Typography';
@@ -15,26 +15,50 @@ export default function NutritionDetailModal() {
   const router = useRouter();
   const { colors, isDark } = useAppTheme();
 
+  const { width } = useWindowDimensions();
+
   const markdownStyles = {
     body: {
-      color: colors.textPrimary,
-      fontSize: 16,
-      lineHeight: 24,
+      color: colors.text,
+      fontSize: Math.min(15, width * 0.038),
+      lineHeight: Math.min(24, width * 0.06),
     },
     heading1: {
       color: colors.textPrimary,
-      marginTop: 16,
+      fontSize: Math.min(20, width * 0.05),
+      marginTop: 20,
       marginBottom: 8,
       fontWeight: '700' as const,
     },
     heading2: {
       color: colors.textPrimary,
-      marginTop: 16,
-      marginBottom: 8,
+      fontSize: Math.min(17, width * 0.043),
+      marginTop: 18,
+      marginBottom: 6,
       fontWeight: '700' as const,
     },
     list_item: {
-      marginBottom: 4,
+      marginBottom: 6,
+      color: colors.text,
+    },
+    bullet_list: {
+      marginBottom: 8,
+    },
+    ordered_list: {
+      marginBottom: 8,
+    },
+    strong: {
+      color: colors.textPrimary,
+      fontWeight: '700' as const,
+    },
+    blockquote: {
+      backgroundColor: colors.surface,
+      borderLeftColor: colors.primary,
+      borderLeftWidth: 3,
+      paddingLeft: 12,
+      paddingVertical: 6,
+      borderRadius: 4,
+      marginVertical: 8,
     },
   };
 
@@ -54,6 +78,21 @@ export default function NutritionDetailModal() {
       </SafeAreaView>
     );
   }
+
+  // Generate markdown from recipe data if tutorialMarkdown isn't provided explicitly
+  const generatedMarkdown = recipe.tutorialMarkdown || `
+## Ingredients
+${recipe.ingredients.map(i => `* ${i}`).join('\n')}
+
+## Instructions
+${recipe.instructions.map((step, idx) => `${idx + 1}. ${step}`).join('\n')}
+
+${recipe.substitutions && recipe.substitutions.length > 0 ? `## Substitutions\n${recipe.substitutions.map(s => `* ${s}`).join('\n')}` : ''}
+
+${recipe.storageTip ? `## Storage\n> ${recipe.storageTip}` : ''}
+
+${recipe.coachTip ? `## Coach's Tip\n> ${recipe.coachTip}` : ''}
+  `.trim();
 
   return (
     <View style={[styles.container, { backgroundColor: colors.bg }]}>
@@ -101,10 +140,10 @@ export default function NutritionDetailModal() {
 
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-          {recipe.tutorialMarkdown ? (
+          {generatedMarkdown ? (
             <View style={styles.markdownContainer}>
               <Markdown style={markdownStyles}>
-                {recipe.tutorialMarkdown}
+                {generatedMarkdown}
               </Markdown>
             </View>
           ) : (
