@@ -27,6 +27,8 @@ export default function WorkoutDetailModal() {
   const [timerState, setTimerState] = useState<'idle' | 'running' | 'paused'>('idle');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<any>(null);
+  // When true the cleanup effect skips saving to global store (used by Close)
+  const destroyedRef = useRef(false);
 
   // Custom themed "Log Workout" dialog state
   const [logDialogVisible, setLogDialogVisible] = useState(false);
@@ -68,7 +70,8 @@ export default function WorkoutDetailModal() {
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (timerState !== 'idle' && id) {
+      // Skip saving if user explicitly destroyed the timer via Close
+      if (!destroyedRef.current && timerState !== 'idle' && id) {
         setActiveWorkoutTimer({
           workoutId: typeof id === 'string' ? id : id[0],
           elapsedSeconds: elapsedSeconds,
@@ -320,7 +323,13 @@ export default function WorkoutDetailModal() {
               </Pressable>
 
               <Pressable
-                onPress={() => { setActiveWorkoutTimer(null); setTimerState('idle'); setElapsedSeconds(0); router.back(); }}
+                onPress={() => {
+                  destroyedRef.current = true;   // prevent cleanup re-save
+                  setActiveWorkoutTimer(null);
+                  setTimerState('idle');
+                  setElapsedSeconds(0);
+                  router.back();
+                }}
                 style={({ pressed }) => ({
                   flexDirection: 'row', alignItems: 'center', gap: 5,
                   paddingHorizontal: 12, paddingVertical: 7,
@@ -396,12 +405,21 @@ export default function WorkoutDetailModal() {
               />
             </View>
 
-            {/* Cancel link */}
+            {/* Cancel */}
             <Pressable
               onPress={() => setLogDialogVisible(false)}
-              style={({ pressed }) => ({ alignItems: 'center', paddingTop: SPACING.sm, opacity: pressed ? 0.6 : 1 })}
+              style={({ pressed }) => ({
+                alignItems: 'center',
+                marginHorizontal: SPACING.lg,
+                marginBottom: SPACING.lg,
+                paddingVertical: SPACING.sm,
+                borderRadius: 100,
+                borderWidth: 1,
+                borderColor: colors.border,
+                opacity: pressed ? 0.6 : 1,
+              })}
             >
-              <Typography variant="caption" color={colors.subtext}>Cancel</Typography>
+              <Typography variant="bodySmall" color={colors.subtext}>Cancel</Typography>
             </Pressable>
           </Card>
         </View>
