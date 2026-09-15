@@ -7,12 +7,13 @@ import { ScreenContainer } from '../../components/ScreenContainer';
 import { SPACING } from '../../constants/theme';
 import { MovementLibrary } from '../../components/library/MovementLibrary';
 import { NutritionLibrary } from '../../components/library/NutritionLibrary';
-import { Activity, Utensils } from 'lucide-react-native';
+import { ProgramsLibrary } from '../../components/library/ProgramsLibrary';
+import { Activity, Utensils, Calendar } from 'lucide-react-native';
 import { t } from '../../i18n';
 
 export default function ExploreScreen() {
   const { colors } = useAppTheme();
-  const [activeTab, setActiveTab] = useState<'movement' | 'nutrition'>('movement');
+  const [activeTab, setActiveTab] = useState<'movement' | 'programs' | 'nutrition'>('movement');
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]} edges={['top']}>
@@ -32,6 +33,16 @@ export default function ExploreScreen() {
                 Workouts
               </Typography>
             </Pressable>
+
+            <Pressable 
+              style={[styles.segmentBtn, activeTab === 'programs' && { backgroundColor: colors.primary, shadowColor: colors.shadow, elevation: 2, shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } }]}
+              onPress={() => setActiveTab('programs')}
+            >
+              <Calendar size={16} color={activeTab === 'programs' ? colors.primaryText : colors.subtext} />
+              <Typography variant="bodyMedium" color={activeTab === 'programs' ? colors.primaryText : colors.subtext} style={{ marginLeft: 6, fontWeight: activeTab === 'programs' ? '600' : '400' }}>
+                Programs
+              </Typography>
+            </Pressable>
             
             <Pressable 
               style={[styles.segmentBtn, activeTab === 'nutrition' && { backgroundColor: colors.primary, shadowColor: colors.shadow, elevation: 2, shadowOpacity: 0.1, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } }]}
@@ -46,7 +57,9 @@ export default function ExploreScreen() {
         </View>
 
         <View>
-          {activeTab === 'movement' ? <MovementLibrary /> : <NutritionLibrary />}
+          {activeTab === 'movement' && <MovementLibrary />}
+          {activeTab === 'programs' && <ProgramsLibrary />}
+          {activeTab === 'nutrition' && <NutritionLibrary />}
         </View>
       </ScreenContainer>
     </SafeAreaView>

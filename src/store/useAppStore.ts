@@ -56,6 +56,10 @@ interface AppState {
   alertState: AlertState;
   activeWorkoutTimer: ActiveWorkoutTimer | null;
 
+  // Workout Plan State
+  activePlanId: string | null;
+  currentPlanDayIndex: number;
+
   // Setters/Actions
   setUiLanguage: (lang: string) => void;
   setUserProfile: (profile: UserProfile | null) => void;
@@ -86,6 +90,11 @@ interface AppState {
   showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
   hideAlert: () => void;
   setActiveWorkoutTimer: (timer: ActiveWorkoutTimer | null) => void;
+
+  // Workout Plan Actions
+  enrollInPlan: (planId: string) => void;
+  quitPlan: () => void;
+  advancePlanDay: () => void;
 
   // AI Governance Actions
   setCachedInsight: (date: string, insight: CachedDailyInsight) => void;
@@ -119,6 +128,8 @@ export const useAppStore = create<AppState>()(
       aiLogs: [],
       alertState: { visible: false, title: '' },
       activeWorkoutTimer: null,
+      activePlanId: null,
+      currentPlanDayIndex: 1,
 
       seedMockData: () => set(getMockSeedData()),
 
@@ -134,6 +145,12 @@ export const useAppStore = create<AppState>()(
       showAlert: (title, message, buttons) => set({ alertState: { visible: true, title, message, buttons } }),
       hideAlert: () => set({ alertState: { visible: false, title: '' } }),
       setActiveWorkoutTimer: (timer) => set({ activeWorkoutTimer: timer }),
+
+      enrollInPlan: (planId) => set({ activePlanId: planId, currentPlanDayIndex: 1 }),
+      quitPlan: () => set({ activePlanId: null, currentPlanDayIndex: 1 }),
+      advancePlanDay: () => set((state) => ({ 
+        currentPlanDayIndex: state.activePlanId ? state.currentPlanDayIndex + 1 : 1 
+      })),
 
       recordActivityStreak: (todayStr) =>
         set((state) => ({

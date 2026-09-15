@@ -31,6 +31,7 @@ import { useRouter } from 'expo-router';
 import { getDailyCalorieBalance, calculateMacroTargets } from '../../domain/calories/calorieEngine';
 import { getRecommendedMealsForToday } from '../../domain/calories/mealRecommendationEngine';
 import { triggerStoreReviewIfAppropriate } from '../../utils/storeReview';
+import { getTodayPlanWorkout, getWorkoutPlanById } from '../../domain/movement/workoutPlans';
 import { logAnalyticsEvent } from '../../services/analyticsService';
 import {
   Sparkles,
@@ -120,6 +121,13 @@ export default function TodayScreen() {
   // AI Daily Insight state
   const [dailyInsight, setDailyInsight] = useState<string>('');
   const [insightLoading, setInsightLoading] = useState(false);
+
+  // Workout Plan State
+  const activePlanId = useAppStore(state => state.activePlanId);
+  const currentPlanDayIndex = useAppStore(state => state.currentPlanDayIndex);
+  
+  const todayPlanItem = activePlanId ? getTodayPlanWorkout(activePlanId, currentPlanDayIndex) : null;
+  const activePlan = activePlanId ? getWorkoutPlanById(activePlanId) : null;
 
   // Today Date & Math
   const todayStr = getTodayStr();
@@ -639,31 +647,72 @@ export default function TodayScreen() {
           <View style={styles.cardTitleRow}>
             <ActivityIcon color={colors.activity} size={20} />
             <Typography variant="h3" style={{ marginLeft: 8 }}>
-              Recommended Workout
+              {activePlan ? `Today's Plan: ${activePlan.title}` : 'Recommended Workout'}
             </Typography>
           </View>
 
-          <View style={styles.activityBadgeRow}>
-            <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.activity} >
-                {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
-              </Typography>
-            </View>
-            {readiness.recommendation.durationMinutes && (
-              <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
-                <Typography variant="caption" color={colors.textPrimary} >
-                  ⏱ {readiness.recommendation.durationMinutes} mins
-                </Typography>
+          {activePlan && todayPlanItem ? (
+            <>
+              <View style={styles.activityBadgeRow}>
+                <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+                  <Typography variant="caption" color={colors.activity}>
+                    DAY {currentPlanDayIndex}
+                  </Typography>
+                </View>
+                {!todayPlanItem.isRest && todayPlanItem.workout && (
+                  <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+                    <Typography variant="caption" color={colors.textPrimary}>
+                      ⏱ {todayPlanItem.workout.durationMinutes} mins
+                    </Typography>
+                  </View>
+                )}
               </View>
-            )}
-          </View>
 
-          <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
-            {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
-          </Typography>
-          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
-            {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
-          </Typography>
+              <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
+                {todayPlanItem.label}
+              </Typography>
+              <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
+                {todayPlanItem.isRest 
+                  ? 'Take today to recover, hydrate, and prepare for your next session.'
+                  : todayPlanItem.workout?.description}
+              </Typography>
+              
+              {!todayPlanItem.isRest && todayPlanItem.workout && (
+                 <Pressable 
+                   style={[styles.libraryLinkBtn, { backgroundColor: colors.primary, marginTop: SPACING.md, alignItems: 'center' }]}
+                   onPress={() => router.push(`/workoutDetailModal?id=${todayPlanItem.workout?.id}`)}
+                 >
+                   <Typography variant="bodyMedium" color={PALETTE.white} style={{ fontWeight: '600' }}>
+                     View Workout →
+                   </Typography>
+                 </Pressable>
+              )}
+            </>
+          ) : (
+            <>
+              <View style={styles.activityBadgeRow}>
+                <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+                  <Typography variant="caption" color={colors.activity} >
+                    {t(`readiness.activityType_${readiness.recommendation.activityType}`, { defaultValue: readiness.recommendation.activityType.replace('_', ' ') }).toUpperCase()}
+                  </Typography>
+                </View>
+                {readiness.recommendation.durationMinutes && (
+                  <View style={[styles.actBadge, { backgroundColor: colors.surface }]}>
+                    <Typography variant="caption" color={colors.textPrimary} >
+                      ⏱ {readiness.recommendation.durationMinutes} mins
+                    </Typography>
+                  </View>
+                )}
+              </View>
+
+              <Typography variant="bodyLarge" style={{ marginTop: 8 }}>
+                {t(`readiness.rec_${readiness.recommendation.recKey}_title`, { defaultValue: readiness.recommendation.title })}
+              </Typography>
+              <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20 }}>
+                {t(`readiness.rec_${readiness.recommendation.recKey}_desc`, { defaultValue: readiness.recommendation.explanation })}
+              </Typography>
+            </>
+          )}
 
 
           <Pressable 
