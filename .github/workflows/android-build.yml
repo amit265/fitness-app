@@ -1,0 +1,81 @@
+name: 🤖 Android Build & Play Store (Internal)
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: 'Build profile'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - preview
+
+jobs:
+  build-and-submit-android:
+    name: Build Android & Submit to Play Store (Internal)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 📥 Install Node dependencies
+        run: npm ci
+
+      - name: 📋 Validate and Fix Dependencies
+        run: npx expo install --check --fix || npx expo install
+
+      - name: 🛠️ Install EAS CLI
+        run: npm install -g eas-cli@latest
+
+      - name: 🔑 Decode Google Services Key
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_KEY_CONTENT }}" | base64 --decode > ./google-services-key.json
+
+      - name: 🔨 Build Android locally (EAS manages signing credentials)
+        run: |
+          eas build \
+            --platform android \
+            --profile ${{ github.event.inputs.profile }} \
+            --local \
+            --non-interactive \
+            --output ${{ github.workspace }}/build/app.aab
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📤 Submit to Play Store (Internal Testing)
+        run: |
+          eas submit \
+            --platform android \
+            --path ${{ github.workspace }}/build/app.aab \
+            --non-interactive \
+            --profile internal
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 🗑️ Cleanup API Key
+        if: always()
+        run: rm -f ./google-services-key.json
+
+      - name: 📁 Upload .aab as artifact (backup)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sini-android-${{ github.run_number }}.aab
+          path: ${{ github.workspace }}/build/app.aab
+          retention-days: 7
