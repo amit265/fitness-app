@@ -154,7 +154,9 @@ export default function RootLayout() {
       <AppSystemUI />
       <IAPProvider>
         <NavigationGuard onHydrated={() => setHydrated(true)}>
-          <Stack screenOptions={{ headerShown: false }}>
+          {/* key forces a full tree re-layout once custom fonts are confirmed
+               at the native renderer level, eliminating font-metrics clipping */}
+          <Stack key={fontsLoaded ? 'fonts-ready' : 'fonts-loading'} screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
             <Stack.Screen name="settings" options={{ headerShown: false }} />

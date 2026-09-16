@@ -456,7 +456,7 @@ export default function TodayScreen() {
           <View style={styles.calorieHeaderRow}>
             <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1, paddingRight: 8 }}>
               <Flame color={colors.nutrition} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 6 }} numberOfLines={1} adjustsFontSizeToFit={true}>
+              <Typography variant="h3" style={{ marginLeft: 6 }} numberOfLines={1}>
                 {t('home.energyBalance', { defaultValue: "Energy Balance" })}
               </Typography>
             </View>
@@ -564,19 +564,19 @@ export default function TodayScreen() {
               <View style={[styles.macroMiniRow, { marginTop: 6, gap: 4, flexWrap: 'nowrap' }]}>
                 <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 4, borderRadius: 8, minWidth: 0 }]}>
                   <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10 }}>Protein</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} adjustsFontSizeToFit={true} numberOfLines={1}>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} numberOfLines={1}>
                     {Math.round(calorieBalance.proteinConsumed)}/{macroTargets.proteinG}g
                   </Typography>
                 </View>
                 <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 4, borderRadius: 8, minWidth: 0 }]}>
                   <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10 }}>Carbs</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} adjustsFontSizeToFit={true} numberOfLines={1}>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} numberOfLines={1}>
                     {Math.round(calorieBalance.carbsConsumed)}/{macroTargets.carbsG}g
                   </Typography>
                 </View>
                 <View style={[styles.macroMiniItem, { backgroundColor: colors.surface + '60', padding: 4, borderRadius: 8, minWidth: 0 }]}>
                   <Typography variant="caption" color={colors.subtext} style={{ fontSize: 10 }}>Fat</Typography>
-                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} adjustsFontSizeToFit={true} numberOfLines={1}>
+                  <Typography variant="bodySmall" color={colors.textPrimary} style={{ fontWeight: '600', fontSize: 11 }} numberOfLines={1}>
                     {Math.round(calorieBalance.fatConsumed)}/{macroTargets.fatG}g
                   </Typography>
                 </View>
@@ -605,7 +605,6 @@ export default function TodayScreen() {
             variant={todayCheckIn ? 'secondary' : 'primary'}
             onPress={() => setCheckInModalVisible(true)}
             style={{ marginTop: SPACING.md }}
-            adjustsFontSizeToFit={true}
           />
         </Card>
 
@@ -732,7 +731,7 @@ export default function TodayScreen() {
           <Pressable style={styles.targetsHeaderRow} onPress={() => setTargetsExpanded(!targetsExpanded)}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1, paddingRight: 8 }}>
               <Award color={colors.ovulation} size={20} />
-              <Typography variant="h3" numberOfLines={1} adjustsFontSizeToFit={true}>
+              <Typography variant="h3" numberOfLines={1}>
                 {t('home.dailyMilestones', { defaultValue: "Daily Milestones" })}
               </Typography>
             </View>

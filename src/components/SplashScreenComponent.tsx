@@ -171,7 +171,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     justifyContent: 'center',
     alignItems: 'center',
-    overflow: 'hidden',
+    // Note: intentionally no overflow:hidden — it was clipping wide letter-spaced
+    // text (DESTYA STUDIO) during the font-metrics race condition on first render
     zIndex: 99999,
   },
   glowTop: {
@@ -221,12 +222,17 @@ const styles = StyleSheet.create({
   footerContainer: {
     position: 'absolute',
     bottom: 48,
+    left: 0,
+    right: 0,
     alignItems: 'center',
+    paddingHorizontal: 24,
   },
   brandingText: {
     fontSize: 11,
     fontFamily: 'Urbanist-Bold',
     letterSpacing: 1.5,
     textAlign: 'center',
+    // Explicit width ensures text is never constrained by an undefined parent width
+    width: '100%',
   },
 });
