@@ -62,6 +62,7 @@ import { useFocusEffect } from 'expo-router';
 import { useResponsive } from '../../utils/responsive';
 import { ScreenContainer } from '../../components/ScreenContainer';
 import Markdown from 'react-native-markdown-display';
+import { WaterReminderModal } from '../../components/WaterReminderModal';
 
 export default function TodayScreen() {
   const { colors, isDark } = useAppTheme();
@@ -101,6 +102,8 @@ export default function TodayScreen() {
   const recordActivityStreak = useAppStore((state) => state.recordActivityStreak);
   const activeWorkoutTimer = useAppStore((state) => state.activeWorkoutTimer);
   const setActiveWorkoutTimer = useAppStore((state) => state.setActiveWorkoutTimer);
+  const waterReminderShownWindows = useAppStore((state) => state.waterReminderShownWindows);
+  const markWaterReminderShown = useAppStore((state) => state.markWaterReminderShown);
 
   useEffect(() => {
     // Midnight kill-switch for timer
@@ -113,6 +116,9 @@ export default function TodayScreen() {
   const [targetsExpanded, setTargetsExpanded] = useState(false);
   const [checkInModalVisible, setCheckInModalVisible] = useState(false);
   const hasAutoOpenedCheckIn = useRef(false);
+  const [waterReminderVisible, setWaterReminderVisible] = useState(false);
+  const [waterReminderWindow, setWaterReminderWindow] = useState('midday');
+  const hasTriggeredWaterReminder = useRef(false);
   const [coachChatVisible, setCoachChatVisible] = useState(false);
   const [coachInitialQuery, setCoachInitialQuery] = useState<string | undefined>(undefined);
   
@@ -192,6 +198,34 @@ export default function TodayScreen() {
         return () => clearTimeout(timer);
       }
     }, [todayCheckIn])
+  );
+
+  // Water reminder time-window detection
+  const getWaterReminderWindow = (): string | null => {
+    const hour = new Date().getHours();
+    if (hour >= 7 && hour < 10) return 'morning';
+    if (hour >= 12 && hour < 14) return 'midday';
+    if (hour >= 15 && hour < 17) return 'afternoon';
+    if (hour >= 19 && hour < 21) return 'evening';
+    return null;
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      if (hasTriggeredWaterReminder.current) return;
+      const window = getWaterReminderWindow();
+      if (!window) return;
+      const windowKey = `${todayStr}_${window}`;
+      if (waterReminderShownWindows.includes(windowKey)) return;
+      // Delay slightly so it doesn't overlap with check-in modal
+      const timer = setTimeout(() => {
+        hasTriggeredWaterReminder.current = true;
+        markWaterReminderShown(windowKey);
+        setWaterReminderWindow(window);
+        setWaterReminderVisible(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }, [todayStr, waterReminderShownWindows])
   );
 
   const fetchDailyInsight = async (forceRefresh: boolean = false) => {
@@ -843,6 +877,13 @@ export default function TodayScreen() {
         visible={coachChatVisible}
         onClose={() => setCoachChatVisible(false)}
         initialQuery={coachInitialQuery}
+      />
+
+      {/* Water Reminder Modal */}
+      <WaterReminderModal
+        visible={waterReminderVisible}
+        windowKey={waterReminderWindow}
+        onClose={() => setWaterReminderVisible(false)}
       />
 
       {/* Daily Check-In Modal */}

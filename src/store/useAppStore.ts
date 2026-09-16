@@ -62,6 +62,9 @@ interface AppState {
   activePlanId: string | null;
   currentPlanDayIndex: number;
 
+  // Water Reminder Tracking
+  waterReminderShownWindows: string[]; // e.g. ['2026-09-16_morning', '2026-09-16_midday']
+
   // Setters/Actions
   setUiLanguage: (lang: string) => void;
   setUserProfile: (profile: UserProfile | null) => void;
@@ -95,6 +98,7 @@ interface AppState {
   showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
   hideAlert: () => void;
   setActiveWorkoutTimer: (timer: ActiveWorkoutTimer | null) => void;
+  markWaterReminderShown: (windowKey: string) => void;
 
   // Workout Plan Actions
   enrollInPlan: (planId: string) => void;
@@ -136,6 +140,7 @@ export const useAppStore = create<AppState>()(
       activeWorkoutTimer: null,
       activePlanId: null,
       currentPlanDayIndex: 1,
+      waterReminderShownWindows: [],
 
       seedMockData: () => set(getMockSeedData()),
 
@@ -151,6 +156,15 @@ export const useAppStore = create<AppState>()(
       showAlert: (title, message, buttons) => set({ alertState: { visible: true, title, message, buttons } }),
       hideAlert: () => set({ alertState: { visible: false, title: '' } }),
       setActiveWorkoutTimer: (timer) => set({ activeWorkoutTimer: timer }),
+
+      markWaterReminderShown: (windowKey) =>
+        set((state) => ({
+          waterReminderShownWindows: [
+            // Keep only today's entries (prune old dates automatically)
+            ...state.waterReminderShownWindows.filter((k) => k.startsWith(new Date().toISOString().split('T')[0])),
+            windowKey,
+          ],
+        })),
 
       enrollInPlan: (planId) => set({ activePlanId: planId, currentPlanDayIndex: 1 }),
       quitPlan: () => set({ activePlanId: null, currentPlanDayIndex: 1 }),
@@ -322,6 +336,7 @@ export const useAppStore = create<AppState>()(
           streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: null },
           dailyInsightCache: {},
           aiLogs: [],
+          waterReminderShownWindows: [],
         }),
     }),
     {
