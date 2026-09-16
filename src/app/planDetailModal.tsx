@@ -37,7 +37,7 @@ export default function PlanDetailModal() {
   const handleStartPlan = () => {
     enrollInPlan(plan.id);
     useAppStore.getState().showAlert('Plan Started!', `You are now enrolled in ${plan.title}.`);
-    router.dismissAll();
+    router.back();
   };
 
   const renderPhaseSection = (phaseName: string, phaseKey: keyof WorkoutPlan['phaseWorkouts'], accentColor: string) => {

@@ -565,7 +565,7 @@ export default function TodayScreen() {
         {/* 2. ACTIVITY & RECOVERY PLAN */}
         <Card style={[styles.activityPlanCard, { padding: 0, overflow: 'hidden' }]}>
           <Image 
-            source={todayPlanItem?.workout?.imageUrl ? { uri: todayPlanItem.workout.imageUrl } : require('../../../assets/images/workouts/ovulatory_strength_pr.jpg')}
+            source={todayPlanItem?.workout?.imageUrl ? todayPlanItem.workout.imageUrl : require('../../../assets/images/workouts/ovulatory_strength_pr.jpg')}
             style={{ width: '100%', height: isTablet ? 300 : 200 }}
             resizeMode="cover"
           />

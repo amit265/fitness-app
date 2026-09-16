@@ -130,7 +130,11 @@ export default function WorkoutDetailModal() {
         notes: `Completed: ${workout.title}`,
         source: 'database'
       });
+      // Mark as destroyed so the cleanup effect does NOT re-save the timer
+      destroyedRef.current = true;
       setActiveWorkoutTimer(null);
+      // Reset local timer state so cleanup sees 'idle' even if it runs
+      setTimerState('idle');
       router.back();
     };
 
@@ -141,6 +145,7 @@ export default function WorkoutDetailModal() {
       setPendingLogCallback(() => logActivity);
       setLogDialogVisible(true);
     } else {
+      // If timer is idle, log the full recommended duration; otherwise log what was tracked
       logActivity(timerState === 'idle' ? workout.durationMinutes : trackedMinutes);
     }
   };
