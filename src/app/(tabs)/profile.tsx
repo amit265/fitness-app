@@ -177,6 +177,13 @@ export default function ProfileScreen() {
               </Typography>
             </View>
 
+            <Pressable 
+              onPress={() => router.push('/edit-profile')} 
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, paddingVertical: 6, paddingHorizontal: 16, backgroundColor: colors.surface, borderRadius: 20 }}
+            >
+              <Typography variant="caption" style={{ fontWeight: '600' }}>Edit Profile</Typography>
+            </Pressable>
+
             <View style={styles.biometricsStrip}>
               <View style={styles.bioItem}>
                 <Typography variant="caption" color={colors.subtext}>{t('onboarding.ageLabel')}</Typography>
@@ -381,7 +388,7 @@ export default function ProfileScreen() {
                 <User size={18} color={colors.nutrition} />
               </View>
               <View style={styles.rowTextCol}>
-                <Typography variant="bodyMedium" style={styles.rowTitle}>{t('profile.nutritionWeightGoals')}</Typography>
+                <Typography variant="bodyMedium" style={styles.rowTitle}>Personal Info & Goals</Typography>
                 <Typography variant="caption" color={colors.subtext}>
                   {(userProfile?.weightGoal || 'wellness').toUpperCase()} · {(userProfile?.regionalCuisine || 'indian').toUpperCase()} cuisine
                 </Typography>
