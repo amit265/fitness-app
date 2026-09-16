@@ -217,8 +217,7 @@ const styles = StyleSheet.create({
   },
   fullScreenContent: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%',
   },
   fullScreenImage: {
     width: '100%',
