@@ -46,17 +46,23 @@ jobs:
       - name: 🛠️ Install EAS CLI
         run: npm install -g eas-cli@latest
 
-      - name: 🔑 Decode App Store Connect API Key
+      - name: 🔑 Generate App Store Connect API Key JSON
+        env:
+          B64_KEY: ${{ secrets.ASC_API_KEY_CONTENT }}
+          KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
         run: |
           mkdir -p /tmp/asc
-          echo "${{ secrets.ASC_API_KEY_CONTENT }}" | base64 --decode > /tmp/asc/AuthKey.p8
-          cat <<EOF > /tmp/asc/api_key.json
-          {
-            "key_id": "${{ secrets.ASC_API_KEY_ID }}",
-            "issuer_id": "${{ secrets.ASC_API_ISSUER_ID }}",
-            "key_filepath": "/tmp/asc/AuthKey.p8"
-          }
-          EOF
+          python3 -c '
+          import json, os, base64
+          content = base64.b64decode(os.environ["B64_KEY"]).decode("utf-8")
+          with open("/tmp/asc/api_key.json", "w") as f:
+              json.dump({
+                  "key_id": os.environ["KEY_ID"],
+                  "issuer_id": os.environ["ISSUER_ID"],
+                  "key": content
+              }, f)
+          '
 
       - name: 🔨 Build iOS locally (EAS manages signing credentials)
         run: |
