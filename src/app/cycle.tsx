@@ -453,7 +453,7 @@ export default function DedicatedCyclePage() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                ~{stats.averageCycleLength} {t('common.days_other', { count: stats.averageCycleLength })}
+                ~{t('common.days_other', { count: stats.averageCycleLength })}
               </Typography>
             </View>
             <View style={[styles.statusGridItem, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -467,7 +467,7 @@ export default function DedicatedCyclePage() {
                 numberOfLines={1}
                 adjustsFontSizeToFit
               >
-                ~{stats.averagePeriodDuration} {t('common.days_other', { count: stats.averagePeriodDuration })}
+                ~{t('common.days_other', { count: stats.averagePeriodDuration })}
               </Typography>
             </View>
           </View>
