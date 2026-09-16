@@ -16,12 +16,13 @@ import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { InputField } from '../../components/InputField';
-import { LineChart } from '../../components/LineChart';
 import { useAppStore } from '../../store/useAppStore';
 import { getCycleState } from '../../domain/cycle/cycleEngine';
-import { getMeasurementTrend } from '../../utils/trends';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
 import { getTodayStr } from '../../utils/date';
+import { HistoryCard } from '../../components/progress/HistoryCard';
+import { MeasurementTrendsCard, TimeWindow, MetricType } from '../../components/progress/MeasurementTrendsCard';
+import { BodyMeasurementsCard } from '../../components/progress/BodyMeasurementsCard';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppTheme } from '../../context/ThemeContext';
@@ -43,7 +44,6 @@ import { t, formatDate, formatNumber } from '../../i18n';
 import { useResponsive } from '../../utils/responsive';
 
 import { ScreenContainer } from '../../components/ScreenContainer';
-type TimeWindow = 7 | 30 | 90;
 
 export default function ProgressScreen() {
   const router = useRouter();
@@ -114,7 +114,7 @@ export default function ProgressScreen() {
   // States
   const [timeWindow, setTimeWindow] = useState<TimeWindow>(30);
   const [measureModalVisible, setMeasureModalVisible] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState<'weight' | 'waist' | 'hips' | 'chest' | 'thigh'>('weight');
+  const [selectedMetric, setSelectedMetric] = useState<MetricType>('weight');
 
   // Manual Measurement Form State
   const [weightInput, setWeightInput] = useState('');
@@ -123,15 +123,7 @@ export default function ProgressScreen() {
   const [chestInput, setChestInput] = useState('');
   const [thighInput, setThighInput] = useState('');
 
-  // Trend Data
-  const trendData = getMeasurementTrend(measurements, timeWindow, selectedMetric);
   const latestWeight = measurements[0]?.weight ?? null;
-  const sortedByAge = [...measurements].sort((a, b) => a.date.localeCompare(b.date));
-  const baselineWeight = sortedByAge[0]?.weight ?? null;
-
-  const weightChange = latestWeight !== null && baselineWeight !== null
-    ? parseFloat((latestWeight - baselineWeight).toFixed(1))
-    : null;
 
   // BMI calculations
   const currentHeight = userProfile?.height ?? 0;
@@ -144,6 +136,15 @@ export default function ProgressScreen() {
   const latestHips = measurements.find((m) => m.hips !== undefined)?.hips;
   const latestChest = measurements.find((m) => m.chest !== undefined)?.chest;
   const latestThigh = measurements.find((m) => m.thigh !== undefined)?.thigh;
+
+  const handleOpenMeasureModal = () => {
+    setWeightInput(latestWeight ? latestWeight.toString() : '');
+    setWaistInput(latestWaist ? latestWaist.toString() : '');
+    setHipsInput(latestHips ? latestHips.toString() : '');
+    setChestInput(latestChest ? latestChest.toString() : '');
+    setThighInput(latestThigh ? latestThigh.toString() : '');
+    setMeasureModalVisible(true);
+  };
 
   const handleSaveMeasurements = () => {
     addMeasurement({
@@ -202,188 +203,47 @@ export default function ProgressScreen() {
         </View>
 
         {/* 1. Weight Trends Card */}
-        <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <TrendingUp color={colors.primary} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 8 }}>
-                {t('progress.weightTrend')}
-              </Typography>
-            </View>
-          </View>
-
-          {/* Time Window Chips */}
-          <View style={styles.timeWindowRow}>
-            {[7, 30, 90].map((days) => (
-              <Pressable
-                key={days}
-                style={[
-                  styles.windowChip,
-                  timeWindow === days ? { backgroundColor: colors.primary } : { backgroundColor: colors.surface },
-                ]}
-                onPress={() => setTimeWindow(days as TimeWindow)}
-              >
-                <Typography variant="caption" color={timeWindow === days ? colors.primaryText : colors.textPrimary}>
-                  {days === 7 ? t('progress.range7d') : days === 30 ? t('progress.range30d') : t('progress.rangeAll')}
-                </Typography>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Summary Stat Grid */}
-          <View style={styles.statGrid}>
-            <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>{t('progress.currentWeight')}</Typography>
-              <Typography variant="h2" >
-                {latestWeight ? `${latestWeight} kg` : '--'}
-              </Typography>
-            </View>
-            <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>{t('progress.weightChange')}</Typography>
-              <Typography variant="h2" color={weightChange && weightChange <= 0 ? colors.activity : colors.nutrition} >
-                {weightChange !== null ? `${weightChange > 0 ? '+' : ''}${weightChange} kg` : '--'}
-              </Typography>
-            </View>
-            <View style={styles.statBox}>
-              <Typography variant="caption" color={colors.subtext}>{t('profile.bmiLabel')}</Typography>
-              <Typography variant="h3" color={colors.primary} >
-                {bmiCategoryTranslated}
-              </Typography>
-            </View>
-          </View>
-
-          {/* Metric Chips */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: SPACING.md }}>
-            {['weight', 'waist', 'hips', 'chest', 'thigh'].map((metric) => (
-              <Pressable
-                key={metric}
-                style={[
-                  styles.windowChip,
-                  { marginRight: 8 },
-                  selectedMetric === metric ? { backgroundColor: colors.primary } : { backgroundColor: colors.surface },
-                ]}
-                onPress={() => setSelectedMetric(metric as any)}
-              >
-                <Typography variant="caption" color={selectedMetric === metric ? colors.primaryText : colors.textPrimary} style={{ textTransform: 'capitalize' }}>
-                  {metric}
-                </Typography>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          {/* Line Chart */}
-          <View style={{ marginTop: SPACING.sm }}>
-            <LineChart data={trendData.values} labels={trendData.labels} height={160} />
-          </View>
-        </Card>
+        <MeasurementTrendsCard
+          measurements={measurements}
+          bmiCategoryTranslated={bmiCategoryTranslated}
+          timeWindow={timeWindow}
+          setTimeWindow={setTimeWindow}
+          selectedMetric={selectedMetric}
+          setSelectedMetric={setSelectedMetric}
+        />
 
         {/* 2. Body Measurements Card */}
-        <Card style={[styles.card, { padding: 0, overflow: 'hidden' }]}>
-          <Image 
-            source={require('../../../assets/images/girl_measuring_waist.jpg')} 
-            style={{ width: '100%', height: 160 }} 
-            resizeMode="cover" 
-          />
-          <View style={{ padding: SPACING.md }}>
-            <View style={styles.cardHeaderRow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ruler color={colors.period} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 8 }}>
-                {t('progress.logMeasurement')}
-              </Typography>
-            </View>
-            <Pressable onPress={() => setMeasureModalVisible(true)}>
-              <Typography variant="caption" color={colors.period} >
-                + {t('common.edit')}
-              </Typography>
-            </Pressable>
-          </View>
+        <BodyMeasurementsCard
+          latestWaist={latestWaist}
+          latestHips={latestHips}
+          latestChest={latestChest}
+          latestThigh={latestThigh}
+          onEdit={handleOpenMeasureModal}
+        />
 
-          <View style={styles.measurementsGrid}>
-            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>{t('progress.waist')}</Typography>
-              <Typography variant="h2" style={{ marginTop: 4 }}>
-                {latestWaist ? `${latestWaist} cm` : '--'}
-              </Typography>
-            </View>
-            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>{t('progress.hips')}</Typography>
-              <Typography variant="h2" style={{ marginTop: 4 }}>
-                {latestHips ? `${latestHips} cm` : '--'}
-              </Typography>
-            </View>
-            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>{t('progress.chest')}</Typography>
-              <Typography variant="h2" style={{ marginTop: 4 }}>
-                {latestChest ? `${latestChest} cm` : '--'}
-              </Typography>
-            </View>
-            <View style={[styles.measureCard, { backgroundColor: colors.surface }]}>
-              <Typography variant="caption" color={colors.subtext}>{t('progress.thigh')}</Typography>
-              <Typography variant="h2" style={{ marginTop: 4 }}>
-                {latestThigh ? `${latestThigh} cm` : '--'}
-              </Typography>
-            </View>
-          </View>
-          </View>
-        </Card>
+        {/* 3. Progress Photos History */}
+        <HistoryCard
+          icon={<Camera color={colors.primary} size={20} />}
+          title="Progress Photos"
+          subtext={`Recent uploads: ${progressPhotos?.length || 0}`}
+          onPress={() => router.push('/progress-photos')}
+        />
 
-        {/* Progress Photos Card */}
-        <Pressable onPress={() => router.push('/progress-photos')}>
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
-                <Camera color={colors.primary} size={20} />
-                <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
-                  Progress Photos
-                </Typography>
-              </View>
-              <View style={{ padding: 6, backgroundColor: colors.surface, borderRadius: 8 }}>
-                <ChevronRight color={colors.primary} size={20} />
-              </View>
-            </View>
-            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-              Recent uploads: {progressPhotos?.length || 0}
-            </Typography>
-          </Card>
-        </Pressable>
+        {/* 4. Calories & Activity History */}
+        <HistoryCard
+          icon={<Flame color={colors.nutrition} size={20} />}
+          title={`${t('nutrition.title')} • ${t('activity.title')}`}
+          subtext={`${t('nutrition.recentMeals')}: ${meals.length} · ${t('activity.recentWorkouts')}: ${activities.length}`}
+        />
 
-        {/* 3. Calories & Activity History */}
-        <Pressable>
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
-                <Flame color={colors.nutrition} size={20} />
-                <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
-                  {t('nutrition.title')} • {t('activity.title')}
-                </Typography>
-              </View>
-            </View>
-            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-              {t('nutrition.recentMeals')}: {meals.length} · {t('activity.recentWorkouts')}: {activities.length}
-            </Typography>
-          </Card>
-        </Pressable>
-
-        {/* 4. Sleep, Readiness & Cycle History */}
-        <Pressable onPress={() => router.push('/cycle')}>
-          <Card style={styles.card}>
-            <View style={styles.cardHeaderRow}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
-                <CalendarIcon color={colors.activity} size={20} />
-                <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
-                  {t('cycle.cycleHistory')}
-                </Typography>
-              </View>
-              <View style={{ padding: 6, backgroundColor: colors.surface, borderRadius: 8 }}>
-                <ChevronRight color={colors.activity} size={20} />
-              </View>
-            </View>
-            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-              {t('cycle.title')}: {periods.length}
-            </Typography>
-          </Card>
-        </Pressable>
+        {/* 5. Sleep, Readiness & Cycle History */}
+        <HistoryCard
+          icon={<CalendarIcon color={colors.activity} size={20} />}
+          title={t('cycle.cycleHistory')}
+          subtext={`${t('cycle.title')}: ${periods.length}`}
+          onPress={() => router.push('/cycle')}
+          chevronColor={colors.activity}
+        />
 
         {/* Native Ad Card */}
         
@@ -419,14 +279,5 @@ const styles = StyleSheet.create({
     gap: SPACING.md,
   },
   header: { marginBottom: SPACING.xs },
-  card: { padding: SPACING.md },
-  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.sm },
-  addBtn: { flexDirection: 'row', alignItems: 'center' },
-  timeWindowRow: { flexDirection: 'row', gap: 8, marginBottom: SPACING.md },
-  windowChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 100, borderWidth: 1, borderColor: 'rgba(0,0,0,0.1)' },
-  statGrid: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-  statBox: { flex: 1, alignItems: 'center' },
-  measurementsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: SPACING.sm },
-  measureCard: { width: '47%', padding: SPACING.md, borderRadius: 16, alignItems: 'center' },
   modalContainer: { flex: 1 },
 });
