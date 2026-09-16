@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
+import ImageViewer from 'react-native-image-zoom-viewer';
 import { formatDate } from '../i18n';
 import { ScreenContainer } from '../components/ScreenContainer';
 
@@ -130,19 +131,14 @@ export default function ProgressPhotosScreen() {
             </View>
             <View style={styles.fullScreenContent}>
               {selectedPhoto && (
-                <ScrollView 
-                  contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}
-                  maximumZoomScale={4}
-                  minimumZoomScale={1}
-                  showsHorizontalScrollIndicator={false}
-                  showsVerticalScrollIndicator={false}
-                >
-                  <Image 
-                    source={{ uri: progressPhotos.find(p => p.id === selectedPhoto)?.uri }} 
-                    style={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height * 0.8 }} 
-                    resizeMode="contain" 
-                  />
-                </ScrollView>
+                <ImageViewer 
+                  imageUrls={sortedPhotos.map(p => ({ url: p.uri }))} 
+                  index={Math.max(0, sortedPhotos.findIndex(p => p.id === selectedPhoto))}
+                  backgroundColor="transparent"
+                  enableSwipeDown={true}
+                  onSwipeDown={() => setSelectedPhoto(null)}
+                  renderIndicator={() => <View />}
+                />
               )}
             </View>
           </SafeAreaView>
@@ -209,7 +205,7 @@ const styles = StyleSheet.create({
   },
   fullScreenModal: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.95)',
+    backgroundColor: 'rgba(0,0,0,0.85)',
   },
   fullScreenHeader: {
     flexDirection: 'row',
