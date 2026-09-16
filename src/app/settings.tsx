@@ -40,6 +40,7 @@ import { Alert } from '../utils/alertUtils';
 
 
 import { useResponsive } from '../utils/responsive';
+import * as StoreReview from 'expo-store-review';
 
 import { ScreenContainer } from '../components/ScreenContainer';
 export default function SettingsScreen() {
@@ -98,6 +99,17 @@ export default function SettingsScreen() {
     useAppStore.getState().showAlert(res.success ? t('settings.purchasesRestored') : t('settings.restoreNotice'), res.message);
   };
 
+  const handleRateApp = async () => {
+    try {
+      if (await StoreReview.hasAction()) {
+        await StoreReview.requestReview();
+      } else {
+        useAppStore.getState().showAlert('Unable to review', 'Store review is not available on this device right now.');
+      }
+    } catch (e) {
+      console.log('Store review error', e);
+    }
+  };
   
   const handleShareApp = async () => {
     try {
@@ -301,6 +313,19 @@ export default function SettingsScreen() {
             <View style={styles.rowTextCol}>
               <Typography variant="bodyMedium" style={styles.rowTitle}>{t('settings.shareApp')}</Typography>
               <Typography variant="caption" color={colors.subtext}>{t('settings.shareDesc')}</Typography>
+            </View>
+            <ChevronRight size={18} color={colors.subtext} />
+          </Pressable>
+
+          <View style={styles.rowSeparator} />
+
+          <Pressable style={({ pressed }) => [styles.rowItem, pressed && styles.pressedRow]} onPress={handleRateApp}>
+            <View style={[styles.rowIconCircle, { backgroundColor: colors.surface }]}>
+              <Star size={18} color={PALETTE.gold.default} />
+            </View>
+            <View style={styles.rowTextCol}>
+              <Typography variant="bodyMedium" style={styles.rowTitle}>Rate the App</Typography>
+              <Typography variant="caption" color={colors.subtext}>Enjoying the app? Leave a review!</Typography>
             </View>
             <ChevronRight size={18} color={colors.subtext} />
           </Pressable>
