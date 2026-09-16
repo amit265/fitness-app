@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform,  } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { Typography } from '../../components/Typography';
 import { SiniAvatar } from '../../components/SiniAvatar';
 import { useAppStore } from '../../store/useAppStore';
@@ -121,7 +121,14 @@ export default function ProfileScreen() {
           {/* Top Hero User Identity Card */}
           <View style={[styles.heroProfileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.avatarWrapper}>
-              <SiniAvatar size={76} variant="plum" />
+              {userProfile?.profilePictureUri ? (
+                <Image 
+                  source={{ uri: userProfile.profilePictureUri }} 
+                  style={{ width: 76, height: 76, borderRadius: 38 }} 
+                />
+              ) : (
+                <SiniAvatar size={76} variant="plum" />
+              )}
               <View style={styles.streakBadgeOverlay}>
                 <Flame size={14} color={colors.ovulation} />
                 <Typography variant="caption" color={colors.ovulation} style={{ marginLeft: 2 }}>

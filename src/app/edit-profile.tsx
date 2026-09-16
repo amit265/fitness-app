@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, useColorScheme, ScrollView, Switch, Pressable, KeyboardAvoidingView, Platform, } from 'react-native';
+import { View, StyleSheet, useColorScheme, ScrollView, Switch, Pressable, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
+import { SiniAvatar } from '../components/SiniAvatar';
 import { AppModal as Modal } from '../components/AppModal';
 import { Typography } from '../components/Typography';
 import { Card } from '../components/Card';
@@ -27,6 +30,7 @@ export default function EditProfileScreen() {
   const setCyclePreferences = useAppStore((state) => state.setCyclePreferences);
 
   // Form States
+  const [profilePictureUri, setProfilePictureUri] = useState(userProfile?.profilePictureUri || '');
   const [name, setName] = useState(userProfile?.name || '');
   const [age, setAge] = useState(String(userProfile?.age || '28'));
   const [height, setHeight] = useState(String(userProfile?.height || '165'));
@@ -58,6 +62,7 @@ export default function EditProfileScreen() {
       groqApiKey: userProfile?.groqApiKey || '',
       hasCompletedOnboarding: true,
       pauseCycleTracking: pauseCycle,
+      profilePictureUri,
     });
 
     // Update Cycle Preferences
@@ -96,6 +101,41 @@ export default function EditProfileScreen() {
               {t('editProfile.title')}
             </Typography>
             <View style={{ width: 40 }} />
+          </View>
+
+          {/* Profile Picture Picker */}
+          <View style={styles.avatarSection}>
+            <Pressable 
+              onPress={async () => {
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.8,
+                });
+                if (!result.canceled && result.assets && result.assets[0]) {
+                  try {
+                    const sourceUri = result.assets[0].uri;
+                    const filename = sourceUri.split('/').pop() || `avatar_${Date.now()}.jpg`;
+                    const destUri = `${FileSystem.documentDirectory}${filename}`;
+                    await FileSystem.copyAsync({ from: sourceUri, to: destUri });
+                    setProfilePictureUri(destUri);
+                  } catch (e) {
+                    console.error('Failed to save profile picture', e);
+                  }
+                }
+              }}
+              style={({ pressed }) => [styles.avatarPicker, pressed && { opacity: 0.7 }]}
+            >
+              {profilePictureUri ? (
+                <Image source={{ uri: profilePictureUri }} style={styles.avatarImage} />
+              ) : (
+                <SiniAvatar size={100} variant="plum" />
+              )}
+              <View style={styles.editBadge}>
+                <Typography variant="caption" style={{ color: '#FFF' }}>Edit</Typography>
+              </View>
+            </Pressable>
           </View>
 
           {/* Section 1: Biometrics & Personal Info */}
@@ -357,6 +397,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: SPACING.md,
+  },
+  avatarSection: {
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+  },
+  avatarPicker: {
+    position: 'relative',
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: PALETTE.charcoal.default,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#FFF',
   },
   backBtn: {
     padding: SPACING.xs,

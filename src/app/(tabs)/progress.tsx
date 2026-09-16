@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
@@ -328,55 +328,21 @@ export default function ProgressScreen() {
         </Card>
 
         {/* Progress Photos Card */}
-        <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
+        <Pressable onPress={() => router.push('/progress-photos')}>
+          <Card style={[styles.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Typography variant="h3">
                 Progress Photos
               </Typography>
             </View>
-            <Pressable onPress={handleAddPhoto}>
-              <Typography variant="caption" color={colors.primary} >
-                + Add Photo
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Typography variant="caption" color={colors.subtext} style={{ marginRight: 8 }}>
+                {progressPhotos?.length || 0} {progressPhotos?.length === 1 ? 'Photo' : 'Photos'}
               </Typography>
-            </Pressable>
-          </View>
-
-          {progressPhotos.length === 0 ? (
-            <View style={{ padding: SPACING.md, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 12 }}>
-              <Typography variant="bodyMedium" color={colors.subtext} style={{ textAlign: 'center' }}>
-                Take photos over time to visually track your progress.
-              </Typography>
-              <Button 
-                title="Add Your First Photo" 
-                variant="outline"
-                onPress={handleAddPhoto} 
-                style={{ marginTop: SPACING.md }} 
-              />
+              <ChevronRight color={colors.subtext} size={20} />
             </View>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: SPACING.sm }}>
-              {progressPhotos.map((photo) => (
-                <View key={photo.id} style={{ marginRight: SPACING.md }}>
-                  <Image 
-                    source={{ uri: photo.uri }} 
-                    style={{ width: 120, height: 160, borderRadius: 12 }} 
-                    resizeMode="cover" 
-                  />
-                  <Typography variant="caption" color={colors.subtext} style={{ marginTop: 4, textAlign: 'center' }}>
-                    {formatDate(photo.date, uiLanguage)}
-                  </Typography>
-                  <Pressable 
-                    style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 4 }}
-                    onPress={() => deleteProgressPhoto(photo.id)}
-                  >
-                    <Typography variant="caption" style={{ color: 'white' }}>X</Typography>
-                  </Pressable>
-                </View>
-              ))}
-            </ScrollView>
-          )}
-        </Card>
+          </Card>
+        </Pressable>
 
         {/* 3. Calories & Activity History */}
         <Card style={styles.card}>

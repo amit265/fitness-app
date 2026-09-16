@@ -20,6 +20,7 @@ export interface UserProfile {
   hasCompletedOnboarding: boolean;
   pauseCycleTracking?: boolean;
   lastMeasurementPromptDate?: string;
+  profilePictureUri?: string;
 }
 
 export interface PeriodLog {

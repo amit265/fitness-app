@@ -12,6 +12,7 @@ import {
   CachedDailyInsight,
   AIMonitoringLog,
   CustomFood,
+  ProgressPhoto,
 } from '../types';
 
 export interface ActiveWorkoutTimer {
