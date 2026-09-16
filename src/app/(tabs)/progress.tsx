@@ -36,6 +36,7 @@ import {
   Calendar as CalendarIcon,
   Plus,
   ChevronRight,
+  Camera,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { t, formatDate, formatNumber } from '../../i18n';
@@ -329,53 +330,60 @@ export default function ProgressScreen() {
 
         {/* Progress Photos Card */}
         <Pressable onPress={() => router.push('/progress-photos')}>
-          <Card style={[styles.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Typography variant="h3">
-                Progress Photos
-              </Typography>
+          <Card style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
+                <Camera color={colors.primary} size={20} />
+                <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
+                  Progress Photos
+                </Typography>
+              </View>
+              <View style={{ padding: 6, backgroundColor: colors.surface, borderRadius: 8 }}>
+                <ChevronRight color={colors.primary} size={20} />
+              </View>
             </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Typography variant="caption" color={colors.subtext} style={{ marginRight: 8 }}>
-                {progressPhotos?.length || 0} {progressPhotos?.length === 1 ? 'Photo' : 'Photos'}
-              </Typography>
-              <ChevronRight color={colors.subtext} size={20} />
-            </View>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
+              Recent uploads: {progressPhotos?.length || 0}
+            </Typography>
           </Card>
         </Pressable>
 
         {/* 3. Calories & Activity History */}
-        <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Flame color={colors.nutrition} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 8 }}>
-                {t('nutrition.title')} • {t('activity.title')}
-              </Typography>
+        <Pressable>
+          <Card style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
+                <Flame color={colors.nutrition} size={20} />
+                <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
+                  {t('nutrition.title')} • {t('activity.title')}
+                </Typography>
+              </View>
             </View>
-          </View>
-          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-            {t('nutrition.recentMeals')}: {meals.length} · {t('activity.recentWorkouts')}: {activities.length}
-          </Typography>
-        </Card>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
+              {t('nutrition.recentMeals')}: {meals.length} · {t('activity.recentWorkouts')}: {activities.length}
+            </Typography>
+          </Card>
+        </Pressable>
 
         {/* 4. Sleep, Readiness & Cycle History */}
-        <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
-              <CalendarIcon color={colors.activity} size={20} />
-              <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
-                {t('cycle.cycleHistory')}
-              </Typography>
+        <Pressable onPress={() => router.push('/cycle')}>
+          <Card style={styles.card}>
+            <View style={styles.cardHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, paddingRight: 8 }}>
+                <CalendarIcon color={colors.activity} size={20} />
+                <Typography variant="h3" style={{ marginLeft: 8, flexShrink: 1 }} numberOfLines={1}>
+                  {t('cycle.cycleHistory')}
+                </Typography>
+              </View>
+              <View style={{ padding: 6, backgroundColor: colors.surface, borderRadius: 8 }}>
+                <ChevronRight color={colors.activity} size={20} />
+              </View>
             </View>
-            <Pressable onPress={() => router.push('/cycle')} style={{ padding: 6, backgroundColor: colors.surface, borderRadius: 8 }}>
-              <ChevronRight color={colors.activity} size={20} />
-            </Pressable>
-          </View>
-          <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
-            {t('cycle.title')}: {periods.length}
-          </Typography>
-        </Card>
+            <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4 }}>
+              {t('cycle.title')}: {periods.length}
+            </Typography>
+          </Card>
+        </Pressable>
 
         {/* Native Ad Card */}
         
