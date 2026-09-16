@@ -644,18 +644,12 @@ export default function TodayScreen() {
                    </Typography>
                  </Pressable>
               )}
-              <Pressable 
-                style={({ pressed }) => [
-                  styles.libraryLinkBtn, 
-                  { backgroundColor: colors.surface, marginTop: SPACING.md, borderWidth: 1, borderColor: colors.border },
-                  pressed && { opacity: 0.8 }
-                ]}
+              <Button
+                title="Explore Movement Library"
+                variant="outline"
                 onPress={() => router.push('/explore')}
-              >
-                <Typography variant="bodyMedium" color={colors.textPrimary} style={{ fontWeight: '600' }}>
-                  Explore Movement Library
-                </Typography>
-              </Pressable>
+                style={{ marginTop: SPACING.md }}
+              />
             </View>
           </View>
         </Card>
@@ -677,18 +671,12 @@ export default function TodayScreen() {
             <Typography variant="bodyMedium" color={colors.subtext} style={{ marginTop: 4, lineHeight: 20, marginBottom: SPACING.md }}>
               Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
             </Typography>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.libraryLinkBtn, 
-                { backgroundColor: colors.surface, marginTop: SPACING.xs, borderWidth: 1, borderColor: colors.border },
-                pressed && { opacity: 0.8 }
-              ]}
+            <Button 
+              title="Explore Phase Nutrition Guides"
+              variant="outline"
               onPress={() => router.push('/explore')}
-            >
-              <Typography variant="bodyMedium" color={colors.textPrimary} style={{ fontWeight: '600' }}>
-                Explore Phase Nutrition Guides
-              </Typography>
-            </Pressable>
+              style={{ marginTop: SPACING.xs }}
+            />
           </View>
         </Card>
 
@@ -774,13 +762,13 @@ export default function TodayScreen() {
 
         {/* 6. DAILY READINESS CARD */}
         <Card style={{ padding: SPACING.md }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.sm }}>
+            <View style={{ flex: 1, paddingRight: SPACING.sm }}>
               <Typography variant="caption" color={colors.subtext} style={{ marginBottom: 4 }}>
                 {t('home.readiness', { defaultValue: 'Daily Readiness' })}
               </Typography>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
-                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 28, lineHeight: 32 }} adjustsFontSizeToFit={true} numberOfLines={2}>
+                <Typography variant="display" color={colors.textPrimary} style={{ fontSize: 24, lineHeight: 28 }} adjustsFontSizeToFit={true} numberOfLines={2}>
                   {readiness.score >= 80 
                     ? "Prime for Movement" 
                     : readiness.score >= 50 
@@ -790,12 +778,29 @@ export default function TodayScreen() {
               </View>
             </View>
             
-            <View style={[styles.readinessIconCircle, { backgroundColor: colors.surface }]}>
-              <Zap 
-                size={32} 
-                color={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning} 
-                fill={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning}
-              />
+            <View style={{ width: 60, height: 60, borderRadius: 30, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning }}>
+              <Typography variant="h2" color={readiness.score >= 80 ? colors.success : readiness.score >= 50 ? colors.primary : colors.warning}>
+                {readiness.score}
+              </Typography>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: SPACING.md }}>
+            <View style={{ alignItems: 'center' }}>
+              <Typography variant="caption" color={colors.subtext}>Sleep</Typography>
+              <Typography variant="bodyLarge" color={colors.textPrimary} style={{ fontWeight: '700', marginTop: 2 }}>{todayCheckIn?.sleepDuration ?? '--'}h</Typography>
+            </View>
+            <View style={{ alignItems: 'center' }}>
+              <Typography variant="caption" color={colors.subtext}>Energy</Typography>
+              <Typography variant="bodyLarge" color={colors.textPrimary} style={{ fontWeight: '700', marginTop: 2 }}>{todayCheckIn?.energy ?? '--'}/5</Typography>
+            </View>
+            <View style={{ alignItems: 'center' }}>
+              <Typography variant="caption" color={colors.subtext}>Stress</Typography>
+              <Typography variant="bodyLarge" color={colors.textPrimary} style={{ fontWeight: '700', marginTop: 2 }}>{todayCheckIn?.stress ?? '--'}/5</Typography>
+            </View>
+            <View style={{ alignItems: 'center' }}>
+              <Typography variant="caption" color={colors.subtext}>Water</Typography>
+              <Typography variant="bodyLarge" color={colors.textPrimary} style={{ fontWeight: '700', marginTop: 2 }}>{todayCheckIn?.hydration ?? '--'}L</Typography>
             </View>
           </View>
         </Card>
