@@ -3,7 +3,8 @@ import { View, StyleSheet, ScrollView, Pressable, KeyboardAvoidingView, Platform
 import { Typography } from '../../components/Typography';
 import { SiniAvatar } from '../../components/SiniAvatar';
 import { useAppStore } from '../../store/useAppStore';
-
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { DestyaStudioAppsHub } from '../../components/DestyaStudioAppsHub';
 import { PALETTE, SPACING } from '../../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -86,6 +87,28 @@ export default function ProfileScreen() {
     }
   };
 
+  const handlePickProfileImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets && result.assets[0]) {
+      try {
+        const sourceUri = result.assets[0].uri;
+        const filename = sourceUri.split('/').pop() || `avatar_${Date.now()}.jpg`;
+        const destUri = `${FileSystem.documentDirectory}${filename}`;
+        await FileSystem.copyAsync({ from: sourceUri, to: destUri });
+        if (userProfile) {
+          setUserProfile({ ...userProfile, profilePictureUri: destUri });
+        }
+      } catch (e) {
+        console.error('Failed to save profile picture', e);
+      }
+    }
+  };
+
   const handleResetData = () => {
     useAppStore.getState().showAlert(
       t('settings.resetData'),
@@ -120,7 +143,7 @@ export default function ProfileScreen() {
 
           {/* Top Hero User Identity Card */}
           <View style={[styles.heroProfileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={styles.avatarWrapper}>
+            <Pressable style={styles.avatarWrapper} onPress={handlePickProfileImage}>
               {userProfile?.profilePictureUri ? (
                 <Image 
                   source={{ uri: userProfile.profilePictureUri }} 
@@ -135,7 +158,7 @@ export default function ProfileScreen() {
                   {streak?.currentStreak || 1}d
                 </Typography>
               </View>
-            </View>
+            </Pressable>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
               <Typography variant="h1" style={[styles.userNameText, { marginTop: 0 }]}>

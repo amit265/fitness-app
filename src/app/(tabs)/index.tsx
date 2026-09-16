@@ -566,7 +566,7 @@ export default function TodayScreen() {
         <Card style={[styles.activityPlanCard, { padding: 0, overflow: 'hidden' }]}>
           <Image 
             source={todayPlanItem?.workout?.imageUrl ? { uri: todayPlanItem.workout.imageUrl } : require('../../../assets/images/workouts/ovulatory_strength_pr.jpg')}
-            style={{ width: isTablet ? 300 : 160, height: isTablet ? 300 : 160 }}
+            style={{ width: '100%', height: isTablet ? 300 : 200 }}
             resizeMode="cover"
           />
           <View style={{ padding: SPACING.md }}>
