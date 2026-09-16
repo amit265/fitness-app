@@ -16,7 +16,7 @@ import { useAppStore } from '../store/useAppStore';
 import { PALETTE, SPACING } from '../constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Sparkles, Calendar, Target, User, ShieldCheck, Scale } from 'lucide-react-native';
+import { Sparkles, Calendar, Target, User, Scale } from 'lucide-react-native';
 import { useAppTheme } from '../context/ThemeContext';
 import { t } from '../i18n';
 
@@ -53,7 +53,7 @@ export default function OnboardingScreen() {
     return today.toISOString().split('T')[0]; // Default to today
   });
 
-  const [groqKey, setGroqKey] = useState('');
+
 
   // Errors State
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -92,8 +92,6 @@ export default function OnboardingScreen() {
       setStep(4);
     } else if (step === 4) {
       if (validateStep3()) setStep(5);
-    } else if (step === 5) {
-      setStep(6);
     }
   };
 
@@ -108,7 +106,6 @@ export default function OnboardingScreen() {
       age: Number(age),
       height: Number(height),
       weightGoal,
-      groqApiKey: groqKey.trim() || undefined,
       hasCompletedOnboarding: true,
     });
 
@@ -153,7 +150,7 @@ export default function OnboardingScreen() {
               {t('onboarding.stepLabel')} {step} {t('onboarding.stepOf')}
             </Typography>
             <View style={styles.progressContainer}>
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <View
                   key={i}
                   style={[
@@ -355,36 +352,8 @@ export default function OnboardingScreen() {
             </Card>
           )}
 
-          {/* Step 5: Groq API Key Setup */}
+          {/* Step 5: Summary */}
           {step === 5 && (
-            <Card style={styles.stepCard}>
-              <View style={styles.titleRow}>
-                <ShieldCheck color={PALETTE.sage.default} size={28} />
-                <Typography variant="h2" style={styles.stepTitle}>{t('onboarding.step4Title')}</Typography>
-              </View>
-              <Typography variant="bodyMedium" color={PALETTE.charcoal.light} style={styles.subtitle}>
-                {t('onboarding.step4Desc1')}
-              </Typography>
-              <Typography variant="bodySmall" color={PALETTE.charcoal.light} style={styles.infoText}>
-                {t('onboarding.step4Desc2')}
-              </Typography>
-
-              <InputField
-                label={t('onboarding.groqLabel')}
-                value={groqKey}
-                onChangeText={setGroqKey}
-                secureTextEntry
-                placeholder="gsk_..."
-              />
-
-              <Typography variant="caption" color={PALETTE.charcoal.light} style={styles.helperText}>
-                {t('onboarding.groqHint')}
-              </Typography>
-            </Card>
-          )}
-
-          {/* Step 6: Summary */}
-          {step === 6 && (
             <Card style={styles.stepCard}>
               <View style={styles.titleRow}>
                 <Sparkles color={PALETTE.sage.default} size={28} />
@@ -400,9 +369,6 @@ export default function OnboardingScreen() {
                 </Typography>
                 <Typography variant="bodyMedium" style={styles.summaryItem}>
                   {t('onboarding.summaryCycleLength')}<Typography variant="bodyLarge" style={styles.boldText}>{cycleLength}{t('onboarding.summaryDays')}</Typography>
-                </Typography>
-                <Typography variant="bodyMedium" style={styles.summaryItem}>
-                  {t('onboarding.summaryAi')}<Typography variant="bodyLarge" style={styles.boldText}>{groqKey ? t('onboarding.aiActive') : t('onboarding.aiOffline')}</Typography>
                 </Typography>
               </View>
 
@@ -422,7 +388,7 @@ export default function OnboardingScreen() {
                 style={styles.backButton}
               />
             )}
-            {step < 6 ? (
+            {step < 5 ? (
               <Button
                 title={t('common.next')}
                 onPress={handleNext}

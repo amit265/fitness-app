@@ -253,7 +253,7 @@ export const CoachChat: React.FC<CoachChatProps> = ({ visible, onClose, initialQ
         const errorMessage: ChatMessage = {
           id: Math.random().toString(36).substring(7),
           role: 'assistant',
-          content: t('errors.aiError'),
+          content: t('errors.aiError') + '\n\n' + t('errors.aiSetupHint', { defaultValue: '💡 For the best AI experience, set up your free Groq API key in **Settings → AI Setup**. It takes just 2 minutes!' }),
           timestamp: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, errorMessage].slice(-30));

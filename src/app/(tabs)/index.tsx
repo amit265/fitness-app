@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -112,6 +112,7 @@ export default function TodayScreen() {
   // Modals state
   const [targetsExpanded, setTargetsExpanded] = useState(false);
   const [checkInModalVisible, setCheckInModalVisible] = useState(false);
+  const hasAutoOpenedCheckIn = useRef(false);
   const [coachChatVisible, setCoachChatVisible] = useState(false);
   const [coachInitialQuery, setCoachInitialQuery] = useState<string | undefined>(undefined);
   
@@ -180,6 +181,18 @@ export default function TodayScreen() {
       }
     }
   }, [completedTargetsCount, todayStr, currentStreak]);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Auto-open check-in modal once per session when no check-in exists for today
+      if (!todayCheckIn && !hasAutoOpenedCheckIn.current) {
+        hasAutoOpenedCheckIn.current = true;
+        // Small delay so the home screen finishes rendering first
+        const timer = setTimeout(() => setCheckInModalVisible(true), 600);
+        return () => clearTimeout(timer);
+      }
+    }, [todayCheckIn])
+  );
 
   const fetchDailyInsight = async (forceRefresh: boolean = false) => {
     const context = {
