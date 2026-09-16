@@ -45,6 +45,7 @@ interface AppState {
   activities: Activity[];
   customFoods: CustomFood[];
   measurements: BodyMeasurement[];
+  progressPhotos: ProgressPhoto[];
   streak: { currentStreak: number; longestStreak: number; lastActiveDate: string | null };
   uiLanguage: string;
 
@@ -86,6 +87,9 @@ interface AppState {
   addMeasurement: (measurement: Omit<BodyMeasurement, 'id' | 'date'> & { date?: string }) => void;
   deleteMeasurement: (id: string) => void;
 
+  addProgressPhoto: (uri: string, date: string) => void;
+  deleteProgressPhoto: (id: string) => void;
+
   // Global UI Actions
   showAlert: (title: string, message?: string, buttons?: AlertButton[]) => void;
   hideAlert: () => void;
@@ -122,6 +126,7 @@ export const useAppStore = create<AppState>()(
       activities: [],
       customFoods: [],
       measurements: [],
+      progressPhotos: [],
       streak: { currentStreak: 1, longestStreak: 1, lastActiveDate: null },
       uiLanguage: 'en',
       dailyInsightCache: {},
@@ -263,6 +268,19 @@ export const useAppStore = create<AppState>()(
       deleteMeasurement: (id) =>
         set((state) => ({
           measurements: state.measurements.filter((m) => m.id !== id),
+        })),
+
+      addProgressPhoto: (uri, date) =>
+        set((state) => ({
+          progressPhotos: [
+            ...state.progressPhotos,
+            { id: Math.random().toString(36).substring(7), uri, date },
+          ].sort((a, b) => b.date.localeCompare(a.date)),
+        })),
+
+      deleteProgressPhoto: (id) =>
+        set((state) => ({
+          progressPhotos: state.progressPhotos.filter((p) => p.id !== id),
         })),
 
       setCachedInsight: (date, insight) =>

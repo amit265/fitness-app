@@ -130,7 +130,7 @@ export function SplashScreenComponent({
               ]}
             >
               <Image
-                source={require('../../assets/icon.png')}
+                source={require('../../assets/splash-icon.png')}
                 style={styles.logoImage}
                 resizeMode="cover"
               />

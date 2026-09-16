@@ -11,14 +11,17 @@ module.exports = function withAndroidResolutionStrategy(config) {
       }
       updatedBuildGradle = updatedBuildGradle.replace(/supportLibVersion = "28\.0\.0"\s*/g, '');
 
-      if (!updatedBuildGradle.includes('force "androidx.core:core:1.13.1"')) {
+      if (updatedBuildGradle.includes('force "androidx.core:core:')) {
+        updatedBuildGradle = updatedBuildGradle.replace(/force "androidx\.core:core:[0-9.]+"/g, 'force "androidx.core:core:1.17.0"');
+        updatedBuildGradle = updatedBuildGradle.replace(/force "androidx\.core:core-ktx:[0-9.]+"/g, 'force "androidx.core:core-ktx:1.17.0"');
+      } else {
         updatedBuildGradle = updatedBuildGradle.replace(
           /allprojects\s*{/,
           `allprojects {
   configurations.all {
     resolutionStrategy {
-      force "androidx.core:core:1.13.1"
-      force "androidx.core:core-ktx:1.13.1"
+      force "androidx.core:core:1.17.0"
+      force "androidx.core:core-ktx:1.17.0"
     }
   }`
         );

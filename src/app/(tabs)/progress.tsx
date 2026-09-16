@@ -7,7 +7,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Image,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { AppModal as Modal } from '../../components/AppModal';
 import { Typography } from '../../components/Typography';
 import { Card } from '../../components/Card';
@@ -56,6 +59,9 @@ export default function ProgressScreen() {
   const userProfile = useAppStore((state) => state.userProfile);
   const addMeasurement = useAppStore((state) => state.addMeasurement);
   const updateUserProfile = useAppStore((state) => state.updateUserProfile);
+  const progressPhotos = useAppStore((state) => state.progressPhotos);
+  const addProgressPhoto = useAppStore((state) => state.addProgressPhoto);
+  const deleteProgressPhoto = useAppStore((state) => state.deleteProgressPhoto);
 
   // Weekly Reminder Logic
   useEffect(() => {
@@ -154,6 +160,32 @@ export default function ProgressScreen() {
     setThighInput('');
   };
 
+  const handleAddPhoto = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const sourceUri = result.assets[0].uri;
+        const filename = sourceUri.split('/').pop() || `photo_${Date.now()}.jpg`;
+        const destUri = `${FileSystem.documentDirectory}${filename}`;
+        
+        await FileSystem.copyAsync({
+          from: sourceUri,
+          to: destUri,
+        });
+
+        addProgressPhoto(destUri, getTodayStr());
+      }
+    } catch (error) {
+      console.log('Error adding photo:', error);
+      Alert.alert('Error', 'Failed to save progress photo.');
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.bg }]}>
       <ScreenContainer contentStyle={styles.scrollContent}>
@@ -245,9 +277,15 @@ export default function ProgressScreen() {
         </Card>
 
         {/* 2. Body Measurements Card */}
-        <Card style={styles.card}>
-          <View style={styles.cardHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Card style={[styles.card, { padding: 0, overflow: 'hidden' }]}>
+          <Image 
+            source={require('../../../assets/images/girl_measuring_waist.jpg')} 
+            style={{ width: '100%', height: 160 }} 
+            resizeMode="cover" 
+          />
+          <View style={{ padding: SPACING.md }}>
+            <View style={styles.cardHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Ruler color={colors.period} size={20} />
               <Typography variant="h3" style={{ marginLeft: 8 }}>
                 {t('progress.logMeasurement')}
@@ -286,6 +324,58 @@ export default function ProgressScreen() {
               </Typography>
             </View>
           </View>
+          </View>
+        </Card>
+
+        {/* Progress Photos Card */}
+        <Card style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Typography variant="h3">
+                Progress Photos
+              </Typography>
+            </View>
+            <Pressable onPress={handleAddPhoto}>
+              <Typography variant="caption" color={colors.primary} >
+                + Add Photo
+              </Typography>
+            </Pressable>
+          </View>
+
+          {progressPhotos.length === 0 ? (
+            <View style={{ padding: SPACING.md, alignItems: 'center', backgroundColor: colors.surface, borderRadius: 12 }}>
+              <Typography variant="bodyMedium" color={colors.subtext} style={{ textAlign: 'center' }}>
+                Take photos over time to visually track your progress.
+              </Typography>
+              <Button 
+                title="Add Your First Photo" 
+                variant="outline"
+                onPress={handleAddPhoto} 
+                style={{ marginTop: SPACING.md }} 
+              />
+            </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: SPACING.sm }}>
+              {progressPhotos.map((photo) => (
+                <View key={photo.id} style={{ marginRight: SPACING.md }}>
+                  <Image 
+                    source={{ uri: photo.uri }} 
+                    style={{ width: 120, height: 160, borderRadius: 12 }} 
+                    resizeMode="cover" 
+                  />
+                  <Typography variant="caption" color={colors.subtext} style={{ marginTop: 4, textAlign: 'center' }}>
+                    {formatDate(photo.date, uiLanguage)}
+                  </Typography>
+                  <Pressable 
+                    style={{ position: 'absolute', top: 4, right: 4, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 12, padding: 4 }}
+                    onPress={() => deleteProgressPhoto(photo.id)}
+                  >
+                    <Typography variant="caption" style={{ color: 'white' }}>X</Typography>
+                  </Pressable>
+                </View>
+              ))}
+            </ScrollView>
+          )}
         </Card>
 
         {/* 3. Calories & Activity History */}

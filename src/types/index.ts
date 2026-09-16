@@ -94,6 +94,12 @@ export interface Activity {
   sets?: WorkoutSet[];
 }
 
+export interface ProgressPhoto {
+  id: string;
+  date: string; // YYYY-MM-DD
+  uri: string; // Local file path
+}
+
 export interface BodyMeasurement {
   id: string;
   date: string; // YYYY-MM-DD

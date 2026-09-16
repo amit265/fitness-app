@@ -164,7 +164,7 @@ export function NutritionLibrary() {
                       </View>
 
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Image source={require('../../../assets/images/nutrition_placeholder.jpg')} style={styles.recipeImage} />
+                        <Image source={recipe.imageUrl || require('../../../assets/images/nutrition_placeholder.jpg')} style={styles.recipeImage} />
                         <View style={{ flex: 1, paddingRight: SPACING.md }}>
                           <Typography variant="h3" style={{ marginBottom: SPACING.xs }}>{recipe.title}</Typography>
                           <Typography variant="bodyMedium" color={colors.subtext} style={{ lineHeight: 20 }} numberOfLines={2}>

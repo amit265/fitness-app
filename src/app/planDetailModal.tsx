@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAppTheme } from '../context/ThemeContext';
 import { Typography } from '../components/Typography';
 import { SPACING, PALETTE, CYCLE_PHASE_COLORS } from '../constants/theme';
 import { ArrowLeft, PlayCircle, Dumbbell, Home, Sparkles } from 'lucide-react-native';
 import { getWorkoutPlanById, WorkoutPlan } from '../domain/movement/workoutPlans';
+import { getWorkoutById } from '../domain/movement/movementLibrary';
 import { useAppStore } from '../store/useAppStore';
 
 export default function PlanDetailModal() {
@@ -52,12 +53,25 @@ export default function PlanDetailModal() {
         
         {workouts.map((item, index) => {
           const isRest = item.workoutId === 'rest';
+          const workout = !isRest ? getWorkoutById(item.workoutId) : null;
+          
           return (
             <View key={index} style={[
               styles.workoutCard, 
-              { backgroundColor: colors.card, borderColor: colors.border },
+              { backgroundColor: colors.card, borderColor: colors.border, flexDirection: 'row', alignItems: 'center' },
               isRest && { opacity: 0.7 }
             ]}>
+              {!isRest && (
+                <Image 
+                  source={workout?.imageUrl ? workout.imageUrl : require('../../assets/images/workout_placeholder.jpg')}
+                  style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.md }} 
+                />
+              )}
+              {isRest && (
+                <View style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.md, backgroundColor: colors.surface, justifyContent: 'center', alignItems: 'center' }}>
+                  <Typography variant="bodyMedium">💤</Typography>
+                </View>
+              )}
               <View style={{ flex: 1 }}>
                 <Typography variant="bodyMedium" style={{ fontWeight: '600' }}>
                   {item.label || (isRest ? 'Rest Day' : 'Workout')}

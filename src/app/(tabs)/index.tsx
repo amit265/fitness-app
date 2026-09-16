@@ -27,7 +27,7 @@ import { generateDailyInsight } from '../../services/ai/aiService';
 import { generateContextHash } from '../../services/ai/aiContextBuilder';
 import { getTodayStr, diffInDays } from '../../utils/date';
 import { PALETTE, SPACING, SEMANTICS, SHADOWS } from '../../constants/theme';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { getDailyCalorieBalance, calculateMacroTargets } from '../../domain/calories/calorieEngine';
@@ -67,6 +67,7 @@ export default function TodayScreen() {
   const { colors, isDark } = useAppTheme();
   const router = useRouter();
   const { isTablet, rs } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   // Store bindings
   const userProfile = useAppStore((state) => state.userProfile);
@@ -564,8 +565,8 @@ export default function TodayScreen() {
         {/* 2. ACTIVITY & RECOVERY PLAN */}
         <Card style={[styles.activityPlanCard, { padding: 0, overflow: 'hidden' }]}>
           <Image 
-            source={require('../../../assets/images/workouts/ovulatory_strength_pr.jpg')}
-            style={{ width: '100%', height: 160 }}
+            source={todayPlanItem?.workout?.imageUrl ? { uri: todayPlanItem.workout.imageUrl } : require('../../../assets/images/workouts/ovulatory_strength_pr.jpg')}
+            style={{ width: isTablet ? 300 : 160, height: isTablet ? 300 : 160 }}
             resizeMode="cover"
           />
           <View style={{ padding: SPACING.md }}>
@@ -629,22 +630,30 @@ export default function TodayScreen() {
             )}
 
             <View>
-              {activePlan && todayPlanItem && !todayPlanItem.isRest && todayPlanItem.workout && (
+               {activePlan && todayPlanItem && !todayPlanItem.isRest && todayPlanItem.workout && (
                  <Pressable 
-                   style={[styles.libraryLinkBtn, { backgroundColor: colors.primary, marginTop: SPACING.md, alignItems: 'center' }]}
+                   style={({ pressed }) => [
+                     styles.libraryLinkBtn, 
+                     { backgroundColor: colors.primary, marginTop: SPACING.md, alignItems: 'center' },
+                     pressed && { opacity: 0.8 }
+                   ]}
                    onPress={() => router.push(`/workoutDetailModal?id=${todayPlanItem.workout?.id}`)}
                  >
-                   <Typography variant="bodyMedium" color={PALETTE.white} style={{ fontWeight: '600' }}>
-                     View Workout →
+                   <Typography variant="bodyMedium" color={PALETTE.white} style={{ fontWeight: '700', fontSize: 16 }}>
+                     Start Workout
                    </Typography>
                  </Pressable>
               )}
               <Pressable 
-                style={[styles.libraryLinkBtn, { backgroundColor: colors.surface, marginTop: SPACING.md }]}
+                style={({ pressed }) => [
+                  styles.libraryLinkBtn, 
+                  { backgroundColor: colors.surface, marginTop: SPACING.md, borderWidth: 1, borderColor: colors.border },
+                  pressed && { opacity: 0.8 }
+                ]}
                 onPress={() => router.push('/explore')}
               >
-                <Typography variant="bodyMedium" color={colors.activity} style={{ fontWeight: '600' }}>
-                  Explore Movement Library →
+                <Typography variant="bodyMedium" color={colors.textPrimary} style={{ fontWeight: '600' }}>
+                  Explore Movement Library
                 </Typography>
               </Pressable>
             </View>
@@ -655,7 +664,7 @@ export default function TodayScreen() {
         <Card style={[styles.nutritionPlanCard, { padding: 0, overflow: 'hidden' }]}>
           <Image 
             source={require('../../../assets/images/nutrition_placeholder.jpg')}
-            style={{ width: '100%', height: 140 }}
+            style={{ width: '100%', height: isTablet ? 300 : 160 }}
             resizeMode="cover"
           />
           <View style={{ padding: SPACING.md }}>
@@ -669,11 +678,15 @@ export default function TodayScreen() {
               Discover the best foods and dietary protocols for your current {cycleState.phase} phase.
             </Typography>
             <Pressable 
-              style={[styles.libraryLinkBtn, { backgroundColor: colors.surface }]}
+              style={({ pressed }) => [
+                styles.libraryLinkBtn, 
+                { backgroundColor: colors.surface, marginTop: SPACING.xs, borderWidth: 1, borderColor: colors.border },
+                pressed && { opacity: 0.8 }
+              ]}
               onPress={() => router.push('/explore')}
             >
-              <Typography variant="bodyMedium" color={colors.nutrition} style={{ fontWeight: '600' }}>
-                Explore Phase Nutrition Guides →
+              <Typography variant="bodyMedium" color={colors.textPrimary} style={{ fontWeight: '600' }}>
+                Explore Phase Nutrition Guides
               </Typography>
             </Pressable>
           </View>
@@ -796,7 +809,7 @@ export default function TodayScreen() {
       <Pressable
         style={({ pressed }) => [
           styles.siniFloatingFab,
-          { backgroundColor: colors.primary },
+          { backgroundColor: colors.primary, bottom: 92 + insets.bottom },
           pressed && styles.pressedFab,
         ]}
         onPress={() => openSiniWithQuery()}
@@ -1185,7 +1198,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
   },
   nutritionPlanCard: {

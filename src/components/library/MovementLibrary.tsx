@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { Typography } from '../Typography';
 import { SPACING, PALETTE } from '../../constants/theme';
@@ -54,6 +54,10 @@ export function MovementLibrary() {
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image 
+            source={workout.imageUrl ? workout.imageUrl : require('../../../assets/images/workout_placeholder.jpg')}
+            style={{ width: 56, height: 56, borderRadius: 8, marginRight: SPACING.md }} 
+          />
           <View style={{ flex: 1, paddingRight: SPACING.md }}>
             <Typography variant="h3" style={styles.workoutTitle}>{workout.title}</Typography>
             <Typography variant="bodyMedium" color={colors.subtext} style={styles.workoutDesc}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Image, useWindowDimensions } from 'react-native';
 import { useAppTheme } from '../../context/ThemeContext';
 import { Typography } from '../Typography';
 import { SPACING } from '../../constants/theme';
@@ -10,43 +10,56 @@ import { Dumbbell, Home, ChevronRight, Sparkles } from 'lucide-react-native';
 export function ProgramsLibrary() {
   const { colors } = useAppTheme();
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isTablet = width >= 768;
 
   const renderPlanCard = (plan: WorkoutPlan) => {
     const isGym = plan.environment === 'gym';
+    const planImage = isGym 
+      ? require('../../../assets/images/workouts/heavy_lower_body_glute_focus.jpg')
+      : require('../../../assets/images/workouts/living_room_dumbbell_circuit.jpg');
+
     return (
       <Pressable 
         key={plan.id} 
         style={({ pressed }) => [
           styles.planCard, 
-          { backgroundColor: colors.card, borderColor: colors.border },
+          { backgroundColor: colors.card, borderColor: colors.border, overflow: 'hidden', padding: 0 },
           pressed && { opacity: 0.8 }
         ]}
         onPress={() => router.push(`/planDetailModal?id=${plan.id}`)}
       >
-        <View style={styles.planHeader}>
-          <View style={[styles.badge, { backgroundColor: colors.surface }]}>
-             {isGym ? <Dumbbell size={14} color={colors.primary} /> : <Home size={14} color={colors.primary} />}
-            <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
-              {plan.environment.toUpperCase()}
-            </Typography>
+        <Image 
+          source={planImage} 
+          style={{ width: '100%', height: isTablet ? 250 : 160 }} 
+          resizeMode="cover" 
+        />
+        <View style={{ padding: SPACING.md }}>
+          <View style={[styles.planHeader, { padding: 0, borderBottomWidth: 0, paddingBottom: SPACING.xs }]}>
+            <View style={[styles.badge, { backgroundColor: colors.surface }]}>
+               {isGym ? <Dumbbell size={14} color={colors.primary} /> : <Home size={14} color={colors.primary} />}
+              <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
+                {plan.environment.toUpperCase()}
+              </Typography>
+            </View>
+            <View style={styles.badge}>
+              <Sparkles size={14} color={colors.subtext} />
+              <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 4 }}>
+                ADAPTIVE
+              </Typography>
+            </View>
           </View>
-          <View style={styles.badge}>
-            <Sparkles size={14} color={colors.subtext} />
-            <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 4 }}>
-              ADAPTIVE
-            </Typography>
-          </View>
-        </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <View style={{ flex: 1, paddingRight: SPACING.md }}>
-            <Typography variant="h3" style={styles.planTitle}>{plan.title}</Typography>
-            <Typography variant="bodyMedium" color={colors.subtext} style={styles.planDesc}>
-              {plan.description}
-            </Typography>
-          </View>
-          <View style={[styles.chevronBtn, { backgroundColor: colors.surface }]}>
-            <ChevronRight size={16} color={colors.primary} />
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1, paddingRight: SPACING.md }}>
+              <Typography variant="h3" style={styles.planTitle}>{plan.title}</Typography>
+              <Typography variant="bodySmall" color={colors.subtext} style={styles.planDesc} numberOfLines={3}>
+                {plan.description}
+              </Typography>
+            </View>
+            <View style={[styles.chevronBtn, { backgroundColor: colors.surface }]}>
+              <ChevronRight size={16} color={colors.primary} />
+            </View>
           </View>
         </View>
       </Pressable>
@@ -66,29 +79,36 @@ export function ProgramsLibrary() {
         <Pressable 
           style={({ pressed }) => [
             styles.planCard, 
-            { backgroundColor: colors.surface, borderColor: colors.border },
+            { backgroundColor: colors.surface, borderColor: colors.border, overflow: 'hidden', padding: 0 },
             pressed && { opacity: 0.8 }
           ]}
           onPress={() => router.push('/movementLibraryModal')}
         >
-          <View style={styles.planHeader}>
-            <View style={[styles.badge, { backgroundColor: colors.card }]}>
-               <Dumbbell size={14} color={colors.primary} />
-              <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
-                ALL EXERCISES
-              </Typography>
+          <Image 
+            source={require('../../../assets/images/workouts/upper_body_pull_push.jpg')} 
+            style={{ width: '100%', height: isTablet ? 250 : 160 }} 
+            resizeMode="cover" 
+          />
+          <View style={{ padding: SPACING.md }}>
+            <View style={[styles.planHeader, { padding: 0, borderBottomWidth: 0, paddingBottom: SPACING.xs }]}>
+              <View style={[styles.badge, { backgroundColor: colors.card }]}>
+                 <Dumbbell size={14} color={colors.primary} />
+                <Typography variant="caption" color={colors.primary} style={{ marginLeft: 4 }}>
+                  ALL EXERCISES
+                </Typography>
+              </View>
             </View>
-          </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View style={{ flex: 1, paddingRight: SPACING.md }}>
-              <Typography variant="h3" style={styles.planTitle}>Exercise Bank</Typography>
-              <Typography variant="bodyMedium" color={colors.subtext} style={styles.planDesc}>
-                Explore all individual exercises and movements.
-              </Typography>
-            </View>
-            <View style={[styles.chevronBtn, { backgroundColor: colors.card }]}>
-              <ChevronRight size={16} color={colors.primary} />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flex: 1, paddingRight: SPACING.md }}>
+                <Typography variant="h3" style={styles.planTitle}>Exercise Bank</Typography>
+                <Typography variant="bodySmall" color={colors.subtext} style={styles.planDesc} numberOfLines={3}>
+                  Explore all individual exercises and movements.
+                </Typography>
+              </View>
+              <View style={[styles.chevronBtn, { backgroundColor: colors.card }]}>
+                <ChevronRight size={16} color={colors.primary} />
+              </View>
             </View>
           </View>
         </Pressable>

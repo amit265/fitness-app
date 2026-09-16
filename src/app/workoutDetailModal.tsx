@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Image, ScrollView, Pressable, Platform, AppState, AppStateStatus, Modal, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Typography } from '../components/Typography';
 import { useAppTheme } from '../context/ThemeContext';
@@ -18,6 +18,7 @@ export default function WorkoutDetailModal() {
   const router = useRouter();
   const { colors, isDark } = useAppTheme();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const addActivity = useAppStore(state => state.addActivity);
 
   const activeWorkoutTimer = useAppStore(state => state.activeWorkoutTimer);
@@ -298,7 +299,7 @@ export default function WorkoutDetailModal() {
       </ScrollView>
 
       {/* Sticky footer */}
-      <View style={[styles.footer, { backgroundColor: colors.bg, borderTopColor: colors.border }]}>
+      <View style={[styles.footer, { backgroundColor: colors.bg, borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom + 16, SPACING.lg) }]}>
         {timerState === 'idle' ? (
           <Button
             title="Start Workout"
@@ -464,7 +465,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0, left: 0, right: 0,
     padding: SPACING.lg,
-    paddingBottom: Platform.OS === 'ios' ? 36 : SPACING.lg,
     borderTopWidth: 1,
   },
   // Dialog styles
