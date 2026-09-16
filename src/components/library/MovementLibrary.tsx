@@ -41,31 +41,34 @@ export function MovementLibrary() {
         ]}
         onPress={() => router.push(`/workoutDetailModal?id=${workout.id}`)}
       >
-        <View style={styles.workoutHeader}>
-          <View style={[styles.intentBadge, { backgroundColor: colors.surface }]}>
-            <Typography variant="caption" color={colors.primary}>{workout.intent.toUpperCase()}</Typography>
+        <Image 
+          source={workout.imageUrl ? workout.imageUrl : require('../../../assets/images/workout_placeholder.jpg')}
+          style={{ width: '100%', height: 140 }} 
+          resizeMode="cover"
+        />
+        <View style={{ padding: SPACING.md }}>
+          <View style={styles.workoutHeader}>
+            <View style={[styles.intentBadge, { backgroundColor: colors.surface }]}>
+              <Typography variant="caption" color={colors.primary}>{workout.intent.toUpperCase()}</Typography>
+            </View>
+            <View style={styles.statsRow}>
+              <ActivityIcon size={14} color={colors.subtext} />
+              <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 4 }}>
+                {workout.durationMinutes}m • {workout.intensity}
+              </Typography>
+            </View>
           </View>
-          <View style={styles.statsRow}>
-            <ActivityIcon size={14} color={colors.subtext} />
-            <Typography variant="caption" color={colors.subtext} style={{ marginLeft: 4 }}>
-              {workout.durationMinutes}m • {workout.intensity}
-            </Typography>
-          </View>
-        </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image 
-            source={workout.imageUrl ? workout.imageUrl : require('../../../assets/images/workout_placeholder.jpg')}
-            style={{ width: 56, height: 56, borderRadius: 8, marginRight: SPACING.md }} 
-          />
-          <View style={{ flex: 1, paddingRight: SPACING.md }}>
-            <Typography variant="h3" style={styles.workoutTitle}>{workout.title}</Typography>
-            <Typography variant="bodyMedium" color={colors.subtext} style={styles.workoutDesc}>
-              {workout.description}
-            </Typography>
-          </View>
-          <View style={[styles.chevronBtn, { backgroundColor: colors.surface }]}>
-            <ChevronRight size={16} color={colors.primary} />
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <View style={{ flex: 1, paddingRight: SPACING.md }}>
+              <Typography variant="h3" style={styles.workoutTitle}>{workout.title}</Typography>
+              <Typography variant="bodyMedium" color={colors.subtext} style={styles.workoutDesc}>
+                {workout.description}
+              </Typography>
+            </View>
+            <View style={[styles.chevronBtn, { backgroundColor: colors.surface }]}>
+              <ChevronRight size={16} color={colors.primary} />
+            </View>
           </View>
         </View>
       </Pressable>
@@ -135,10 +138,11 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   workoutCard: {
-    padding: SPACING.md,
+    padding: 0,
     borderRadius: 16,
     borderWidth: 1,
     marginBottom: SPACING.md,
+    overflow: 'hidden',
   },
   workoutHeader: {
     flexDirection: 'row',
