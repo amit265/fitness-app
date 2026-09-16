@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   Moon,
   Zap,
+  Pencil,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { calculateBMI, getBMICategory } from '../../utils/bmiUtils';
@@ -143,6 +144,14 @@ export default function ProfileScreen() {
 
           {/* Top Hero User Identity Card */}
           <View style={[styles.heroProfileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Pressable 
+              onPress={() => router.push('/edit-profile')} 
+              style={{ position: 'absolute', top: SPACING.md, right: SPACING.md, padding: 8, zIndex: 10 }}
+              hitSlop={10}
+            >
+              <Pencil size={20} color={colors.subtext} />
+            </Pressable>
+
             <Pressable style={styles.avatarWrapper} onPress={handlePickProfileImage}>
               {userProfile?.profilePictureUri ? (
                 <Image 
@@ -176,13 +185,6 @@ export default function ProfileScreen() {
                 {t('common.appName')} · {t('common.tagline')}
               </Typography>
             </View>
-
-            <Pressable 
-              onPress={() => router.push('/edit-profile')} 
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12, paddingVertical: 6, paddingHorizontal: 16, backgroundColor: colors.surface, borderRadius: 20 }}
-            >
-              <Typography variant="caption" style={{ fontWeight: '600' }}>Edit Profile</Typography>
-            </Pressable>
 
             <View style={styles.biometricsStrip}>
               <View style={styles.bioItem}>
