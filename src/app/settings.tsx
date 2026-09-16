@@ -104,7 +104,12 @@ export default function SettingsScreen() {
       if (await StoreReview.hasAction()) {
         await StoreReview.requestReview();
       } else {
-        useAppStore.getState().showAlert('Unable to review', 'Store review is not available on this device right now.');
+        const storeUrl = Platform.OS === 'ios' ? APP_LINKS.appStore : APP_LINKS.googlePlay;
+        if (storeUrl) {
+          Linking.openURL(storeUrl).catch(() => {
+            useAppStore.getState().showAlert('Unable to review', 'Could not open the app store.');
+          });
+        }
       }
     } catch (e) {
       console.log('Store review error', e);
